@@ -8,7 +8,6 @@ public class SidamBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SidamBackendApplication.class, args);
-// asdf test
 	}
 
 }
