@@ -14,7 +14,7 @@ public class DailySchedule implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long dailyScheduleId;
+    private Long id;
 
     @NotBlank
     private String date;
@@ -29,9 +29,9 @@ public class DailySchedule implements Serializable {
     // hh:mm
 
     @OneToOne
-    private Store storeId;
+    private Store store;
 
     // 관계형으로 할 때도 list를 썼는데 여기서도 그렇게 해도 되나...?
-    @ManyToMany
-    private ArrayList<UserRole> userRoleId = new ArrayList<>();
+    @OneToOne
+    private WorkerList workerList;
 }

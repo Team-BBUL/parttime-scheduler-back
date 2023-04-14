@@ -13,11 +13,11 @@ public class ChangeAlarm implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long changeId;
+    private Long id;
 
     @NotNull
     private boolean answer;
 
     @OneToOne
-    private ChangeRequest requestId;
+    private ChangeRequest request;
 }

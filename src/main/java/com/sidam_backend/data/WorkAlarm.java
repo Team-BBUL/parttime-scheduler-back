@@ -13,12 +13,12 @@ public class WorkAlarm implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long alarmId;
+    private Long id;
 
     @NotNull
     private long time;
     // 분 단위
 
     @ManyToOne
-    private UserRole userRoleId;
+    private UserRole user;
 }

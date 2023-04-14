@@ -13,7 +13,7 @@ public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long messageId;
+    private Long id;
 
     @NotBlank
     private String content;
@@ -23,8 +23,8 @@ public class Message {
     // MM-dd
 
     @ManyToOne
-    private ChattingRoom chattingRoomId;
+    private ChattingRoom chattingRoom;
 
     @ManyToOne
-    private UserRole userRoleId;
+    private UserRole userRole;
 }

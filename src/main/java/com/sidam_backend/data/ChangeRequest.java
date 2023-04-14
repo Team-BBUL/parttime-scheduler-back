@@ -14,7 +14,7 @@ public class ChangeRequest implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long requestId;
+    private Long id;
 
     @NotBlank
     private String requester;
@@ -25,5 +25,5 @@ public class ChangeRequest implements Serializable {
     // 요청 받는 사람 user_role_id
 
     @ManyToOne
-    private DailySchedule dailyScheduleId;
+    private DailySchedule dailySchedule;
 }

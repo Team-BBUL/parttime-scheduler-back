@@ -13,13 +13,13 @@ public class JoinAlarm implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long joinId;
+    private Long id;
 
     private Date date = new Date();
 
     @OneToOne
-    private Store storeId;
+    private Store store;
 
     @OneToOne
-    private UserRole userRoleId;
+    private UserRole userRole;
 }

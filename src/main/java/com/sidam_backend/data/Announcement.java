@@ -14,7 +14,7 @@ public class Announcement implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long announcementId;
+    private Long id;
 
     @NotBlank
     private String subject;
@@ -25,5 +25,5 @@ public class Announcement implements Serializable {
     private Date date = new Date();
 
     @ManyToOne
-    private Store storeId;
+    private Store store;
 }

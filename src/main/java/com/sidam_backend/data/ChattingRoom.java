@@ -13,11 +13,11 @@ public class ChattingRoom implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long chattingId;
+    private Long id;
 
     @NotBlank
     private String createDate;
 
     @ManyToOne
-    private Store storeId;
+    private Store store;
 }

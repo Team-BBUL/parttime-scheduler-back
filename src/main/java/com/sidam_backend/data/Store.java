@@ -13,7 +13,7 @@ public class Store implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long storeId;
+    private Long id;
 
     @NotBlank
     private String name;

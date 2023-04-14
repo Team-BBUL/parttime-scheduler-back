@@ -12,11 +12,11 @@ public class AnnouncePic implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long pictureId;
+    private Long id;
 
     @Lob
     private byte[] photo;
 
     @ManyToOne
-    private Announcement announcementId;
+    private Announcement announcement;
 }
