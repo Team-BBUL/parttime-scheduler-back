@@ -23,12 +23,13 @@ public class UserRepoTest {
                 .name("홍길동")
                 .email("asdf@gmail.com")
                 .phone("010-1234-5678")
-                .profile("")
+                .profile("아마카카오로그인api통해서가져올수있는프로필정보일거에요")
                 .device("originalcode")
                 .build();
         User newUser = userRepository.save(user);
 
         User result = userRepository.findByName("홍길동");
+
         Assertions.assertThat(result).isEqualTo(newUser);
     }
 
