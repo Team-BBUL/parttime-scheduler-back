@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @DataJpaTest
 public class DailyScheduleRepoTest {
@@ -59,5 +62,13 @@ public class DailyScheduleRepoTest {
         entityManager.flush();
 
         dailyScheduleRepository.save(dailySchedule);
+
+        Optional<DailySchedule> ds = Optional.of(new DailySchedule());
+        ds = dailyScheduleRepository.findById(dailySchedule.getId());
+
+        if (ds.isPresent()) {
+            DailySchedule now = ds.get();
+            System.out.println(now.getDate());
+        }
     }
 }
