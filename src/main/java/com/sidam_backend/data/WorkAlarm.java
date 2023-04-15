@@ -16,7 +16,7 @@ public class WorkAlarm implements Serializable {
     private Long id;
 
     @NotNull
-    private long time;
+    private int time;
     // 분 단위
 
     @ManyToOne

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -17,6 +18,9 @@ public class ChangeAlarm implements Serializable {
 
     @NotNull
     private boolean answer;
+
+    @NotNull
+    private LocalDateTime date = LocalDateTime.now();
 
     @OneToOne
     private ChangeRequest request;

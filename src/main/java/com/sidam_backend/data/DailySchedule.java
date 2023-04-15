@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -17,16 +17,15 @@ public class DailySchedule implements Serializable {
     private Long id;
 
     @NotBlank
-    private String date;
-    // yyyy-MM-dd
+    private LocalDateTime date;
 
     @NotBlank
-    private String startTime;
-    // hh:mm
+    private int startTime;
+    // hh
 
     @NotBlank
-    private String endTime;
-    // hh:mm
+    private int endTime;
+    // hh
 
     @OneToOne
     private Store store;

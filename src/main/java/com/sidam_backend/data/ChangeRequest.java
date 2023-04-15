@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -23,6 +24,14 @@ public class ChangeRequest implements Serializable {
     @NotBlank
     private String responser;
     // 요청 받는 사람 user_role_id
+
+    @NotNull
+    private enum state {
+        pass, fail, non
+    };
+
+    @NotNull
+    private LocalDateTime date = LocalDateTime.now();
 
     @ManyToOne
     private DailySchedule dailySchedule;

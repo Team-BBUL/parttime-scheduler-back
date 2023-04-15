@@ -16,5 +16,8 @@ public class WorkerList implements Serializable {
     private Long id;
 
     @NotBlank
-    private String userList;
+
+
+    @OneToOne
+    private UserRole worker;
 }
