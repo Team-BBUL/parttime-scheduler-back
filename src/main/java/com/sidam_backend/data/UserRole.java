@@ -4,11 +4,17 @@ import java.io.Serializable;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Table(name="user_role")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserRole implements Serializable {
 
     @Id
@@ -34,6 +40,6 @@ public class UserRole implements Serializable {
     @NotNull
     private boolean valid;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private User userKakaoId;
 }

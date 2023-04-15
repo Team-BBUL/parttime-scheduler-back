@@ -4,4 +4,5 @@ import com.sidam_backend.data.UserRole;
 import org.springframework.data.repository.CrudRepository;
 
 public interface UserRoleRepository extends CrudRepository<UserRole, String>{
+    UserRole findByUserRoleId(String userRoleID);
 }
