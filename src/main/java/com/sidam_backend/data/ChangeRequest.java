@@ -13,6 +13,10 @@ import java.time.LocalDateTime;
 @Table(name="change_request")
 public class ChangeRequest implements Serializable {
 
+    private enum State {
+        PASS, FAIL, NON
+    };
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -26,9 +30,7 @@ public class ChangeRequest implements Serializable {
     // 요청 받는 사람 user_role_id
 
     @NotNull
-    private enum state {
-        pass, fail, non
-    };
+    private State state;
 
     @NotNull
     private LocalDateTime date = LocalDateTime.now();
