@@ -1,6 +1,5 @@
 package com.sidam_backend.userRole;
 
-
 import com.sidam_backend.data.User;
 import com.sidam_backend.data.UserRole;
 import com.sidam_backend.repo.UserRoleRepository;
@@ -12,7 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@Transactional // 롤백시키기 때문에 마지막 코드 Assertions를 통해 DB에 오류가 났는지 확인
+
+
+@Transactional // 테스트 결과를 롤백시키기 때문에 마지막 코드 Assertions를 통해 DB에 오류가 났는지 확인
 @SpringBootTest
 public class UserRoleRepoTest {
     @Autowired
