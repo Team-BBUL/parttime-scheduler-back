@@ -30,7 +30,10 @@ public class ChangeRequest implements Serializable {
     // 요청 받는 사람 user_role_id
 
     @NotNull
-    private State state;
+    private State resState;
+
+    @NotNull
+    private State OwnState;
 
     @NotNull
     private LocalDateTime date = LocalDateTime.now();

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name="daily_schdule")
+@Table(name="daily_schedule")
 public class DailySchedule implements Serializable {
 
     @Id

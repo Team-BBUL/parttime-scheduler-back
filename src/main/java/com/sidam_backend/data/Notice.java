@@ -9,8 +9,8 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name="announcement")
-public class Announcement implements Serializable {
+@Table(name="notice")
+public class Notice implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

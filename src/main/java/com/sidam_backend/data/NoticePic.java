@@ -7,8 +7,8 @@ import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name="announce_pic")
-public class AnnouncePic implements Serializable {
+@Table(name="notice_pic")
+public class NoticePic implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -18,5 +18,5 @@ public class AnnouncePic implements Serializable {
     private byte[] photo;
 
     @ManyToOne
-    private Announcement announcement;
+    private Notice announcement;
 }
