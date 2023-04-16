@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -19,7 +19,7 @@ public class Message {
     private String content;
 
     @NotBlank
-    private Date date = new Date();
+    private LocalDateTime date = LocalDateTime.now();
     // MM-dd
 
     @ManyToOne

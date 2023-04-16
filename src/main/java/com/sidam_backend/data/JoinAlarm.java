@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -15,7 +15,7 @@ public class JoinAlarm implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Date date = new Date();
+    private LocalDateTime date = LocalDateTime.now();
 
     @OneToOne
     private Store store;

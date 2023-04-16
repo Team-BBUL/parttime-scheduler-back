@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -19,8 +20,7 @@ public class Anniversary implements Serializable {
     private String name;
 
     @NotBlank
-    private String date;
-    // MM-dd ??
+    private LocalDateTime date;
 
     @ManyToOne
     private UserRole userRole;
