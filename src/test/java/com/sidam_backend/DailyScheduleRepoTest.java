@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @DataJpaTest
@@ -44,13 +45,14 @@ public class DailyScheduleRepoTest {
         role.setUser(user);
 
         WorkerList workerList = new WorkerList();
-        workerList.setUserList(role.getId().toString());
+        workerList.setState(false);
+        workerList.setWorker(role);
 
         DailySchedule dailySchedule = new DailySchedule();
 
-        dailySchedule.setDate("2023-04-14");
-        dailySchedule.setStartTime("10");
-        dailySchedule.setEndTime("17");
+        dailySchedule.setDate(LocalDateTime.of(2023,04,15, 14,0));
+        dailySchedule.setStartTime(10);
+        dailySchedule.setEndTime(17);
         dailySchedule.setWorkerList(workerList);
 
         entityManager.persist(user);

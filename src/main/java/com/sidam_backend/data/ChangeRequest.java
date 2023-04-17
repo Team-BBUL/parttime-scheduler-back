@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name="change_request")
 public class ChangeRequest implements Serializable {
 
+
     private enum State {
         PASS, FAIL, NON
     };
@@ -30,10 +31,13 @@ public class ChangeRequest implements Serializable {
     // 요청 받는 사람 user_role_id
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private State resState;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private State OwnState;
+
 
     @NotNull
     private LocalDateTime date = LocalDateTime.now();
