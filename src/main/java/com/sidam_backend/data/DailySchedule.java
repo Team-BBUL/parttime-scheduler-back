@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @Data
 @Entity
@@ -19,18 +20,12 @@ public class DailySchedule implements Serializable {
     @NotBlank
     private LocalDateTime date;
 
-    @NotBlank
-    private int startTime;
-    // hh
-
-    @NotBlank
-    private int endTime;
-    // hh
+    @ElementCollection
+    private ArrayList<Boolean> time = new ArrayList<>();
 
     @OneToOne
     private Store store;
 
-    // 관계형으로 할 때도 list를 썼는데 여기서도 그렇게 해도 되나...?
     @OneToOne
     private WorkerList workerList;
 }
