@@ -29,10 +29,10 @@ public class ChangeRequest implements Serializable {
     private String responser;
     // 요청 받는 사람 user_role_id
 
-    @NotNull
+    @Enumerated
     private State resState;
 
-    @NotNull
+    @Enumerated
     private State OwnState;
 
     @NotNull
