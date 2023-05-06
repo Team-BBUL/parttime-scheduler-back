@@ -36,4 +36,7 @@ public class UserRole implements Serializable {
 
     @ManyToOne
     private User user;
+
+    @ManyToOne
+    private Store store;
 }
