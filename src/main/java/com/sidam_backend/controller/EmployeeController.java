@@ -33,10 +33,26 @@ public class EmployeeController {
     @GetMapping("/employee/{storeId}")
     public ResponseEntity<List<UserRole>> allEmployee(@PathVariable Long storeId) {
 
-        log.info("get employees");
+        log.info("근무자 전체 조회: Store" + storeId);
         List<UserRole> res = employeeService.getAllEmployees(storeId);
 
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/employee/{storeId}")
+    public ResponseEntity<UserRole> singleEmployee(
+            @PathVariable Long storeId,
+            @RequestParam("id") Long roleId) {
+
+        log.info("특정 근무자 조회: Store " + storeId + "의 UserRole " + roleId + " 조회");
+
+        try {
+            UserRole userRole = employeeService.getEmployee(storeId, roleId);
+            return ResponseEntity.ok(userRole);
+        } catch (IllegalArgumentException ex) {
+            log.warn(ex.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/employee/{storeId}")
