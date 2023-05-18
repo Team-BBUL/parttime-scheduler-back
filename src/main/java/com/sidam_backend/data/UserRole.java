@@ -12,9 +12,8 @@ import lombok.Data;
 public class UserRole implements Serializable {
 
     @Id
-    private String id;
-    // 고유 아이디 생성 규칙이 있으면 좋을 것 같은데
-    // ex) 0000-0000-0000 (매장별고유값-점주/직원여부-고유번호)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @NotBlank
     private String alias;

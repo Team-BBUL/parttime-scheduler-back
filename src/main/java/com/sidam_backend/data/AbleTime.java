@@ -2,30 +2,30 @@ package com.sidam_backend.data;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Data
 @Entity
-@Table(name="daily_schedule")
-public class DailySchedule implements Serializable {
+@Table(name="able_time")
+public class AbleTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotBlank
-    private LocalDate date;
+    private LocalDateTime date;
 
     @ElementCollection
     private ArrayList<Boolean> time = new ArrayList<>();
 
-    @OneToOne
+    @ManyToOne
     private Store store;
 
-    @ManyToMany
-    private ArrayList<UserRole> users;
+    @ManyToOne
+    private UserRole user;
 }

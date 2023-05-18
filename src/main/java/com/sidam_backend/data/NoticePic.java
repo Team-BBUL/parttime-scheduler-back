@@ -18,5 +18,5 @@ public class NoticePic implements Serializable {
     private byte[] photo;
 
     @ManyToOne
-    private Notice announcement;
+    private Notice notice;
 }

@@ -5,12 +5,15 @@ import com.sidam_backend.data.User;
 import com.sidam_backend.data.UserRole;
 import com.sidam_backend.data.WorkerList;
 import com.sidam_backend.repo.DailyScheduleRepository;
+import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @DataJpaTest
@@ -34,7 +37,6 @@ public class DailyScheduleRepoTest {
         user.setDevice("기기 original code");
 
         UserRole role = new UserRole();
-        role.setId("0001-1-123456");
         role.setCost(10000);
         role.setColor("FFFFFF");
         role.setAlias("길동이");
@@ -43,19 +45,27 @@ public class DailyScheduleRepoTest {
         role.setLevel(1);
         role.setUser(user);
 
-        WorkerList workerList = new WorkerList();
-        workerList.setUserList(role.getId().toString());
+        ArrayList<UserRole> users = new ArrayList<>();
+        users.add(role);
 
         DailySchedule dailySchedule = new DailySchedule();
 
-        dailySchedule.setDate("2023-04-14");
-        dailySchedule.setStartTime("10");
-        dailySchedule.setEndTime("17");
-        dailySchedule.setWorkerList(workerList);
+        dailySchedule.setDate(LocalDate.of(2023, 4, 23));
+        dailySchedule.setUsers(users);
+
+        ArrayList<Boolean> time = new ArrayList<>();
+        for(int i = 10; i <= 23; i++) {
+            if (17 <= i && i <= 22) {
+                time.add(true);
+            }
+            else {
+                time.add(false);
+            }
+        }
+        dailySchedule.setTime(time);
 
         entityManager.persist(user);
         entityManager.persist(role);
-        entityManager.persist(workerList);
         entityManager.flush();
 
         dailyScheduleRepository.save(dailySchedule);

@@ -35,7 +35,7 @@ public class ChangeRequest implements Serializable {
 
     @NotNull
     @Enumerated
-    private State OwnState;
+    private State ownState;
 
     @NotNull
     private LocalDateTime date = LocalDateTime.now();
