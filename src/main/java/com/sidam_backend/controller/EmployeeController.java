@@ -1,7 +1,6 @@
 package com.sidam_backend.controller;
 
 
-import com.sidam_backend.data.User;
 import com.sidam_backend.data.UserRole;
 import com.sidam_backend.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -9,12 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 
 import java.util.List;
-import java.util.ResourceBundle;
 
 @Slf4j
 @RestController
@@ -24,13 +20,7 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    @ExceptionHandler
-    public ResponseEntity<String> handleIllegalArgumentException (
-            IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body("잘못된 요청입니다.");
-    }
-
-    @GetMapping("/employee/{storeId}")
+    @GetMapping("/employees/{storeId}")
     public ResponseEntity<List<UserRole>> allEmployee(@PathVariable Long storeId) {
 
         log.info("근무자 전체 조회: Store" + storeId);
@@ -74,7 +64,7 @@ public class EmployeeController {
     @PutMapping("/employee/{storeId}")
     public ResponseEntity<UserRole> modifyEmployee(
             @PathVariable Long storeId,
-            @RequestParam(value = "id", required = false) Long userId,
+            @RequestParam(value = "id") Long userId,
             @Valid UserRole editUser) {
 
         log.info("근무자 정보 수정: Store " + storeId + "의 UserRole " + userId + "의 정보 수정");

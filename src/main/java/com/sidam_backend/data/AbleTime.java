@@ -2,11 +2,10 @@ package com.sidam_backend.data;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Entity
@@ -18,10 +17,10 @@ public class AbleTime {
     private Long id;
 
     @NotBlank
-    private LocalDateTime date;
+    private LocalDate date;
 
     @ElementCollection
-    private ArrayList<Boolean> time = new ArrayList<>();
+    private List<Boolean> time;
 
     @ManyToOne
     private Store store;

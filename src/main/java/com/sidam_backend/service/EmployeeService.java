@@ -39,7 +39,8 @@ public class EmployeeService {
         UserRole ex = new UserRole();
         ex.setStore(store);
 
-        users = (ArrayList<UserRole>) userRoleRepository.findByStore(store);
+        users = (ArrayList<UserRole>) userRoleRepository.findByStore(store)
+                .orElseThrow(() -> new IllegalArgumentException(store.getId() + "는 존재하지 않는 매장입니다."));
 
         for(UserRole u : users) {
             log.info("GET users : " + u.getAlias() + "/" + u.getId());
@@ -69,9 +70,11 @@ public class EmployeeService {
             userRole.setCost(wages.getWages());
         }
 
-        // color 어떻게 셋팅하지...?
-        ColorSet colors = ColorSet.getInstance();
+        // color 셋팅
+        ColorSet colors = new ColorSet(store.getIdx());
         userRole.setColor(colors.getColor());
+        store.setIdx(store.getIdx() + 1);
+        storeRepository.save(store);
 
         // isSalary 판단
         userRole.setSalary(true);
@@ -95,7 +98,8 @@ public class EmployeeService {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(()-> new IllegalArgumentException(storeId + "은 존재하지 않는 매장입니다."));
 
-        return userRoleRepository.findByIdAndStore(roleId, store);
+        return userRoleRepository.findByIdAndStore(roleId, store)
+                .orElseThrow(() -> new IllegalArgumentException(roleId + "는 존재하지 않는 근무자입니다."));
     }
 
     public UserRole putEmployee(Long storeId, Long roleId, UserRole editRole) {
@@ -118,7 +122,8 @@ public class EmployeeService {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(()-> new IllegalArgumentException(storeId + "은 존재하지 않는 매장입니다."));
 
-        UserRole userRole = userRoleRepository.findByIdAndStore(roleId, store);
+        UserRole userRole = userRoleRepository.findByIdAndStore(roleId, store)
+                .orElseThrow(() -> new IllegalArgumentException(roleId + "는 존재하지 않는 근무자입니다."));
 
         userRoleRepository.delete(userRole);
     }

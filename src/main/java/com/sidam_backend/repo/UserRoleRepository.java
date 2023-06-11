@@ -6,10 +6,11 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserRoleRepository extends CrudRepository<UserRole, Long>{
 
-    public List<UserRole> findByStore(Store storeId);
+    Optional<List<UserRole>> findByStore(Store storeId);
 
-    public UserRole findByIdAndStore(Long id, Store store);
+    Optional<UserRole> findByIdAndStore(Long id, Store store);
 }

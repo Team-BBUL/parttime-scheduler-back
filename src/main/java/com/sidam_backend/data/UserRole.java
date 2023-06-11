@@ -2,6 +2,7 @@ package com.sidam_backend.data;
 
 import java.io.Serializable;
 
+import com.sidam_backend.resources.Worker;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class UserRole implements Serializable {
     private String color;
 
     @NotNull
-    private boolean isSalary;
+    private boolean isSalary = true;
 
     @NotNull
     private boolean valid;
@@ -38,4 +39,16 @@ public class UserRole implements Serializable {
 
     @ManyToOne
     private Store store;
+
+    public Worker toWorker() {
+
+        Worker worker = new Worker();
+
+        worker.setId(id);
+        worker.setAlias(alias);
+        worker.setColor(color);
+        worker.setCost(cost);
+
+        return worker;
+    }
 }

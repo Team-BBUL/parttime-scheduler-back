@@ -4,25 +4,20 @@ import java.util.ArrayList;
 
 public class ColorSet {
 
-    private  static ColorSet instance;
-
-    public static ColorSet getInstance() {
-        if (instance == null) {
-            synchronized (ColorSet.class) {
-                if (instance == null) {
-                    instance = new ColorSet();
-                }
-            }
-        }
-        return instance;
-    }
-
     final private ArrayList<String> colors = new ArrayList<>();
     private int idx;
 
-    private ColorSet() {
+    public ColorSet() {
         idx = 0;
+        colorSetting();
+    }
 
+    public ColorSet(int n) {
+        idx = n;
+        colorSetting();
+    }
+
+    private void colorSetting() {
         colors.add("0xFF41E8FF");
         colors.add("0xFF2BD600");
         colors.add("0xFF1270B0");
