@@ -9,5 +9,5 @@ import java.time.LocalDate;
 
 public interface AbleTimeRepository extends CrudRepository<AbleTime, Long> {
 
-    AbleTime findByStoreAndUserAndDate(Store store, UserRole user, LocalDate date);
+    AbleTime findByStoreAndUserRoleAndDate(Store store, UserRole user, LocalDate date);
 }

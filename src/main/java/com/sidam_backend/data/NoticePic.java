@@ -18,5 +18,6 @@ public class NoticePic implements Serializable {
     private byte[] photo;
 
     @ManyToOne
+    @JoinColumn(name="notice_id")
     private Notice notice;
 }

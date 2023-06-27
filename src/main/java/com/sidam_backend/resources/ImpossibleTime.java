@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class ImpossibleTime {
 
+    private Long id;
     private LocalDate date;
     private List<Boolean> time;
 }

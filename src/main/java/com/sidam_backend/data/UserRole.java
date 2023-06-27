@@ -35,9 +35,11 @@ public class UserRole implements Serializable {
     private boolean valid;
 
     @ManyToOne
-    private User user;
+    @JoinColumn(name="kakao_id")
+    private User member;
 
     @ManyToOne
+    @JoinColumn(name="store_id")
     private Store store;
 
     public Worker toWorker() {

@@ -20,5 +20,6 @@ public class WorkAlarm implements Serializable {
     // 분 단위
 
     @ManyToOne
-    private UserRole user;
+    @JoinColumn(name="role_id")
+    private UserRole userRole;
 }

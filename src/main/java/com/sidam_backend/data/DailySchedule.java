@@ -1,10 +1,8 @@
 package com.sidam_backend.data;
 
 import com.sidam_backend.resources.PostDaily;
-import com.sidam_backend.resources.Schedule;
 import com.sidam_backend.resources.Worker;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -33,7 +31,8 @@ public class DailySchedule implements Serializable {
     private Store store;
 
     @ManyToMany
-    private List<UserRole> users;
+    @JoinTable(name="workers")
+    private List<UserRole> users = new ArrayList<>();
 
     @NotNull
     private LocalDateTime version;

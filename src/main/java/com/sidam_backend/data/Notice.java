@@ -3,6 +3,7 @@ package com.sidam_backend.data;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnJava;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -25,5 +26,6 @@ public class Notice implements Serializable {
     private Date date = new Date();
 
     @ManyToOne
+    @JoinColumn(name="store_id")
     private Store store;
 }

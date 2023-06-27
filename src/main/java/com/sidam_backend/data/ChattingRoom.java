@@ -20,5 +20,6 @@ public class ChattingRoom implements Serializable {
     private LocalDateTime createDate = LocalDateTime.now();
 
     @ManyToOne
+    @JoinColumn(name="store_id")
     private Store store;
 }

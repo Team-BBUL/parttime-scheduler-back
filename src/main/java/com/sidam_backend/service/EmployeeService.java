@@ -34,13 +34,13 @@ public class EmployeeService {
         ArrayList<UserRole> users;
 
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(()-> new IllegalArgumentException(storeId + "은 존재하지 않는 매장입니다."));
+                .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
 
         UserRole ex = new UserRole();
         ex.setStore(store);
 
         users = (ArrayList<UserRole>) userRoleRepository.findByStore(store)
-                .orElseThrow(() -> new IllegalArgumentException(store.getId() + "는 존재하지 않는 매장입니다."));
+                .orElseThrow(() -> new IllegalArgumentException(store.getId() + " store is not exist."));
 
         for(UserRole u : users) {
             log.info("GET users : " + u.getAlias() + "/" + u.getId());
@@ -55,13 +55,13 @@ public class EmployeeService {
 
         // store id로 검색해서 store 객체 저장 및 userRole 객체에 set
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(()-> new IllegalArgumentException(storeId + "은 존재하지 않는 매장입니다."));
+                .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
         userRole.setStore(store);
 
         // user id로 검색해서 user 객체 저장 및 userRole 객체에 set
         User user = userRepository.findById(userId)
-                .orElseThrow(()-> new IllegalArgumentException(userRole + "은 존재하지 않는 유저입니다."));
-        userRole.setUser(user);
+                .orElseThrow(()-> new IllegalArgumentException(userRole + " user is not exist."));
+        userRole.setMember(user);
 
         userRole.setId(null);
 
@@ -96,18 +96,18 @@ public class EmployeeService {
     public UserRole getEmployee(Long storeId, Long roleId) {
 
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(()-> new IllegalArgumentException(storeId + "은 존재하지 않는 매장입니다."));
+                .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
 
         return userRoleRepository.findByIdAndStore(roleId, store)
-                .orElseThrow(() -> new IllegalArgumentException(roleId + "는 존재하지 않는 근무자입니다."));
+                .orElseThrow(() -> new IllegalArgumentException(roleId + " userRole is not exist."));
     }
 
     public UserRole putEmployee(Long storeId, Long roleId, UserRole editRole) {
 
         UserRole oldRole = userRoleRepository.findById(roleId)
-                .orElseThrow(()-> new IllegalArgumentException(roleId + "은 존재하지 않는 사용자입니다."));
+                .orElseThrow(()-> new IllegalArgumentException(roleId + " user is not exist."));
 
-        editRole.setUser(oldRole.getUser());
+        editRole.setMember(oldRole.getMember());
         editRole.setStore(oldRole.getStore());
         editRole.setColor(oldRole.getColor());
         editRole.setId(oldRole.getId());
@@ -120,10 +120,10 @@ public class EmployeeService {
     public void deleteEmployee(Long storeId, Long roleId) {
 
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(()-> new IllegalArgumentException(storeId + "은 존재하지 않는 매장입니다."));
+                .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
 
         UserRole userRole = userRoleRepository.findByIdAndStore(roleId, store)
-                .orElseThrow(() -> new IllegalArgumentException(roleId + "는 존재하지 않는 근무자입니다."));
+                .orElseThrow(() -> new IllegalArgumentException(roleId + " userRole is not exist."));
 
         userRoleRepository.delete(userRole);
     }
