@@ -1,6 +1,7 @@
 package com.sidam_backend.data;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import com.sidam_backend.resources.Worker;
 import jakarta.persistence.*;
@@ -42,14 +43,19 @@ public class UserRole implements Serializable {
     @JoinColumn(name="store_id")
     private Store store;
 
-    public Worker toWorker() {
+    public Worker toWorker(UserRole role) {
 
         Worker worker = new Worker();
 
         worker.setId(id);
         worker.setAlias(alias);
         worker.setColor(color);
-        worker.setCost(cost);
+
+        if (!role.isSalary || Objects.equals(role.id, id)) {
+            worker.setCost(cost);
+        } else {
+            worker.setCost(0);
+        }
 
         return worker;
     }

@@ -8,6 +8,7 @@ import com.sidam_backend.service.ScheduleService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,13 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    private List<PostDaily> postFormatting(List<DailySchedule> schedules) {
+    private List<PostDaily> postFormatting(List<DailySchedule> schedules, UserRole role) {
 
         // 전송형태로 변환
         List<PostDaily> postDaily = new ArrayList<>();
         for (DailySchedule ds : schedules) {
             if (ds != null) {
-                postDaily.add(ds.toDaily());
+                postDaily.add(ds.toDaily(role));
             }
         }
 
@@ -40,6 +41,7 @@ public class ScheduleController {
     @GetMapping("/{storeId}")
     public ResponseEntity<Map<String, Object>> getWeeklySchedule(
             @PathVariable Long storeId,
+            @RequestParam("id") Long roleId,
             @RequestParam("version") LocalDateTime ver,
             @RequestParam("year") int year,
             @RequestParam("month") int month,
@@ -51,10 +53,12 @@ public class ScheduleController {
                 " " + year + "." + month + "." + day);
 
         Store store;
+        UserRole role;
         List<DailySchedule> schedules;
 
         try {
             store = scheduleService.validateStoreId(storeId);
+            role = scheduleService.validateRoleId(roleId);
             schedules = scheduleService.getWeeklySchedule(store, year, month, day);
 
         } catch (IllegalArgumentException ex) {
@@ -65,7 +69,7 @@ public class ScheduleController {
         if (schedules.size() == 0) {
             log.info("weekly data not exist " + storeId + " " + year + "." + month + "." + day);
             response.put("status_code", 204);
-            response.put("data", "data not exist " + year + "." + month + "." + day);
+            response.put("message", "data not exist " + year + "." + month + "." + day);
             return ResponseEntity.ok(response);
         }
 
@@ -77,7 +81,7 @@ public class ScheduleController {
         }
 
         // 전송형태로 변환
-        List<PostDaily> postDaily = postFormatting(schedules);
+        List<PostDaily> postDaily = postFormatting(schedules, role);
 
         response.put("time_stamp", version);
         response.put("date", postDaily);
@@ -89,6 +93,7 @@ public class ScheduleController {
     @GetMapping("/daily/{storeId}")
     public ResponseEntity<Map<String, Object>> getSchedule (
             @PathVariable Long storeId,
+            @RequestParam("id") Long roleId,
             @RequestParam("version") LocalDateTime ver,
             @RequestParam("year") int year,
             @RequestParam("month") int month,
@@ -101,9 +106,11 @@ public class ScheduleController {
                 " " + year + "." + month + "." + day);
 
         Store store;
+        UserRole role;
 
         try {
             store = scheduleService.validateStoreId(storeId);
+            role = scheduleService.validateRoleId(roleId);
         } catch (IllegalArgumentException ex) {
             response.put("message", ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -125,7 +132,7 @@ public class ScheduleController {
             return ResponseEntity.ok(response);
         }
 
-        List<PostDaily> postDailies = postFormatting(schedule);
+        List<PostDaily> postDailies = postFormatting(schedule, role);
 
         response.put("time_stamp", version);
         response.put("data", postDailies);
@@ -161,6 +168,58 @@ public class ScheduleController {
         result.put("status_code", 201);
         result.put("data", "save success");
         return ResponseEntity.ok(result);
+    }
+
+    // 근무표 삭제
+    @DeleteMapping("/{storeId}")
+    public ResponseEntity<Map<String, Object>> deleteSchedule(
+            @PathVariable Long storeId,
+            @RequestParam("version") LocalDateTime ver,
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam int day
+    ) {
+        Map<String, Object> response = new HashMap<>();
+
+        log.info("delete weekly schedule: Store" + storeId + " ver" + ver +
+                "  " + year + "." + month + "." + day);
+
+        List<DailySchedule> schedule;
+        Store store;
+
+        try {
+            store = scheduleService.validateStoreId(storeId);
+            schedule = scheduleService.getWeeklySchedule(store, year, month, day);
+        } catch (IllegalArgumentException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        if (schedule.size() == 0) {
+            log.info(ver + " schedule is not exist.");
+            response.put("message", "data not exist");
+            return ResponseEntity.ok(response);
+        }
+
+        LocalDateTime version = schedule.get(0).getVersion();
+
+        if (!version.isEqual(ver)) {
+            response.put("message", ver + " is not the same.");
+            response.put("time_stamp", version);
+            return ResponseEntity.ok(response);
+        }
+
+        try {
+            scheduleService.deleteWeeklySchedule(schedule);
+
+        } catch (EmptyResultDataAccessException ex) {
+            response.put("message", "data not exist");
+            return ResponseEntity.ok(response);
+        }
+
+        response.put("message", ver + " delete successful");
+
+        return ResponseEntity.ok(response);
     }
 
     // 근무표 수정
@@ -241,7 +300,7 @@ public class ScheduleController {
         }
 
         ImpossibleTime[] ableTime;
-        ableTime = scheduleService.getAbleTime(store, userRole, year, month, day);
+        ableTime = scheduleService.getAbleTimes(store, userRole, year, month, day);
 
         if (ableTime != null) {
             response.put("data", ableTime);
@@ -273,6 +332,39 @@ public class ScheduleController {
         }
 
         response.put("message", "able time update successful");
+        return ResponseEntity.ok(response);
+    }
+
+    // 근무 불가능 시간 삭제
+    @DeleteMapping("/impossible/{storeId}")
+    public ResponseEntity<Map<String, Object>> deleteAbleTime(
+            @PathVariable Long storeId,
+            @RequestParam Long roleId,
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam int day
+    ) {
+        Map<String, Object> response = new HashMap<>();
+
+        UserRole role;
+        Store store;
+
+        try {
+            store = scheduleService.validateStoreId(storeId);
+            role = scheduleService.validateRoleId(roleId);
+
+        } catch (IllegalArgumentException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        try {
+            scheduleService.deleteAbleTimes(store, role, year, month, day);
+        } catch (EmptyResultDataAccessException ex) {
+            response.put("message", "data not exist");
+        }
+
+        response.put("message", "delete successful");
         return ResponseEntity.ok(response);
     }
 }

@@ -94,6 +94,11 @@ public class ScheduleService {
         }
     }
 
+    public void deleteWeeklySchedule(List<DailySchedule> schedules) {
+
+        scheduleRepository.deleteAll(schedules);
+    }
+
     @Transactional
     public void updateSchedule(UpdateSchedule schedule, Store store) {
 
@@ -181,7 +186,7 @@ public class ScheduleService {
         }
     }
 
-    public ImpossibleTime[] getAbleTime(Store store, UserRole userRole,
+    public ImpossibleTime[] getAbleTimes(Store store, UserRole userRole,
                                             int year, int month, int day) {
 
         ImpossibleTime[] impossibleTimes = new ImpossibleTime[7];
@@ -215,5 +220,28 @@ public class ScheduleService {
         }
 
         return impossibleTimes;
+    }
+
+    public void deleteAbleTimes(Store store, UserRole role, int year, int month, int day) {
+
+        List<AbleTime> ableTimes = new ArrayList<>();
+
+        LocalDate date = LocalDate.of(year, month, day);
+        YearMonth mm = YearMonth.from(date);
+        int add = 0;
+
+        for (int i = 0; i < 7; i++) {
+
+            if (day + add > mm.atEndOfMonth().getDayOfMonth()) {
+                month++;
+                day = 1;
+                add = 0;
+            }
+
+            date = LocalDate.of(year, month, day + add++);
+            ableTimes.add(ableTimeRepository.findByStoreAndUserRoleAndDate(store, role, date));
+        }
+
+        ableTimeRepository.deleteAll(ableTimes);
     }
 }

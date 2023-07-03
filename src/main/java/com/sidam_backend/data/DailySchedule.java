@@ -37,7 +37,7 @@ public class DailySchedule implements Serializable {
     @NotNull
     private LocalDateTime version;
 
-    public PostDaily toDaily() {
+    public PostDaily toDaily(UserRole role) {
 
         PostDaily daily = new PostDaily();
 
@@ -47,7 +47,7 @@ public class DailySchedule implements Serializable {
 
         List<Worker> workers = new ArrayList<>();
         for(UserRole userRole : users) {
-            workers.add(userRole.toWorker());
+            workers.add(userRole.toWorker(role));
         }
         daily.setWorkers(workers);
 
