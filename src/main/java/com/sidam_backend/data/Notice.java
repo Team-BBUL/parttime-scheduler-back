@@ -1,12 +1,17 @@
 package com.sidam_backend.data;
 
+import com.sidam_backend.resources.GetImage;
+import com.sidam_backend.resources.GetNotice;
+import com.sidam_backend.resources.GetNoticeList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnJava;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -23,9 +28,42 @@ public class Notice implements Serializable {
     @NotBlank
     private String content;
 
-    private Date date = new Date();
+    @NotNull
+    private LocalDateTime date;
+
+    @OneToMany
+    private List<ImageFile> image;
 
     @ManyToOne
     @JoinColumn(name="store_id")
     private Store store;
+
+    public GetNoticeList toGetNoticeList() {
+
+        GetNoticeList noticeList = new GetNoticeList();
+
+        noticeList.setId(id);
+        noticeList.setSubject(subject);
+
+        return noticeList;
+    }
+
+    public GetNotice toGetNotice(String url) {
+
+        GetNotice notice = new GetNotice();
+        List<GetImage> images = new ArrayList<>();
+
+        notice.setId(id);
+        notice.setSubject(subject);
+        notice.setContent(content);
+        notice.setTimeStamp(date);
+
+        for (ImageFile file : image) {
+            images.add(file.toGetImage(url));
+        }
+
+        notice.setPhoto(images);
+
+        return notice;
+    }
 }

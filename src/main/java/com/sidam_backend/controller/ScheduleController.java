@@ -24,17 +24,17 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    private List<PostDaily> postFormatting(List<DailySchedule> schedules, UserRole role) {
+    private List<GetDaily> postFormatting(List<DailySchedule> schedules, UserRole role) {
 
         // 전송형태로 변환
-        List<PostDaily> postDaily = new ArrayList<>();
+        List<GetDaily> getDaily = new ArrayList<>();
         for (DailySchedule ds : schedules) {
             if (ds != null) {
-                postDaily.add(ds.toDaily(role));
+                getDaily.add(ds.toDaily(role));
             }
         }
 
-        return postDaily;
+        return getDaily;
     }
 
     // 근무표 일주일 단위 조회
@@ -81,10 +81,10 @@ public class ScheduleController {
         }
 
         // 전송형태로 변환
-        List<PostDaily> postDaily = postFormatting(schedules, role);
+        List<GetDaily> getDaily = postFormatting(schedules, role);
 
         response.put("time_stamp", version);
-        response.put("date", postDaily);
+        response.put("date", getDaily);
 
         return ResponseEntity.ok(response);
     }
@@ -132,7 +132,7 @@ public class ScheduleController {
             return ResponseEntity.ok(response);
         }
 
-        List<PostDaily> postDailies = postFormatting(schedule, role);
+        List<GetDaily> postDailies = postFormatting(schedule, role);
 
         response.put("time_stamp", version);
         response.put("data", postDailies);
@@ -143,7 +143,7 @@ public class ScheduleController {
     @PostMapping("/{storeId}")
     public ResponseEntity<Map<String, Object>> postSchedule(
             @PathVariable Long storeId,
-            @RequestBody Schedule schedule) {
+            @RequestBody PostSchedule schedule) {
 
         Map<String, Object> result = new HashMap<>();
 
@@ -252,7 +252,7 @@ public class ScheduleController {
     public ResponseEntity<Map<String, Object>> chooseImpossible (
             @PathVariable Long storeId,
             @RequestParam(value = "id") Long roleId,
-            @RequestBody ImpossibleTimes data) {
+            @RequestBody PostImpossibleTime data) {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -318,7 +318,7 @@ public class ScheduleController {
     public ResponseEntity<Map<String, Object>> updateAbleTime(
             @PathVariable Long storeId,
             @RequestParam("id") Long roleId,
-            @RequestBody ImpossibleTimes input
+            @RequestBody PostImpossibleTime input
     ) {
         Map<String, Object> response = new HashMap<>();
 

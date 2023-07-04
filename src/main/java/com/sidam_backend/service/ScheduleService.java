@@ -102,7 +102,7 @@ public class ScheduleService {
     @Transactional
     public void updateSchedule(UpdateSchedule schedule, Store store) {
 
-        for (PostDaily pd : schedule.getDate()) {
+        for (GetDaily pd : schedule.getDate()) {
 
             DailySchedule oldSchedule = scheduleRepository.findById(pd.getId())
                     .orElseThrow(() -> new IllegalArgumentException(pd.getId() + " schedule is not exist."));
@@ -122,7 +122,7 @@ public class ScheduleService {
         }
     }
 
-    public DailySchedule[] toDailySchedule(Store store, Schedule input) {
+    public DailySchedule[] toDailySchedule(Store store, PostSchedule input) {
 
         DailySchedule[] schedules = new DailySchedule[input.getDate().size()];
 
@@ -150,7 +150,7 @@ public class ScheduleService {
         return schedules;
     }
 
-    public AbleTime[] toAbleTime(Store store, UserRole role, ImpossibleTimes data) {
+    public AbleTime[] toAbleTime(Store store, UserRole role, PostImpossibleTime data) {
 
         AbleTime[] ableTime = new AbleTime[data.getData().size()];
 
@@ -174,7 +174,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void updateAbleTime(ImpossibleTimes input) {
+    public void updateAbleTime(PostImpossibleTime input) {
 
         for (ImpossibleTime time : input.getData()) {
             AbleTime oldTime = ableTimeRepository.findById(time.getId())

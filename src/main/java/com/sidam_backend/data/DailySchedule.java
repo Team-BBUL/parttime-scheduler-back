@@ -1,6 +1,6 @@
 package com.sidam_backend.data;
 
-import com.sidam_backend.resources.PostDaily;
+import com.sidam_backend.resources.GetDaily;
 import com.sidam_backend.resources.Worker;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -37,9 +37,9 @@ public class DailySchedule implements Serializable {
     @NotNull
     private LocalDateTime version;
 
-    public PostDaily toDaily(UserRole role) {
+    public GetDaily toDaily(UserRole role) {
 
-        PostDaily daily = new PostDaily();
+        GetDaily daily = new GetDaily();
 
         daily.setId(id);
         daily.setDay(date);

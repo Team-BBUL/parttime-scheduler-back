@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class UpdateSchedule {
+public class PostSchedule {
 
     private LocalDateTime timeStamp;
-    private List<GetDaily> date;
+    private List<PostDaily> date;
 }

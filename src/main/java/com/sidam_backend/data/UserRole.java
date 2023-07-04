@@ -43,6 +43,10 @@ public class UserRole implements Serializable {
     @JoinColumn(name="store_id")
     private Store store;
 
+    public boolean getSalary() {
+        return isSalary;
+    }
+
     public Worker toWorker(UserRole role) {
 
         Worker worker = new Worker();

@@ -6,8 +6,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class Schedule {
+public class GetNotice {
 
+    private Long id;
+    private String subject;
+    private String content;
+    private List<GetImage> photo;
     private LocalDateTime timeStamp;
-    private List<Daily> date;
 }
