@@ -6,6 +6,7 @@ import com.sidam_backend.resources.GetNotice;
 import com.sidam_backend.resources.GetNoticeList;
 import com.sidam_backend.resources.PostNotice;
 
+import com.sidam_backend.resources.UpdateNotice;
 import com.sidam_backend.service.NoticeService;
 
 import lombok.RequiredArgsConstructor;
@@ -63,7 +64,8 @@ public class NoticeController {
     // 목록 조회
     @GetMapping("/view/list")
     public ResponseEntity<Map<String, Object>> getAllNotice(
-            @PathVariable Long storeId
+            @PathVariable Long storeId,
+            @RequestParam int last
     ) {
 
         Map<String, Object> res = new HashMap<>();
@@ -75,7 +77,7 @@ public class NoticeController {
 
         try {
             store = noticeService.validatedStoreId(storeId);
-            result = noticeService.findAllList(store);
+            result = noticeService.findAllList(store, last);
 
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
@@ -94,6 +96,8 @@ public class NoticeController {
     ) {
 
         Map<String, Object> res = new HashMap<>();
+
+        log.info("notice detail: store" + storeId + " notice" + noticeId);
 
         GetNotice notice;
 
@@ -142,4 +146,49 @@ public class NoticeController {
         }
     }
 
+    // 수정
+    @PostMapping("/view/detail")
+    public ResponseEntity<Map<String, Object>> editNotice(
+            @PathVariable Long storeId,
+            @RequestBody UpdateNotice body
+    ) {
+
+        Map<String, Object> res = new HashMap<>();
+
+        Store store;
+
+        try {
+            store = noticeService.validatedStoreId(storeId);
+            noticeService.updateNotice(body, uploadPath, store);
+
+        } catch (IllegalArgumentException ex) {
+            res.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(res);
+        }
+
+        res.put("message", "update success");
+        return ResponseEntity.ok(res);
+    }
+
+    // 삭제
+    @DeleteMapping("/view/detail")
+    public ResponseEntity<Map<String, Object>> deleteNotice(
+            @PathVariable Long storeId,
+            @RequestParam Long noticeId
+    ) {
+        Map<String, Object> res = new HashMap<>();
+
+        Store store;
+
+        try {
+            store = noticeService.validatedStoreId(storeId);
+            noticeService.deleteNotice(noticeId);
+
+        } catch (IllegalArgumentException ex) {
+            res.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(res);
+        }
+
+        return ResponseEntity.ok(res);
+    }
 }

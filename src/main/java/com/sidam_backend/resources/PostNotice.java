@@ -32,21 +32,20 @@ public class PostNotice {
 
         notice.setSubject(subject);
         notice.setContent(body);
-        notice.setDate(LocalDateTime.now().withNano(0));
 
         notice.setStore(store);
 
         List<ImageFile> images = new ArrayList<>();
-        int i = 0;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddTHHmmss");
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddTHHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        int i = 0;
         // file name 형식 : store ID가 1인 곳에서 2023년 6월 12일 15시 32분 43초에 올린 글로 사진이 둘일 경우,
-        // 20230612T153243+0+1
-        // 20230612T153243+1+1
+        // 20230612T153243i0s1
+        // 20230612T153243i1s1
         for (UploadFile file : photo) {
             images.add(file.toImageFile(filePath,
-                    notice.getDate().format(formatter) + "+" + i + "+" + store.getId() ));
-            i++;
+                    now.format(formatter) + "i" + i + "s" + store.getId() ));
         }
         notice.setImage(images);
 

@@ -44,6 +44,7 @@ public class Notice implements Serializable {
 
         noticeList.setId(id);
         noticeList.setSubject(subject);
+        noticeList.setDate(date);
 
         return noticeList;
     }
