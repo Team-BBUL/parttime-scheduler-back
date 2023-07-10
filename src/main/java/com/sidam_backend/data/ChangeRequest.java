@@ -1,7 +1,6 @@
 package com.sidam_backend.data;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -13,8 +12,7 @@ import java.time.LocalDateTime;
 @Table(name="change_request")
 public class ChangeRequest implements Serializable {
 
-
-    private enum State {
+    public enum State {
         PASS, FAIL, NON
     };
 
@@ -22,26 +20,26 @@ public class ChangeRequest implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotBlank
-    private String requester;
+    @NotNull
+    private Long requester;
     // 요청자 user_role_id
 
-    @NotBlank
-    private String responser;
+    private Long responser;
     // 요청 받는 사람 user_role_id
 
     @NotNull
-    @Enumerated(EnumType.STRING)
+    @Enumerated
     private State resState;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private State OwnState;
-
+    @Enumerated
+    private State ownState;
 
     @NotNull
-    private LocalDateTime date = LocalDateTime.now();
+    private LocalDateTime date;
 
-    @ManyToOne
-    private DailySchedule dailySchedule;
+    @NotNull
+    private Long oldSchedule;
+
+    private Long targetSchedule;
 }

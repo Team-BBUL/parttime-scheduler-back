@@ -18,5 +18,6 @@ public class UserChatting implements Serializable {
     private UserRole userRole;
 
     @ManyToOne
+    @JoinColumn(name="room_id")
     private ChattingRoom chattingRoom;
 }

@@ -23,8 +23,10 @@ public class Message {
     // MM-dd
 
     @ManyToOne
+    @JoinColumn(name="room_id")
     private ChattingRoom chattingRoom;
 
     @ManyToOne
+    @JoinColumn(name="role_id")
     private UserRole userRole;
 }

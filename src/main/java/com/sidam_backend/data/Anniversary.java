@@ -23,5 +23,6 @@ public class Anniversary implements Serializable {
     private LocalDateTime date;
 
     @ManyToOne
+    @JoinColumn(name="role_id")
     private UserRole userRole;
 }

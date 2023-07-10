@@ -1,7 +1,9 @@
 package com.sidam_backend.data;
 
 import java.io.Serializable;
+import java.util.Objects;
 
+import com.sidam_backend.resources.Worker;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -12,9 +14,8 @@ import lombok.Data;
 public class UserRole implements Serializable {
 
     @Id
-    private String id;
-    // 고유 아이디 생성 규칙이 있으면 좋을 것 같은데
-    // ex) 0000-0000-0000 (매장별고유값-점주/직원여부-고유번호)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @NotBlank
     private String alias;
@@ -29,11 +30,37 @@ public class UserRole implements Serializable {
     private String color;
 
     @NotNull
-    private boolean isSalary;
+    private boolean isSalary = true;
 
     @NotNull
     private boolean valid;
 
     @ManyToOne
-    private User user;
+    @JoinColumn(name="kakao_id")
+    private User member;
+
+    @ManyToOne
+    @JoinColumn(name="store_id")
+    private Store store;
+
+    public boolean getSalary() {
+        return isSalary;
+    }
+
+    public Worker toWorker(UserRole role) {
+
+        Worker worker = new Worker();
+
+        worker.setId(id);
+        worker.setAlias(alias);
+        worker.setColor(color);
+
+        if (!role.isSalary || Objects.equals(role.id, id)) {
+            worker.setCost(cost);
+        } else {
+            worker.setCost(0);
+        }
+
+        return worker;
+    }
 }
