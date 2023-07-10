@@ -1,12 +1,12 @@
 package com.sidam_backend.data;
 
+import com.sidam_backend.resources.DTO.GetStore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @Entity
@@ -45,4 +45,15 @@ public class Store implements Serializable {
     //             1  2  3 4  5  6 7
     @NotNull
     private int week;
+
+    public GetStore toGetStore() {
+        GetStore store = new GetStore();
+
+        store.setId(id);
+        store.setName(name);
+        store.setLocation(location);
+        store.setPhone(phone);
+
+        return store;
+    }
 }

@@ -3,7 +3,7 @@ package com.sidam_backend.controller;
 import com.sidam_backend.data.DailySchedule;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.UserRole;
-import com.sidam_backend.resources.*;
+import com.sidam_backend.resources.DTO.*;
 import com.sidam_backend.service.ScheduleService;
 
 import lombok.RequiredArgsConstructor;

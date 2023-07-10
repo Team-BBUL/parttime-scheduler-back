@@ -8,20 +8,17 @@ import com.sidam_backend.repo.NoticeRepository;
 import com.sidam_backend.repo.StoreRepository;
 
 import com.sidam_backend.resources.FileUtils;
-import com.sidam_backend.resources.GetNotice;
-import com.sidam_backend.resources.GetNoticeList;
-import com.sidam_backend.resources.UpdateNotice;
+import com.sidam_backend.resources.DTO.GetNotice;
+import com.sidam_backend.resources.DTO.GetNoticeList;
+import com.sidam_backend.resources.DTO.UpdateNotice;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.buf.UriUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -163,10 +160,10 @@ public class NoticeService {
         Notice data;
 
         // 입력값의 유효성 확인
-        if (notice.getSubject().length() / 2 > 20 || notice.getSubject().length() == 0) {
+        if (notice.getSubject().length() > 20 || notice.getSubject().length() == 0) {
             throw new IllegalArgumentException("number of subject characters exceeded.");
         }
-        if (notice.getContent().length() / 2 > 200) {
+        if (notice.getContent().length() > 200) {
             throw new IllegalArgumentException("number of content characters exceeded.");
         }
 

@@ -1,4 +1,4 @@
-package com.sidam_backend.resources;
+package com.sidam_backend.resources.DTO;
 
 import com.sidam_backend.data.Notice;
 import com.sidam_backend.data.Store;
@@ -20,11 +20,11 @@ public class PostNotice {
         Notice notice = new Notice();
 
         // 글자 수 검사 - 제목
-        if (subject.length() / 2 > 20 || subject.length() == 0) {
+        if (subject.length() > 20 || subject.length() == 0) {
             throw new IllegalArgumentException("number of subject characters exceeded.");
         }
         // 내용
-        if (body.length() / 2 > 200) {
+        if (body.length() > 200) {
             throw new IllegalArgumentException("number of content characters exceeded.");
         }
 

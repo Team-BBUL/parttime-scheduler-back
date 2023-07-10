@@ -1,8 +1,8 @@
 package com.sidam_backend.data;
 
-import com.sidam_backend.resources.GetImage;
-import com.sidam_backend.resources.GetNotice;
-import com.sidam_backend.resources.GetNoticeList;
+import com.sidam_backend.resources.DTO.GetImage;
+import com.sidam_backend.resources.DTO.GetNotice;
+import com.sidam_backend.resources.DTO.GetNoticeList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

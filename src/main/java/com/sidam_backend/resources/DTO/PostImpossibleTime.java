@@ -1,4 +1,4 @@
-package com.sidam_backend.resources;
+package com.sidam_backend.resources.DTO;
 
 import lombok.Data;
 

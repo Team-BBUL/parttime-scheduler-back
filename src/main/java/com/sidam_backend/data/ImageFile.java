@@ -1,6 +1,6 @@
 package com.sidam_backend.data;
 
-import com.sidam_backend.resources.GetImage;
+import com.sidam_backend.resources.DTO.GetImage;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;

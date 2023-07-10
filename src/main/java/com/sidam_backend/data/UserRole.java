@@ -3,7 +3,7 @@ package com.sidam_backend.data;
 import java.io.Serializable;
 import java.util.Objects;
 
-import com.sidam_backend.resources.Worker;
+import com.sidam_backend.resources.DTO.Worker;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;

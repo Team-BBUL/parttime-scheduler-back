@@ -8,8 +8,8 @@ import com.sidam_backend.repo.AbleTimeRepository;
 import com.sidam_backend.repo.DailyScheduleRepository;
 import com.sidam_backend.repo.StoreRepository;
 import com.sidam_backend.repo.UserRoleRepository;
-import com.sidam_backend.resources.*;
 
+import com.sidam_backend.resources.DTO.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

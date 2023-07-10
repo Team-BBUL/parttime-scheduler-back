@@ -1,10 +1,9 @@
 package com.sidam_backend.data;
 
-import com.sidam_backend.resources.ImpossibleTime;
+import com.sidam_backend.resources.DTO.ImpossibleTime;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnJava;
 
 import java.time.LocalDate;
 import java.util.List;
