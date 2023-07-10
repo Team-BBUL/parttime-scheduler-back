@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name="image_file")
+@Table(name="image_file_tbl")
 public class ImageFile {
 
     @Id
@@ -26,13 +26,20 @@ public class ImageFile {
     @NotNull
     private String filePath;
 
+    @NotNull
+    private boolean valid = true;
+
     public GetImage toGetImage(String url) {
 
         GetImage image = new GetImage();
 
         image.setFileName(fileName);
-        image.setDownloadUrl(url + fileName);
+        image.setDownloadUrl(url + id);
 
         return image;
+    }
+
+    public String getFilePath() {
+        return filePath + fileName;
     }
 }

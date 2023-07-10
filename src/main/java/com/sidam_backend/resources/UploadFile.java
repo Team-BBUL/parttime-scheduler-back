@@ -17,7 +17,7 @@ public class UploadFile {
         ImageFile build = new ImageFile();
 
         build.setFileName(name);
-        build.setOrigName(uploadName);
+        build.setOrigName(file.getOriginalFilename());
         build.setFilePath(filePath);
 
         try {

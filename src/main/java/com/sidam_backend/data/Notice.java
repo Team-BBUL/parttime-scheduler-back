@@ -15,7 +15,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name="notice")
+@Table(name="notice_tbl")
 public class Notice implements Serializable {
 
     @Id
@@ -33,6 +33,9 @@ public class Notice implements Serializable {
 
     @OneToMany
     private List<ImageFile> image;
+
+    @NotNull
+    private boolean valid = true;
 
     @ManyToOne
     @JoinColumn(name="store_id")
