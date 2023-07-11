@@ -10,8 +10,8 @@ import java.io.Serializable;
 
 @Data
 @Entity
-@Table(name="userTbl")
-public class User implements Serializable {
+@Table(name="account")
+public class Account implements Serializable {
 
     @Id
     private String kakaoId;

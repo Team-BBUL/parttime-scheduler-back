@@ -37,7 +37,7 @@ public class UserRole implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="kakao_id")
-    private User member;
+    private Account account;
 
     @ManyToOne
     @JoinColumn(name="store_id")

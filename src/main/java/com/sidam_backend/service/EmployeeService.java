@@ -1,7 +1,7 @@
 package com.sidam_backend.service;
 
+import com.sidam_backend.data.Account;
 import com.sidam_backend.data.Store;
-import com.sidam_backend.data.User;
 import com.sidam_backend.data.UserRole;
 import com.sidam_backend.repo.StoreRepository;
 import com.sidam_backend.repo.UserRepository;
@@ -9,8 +9,6 @@ import com.sidam_backend.repo.UserRoleRepository;
 
 import com.sidam_backend.resources.ColorSet;
 import com.sidam_backend.resources.MinimumWages;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,9 +57,9 @@ public class EmployeeService {
         userRole.setStore(store);
 
         // user id로 검색해서 user 객체 저장 및 userRole 객체에 set
-        User user = userRepository.findById(userId)
+        Account account = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException(userRole + " user is not exist."));
-        userRole.setMember(user);
+        userRole.setAccount(account);
 
         userRole.setId(null);
 
@@ -82,7 +80,7 @@ public class EmployeeService {
         // level = 1?
         userRole.setLevel(1);
 
-        userRole.setAlias(user.getName());
+        userRole.setAlias(account.getName());
 
         log.info("add: " + userRole);
 
@@ -107,7 +105,7 @@ public class EmployeeService {
         UserRole oldRole = userRoleRepository.findById(roleId)
                 .orElseThrow(()-> new IllegalArgumentException(roleId + " user is not exist."));
 
-        editRole.setMember(oldRole.getMember());
+        editRole.setAccount(oldRole.getAccount());
         editRole.setStore(oldRole.getStore());
         editRole.setColor(oldRole.getColor());
         editRole.setId(oldRole.getId());
