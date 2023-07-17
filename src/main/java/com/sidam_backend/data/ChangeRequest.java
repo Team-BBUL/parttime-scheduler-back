@@ -24,7 +24,7 @@ public class ChangeRequest implements Serializable {
     private Long requester;
     // 요청자 user_role_id
 
-    private Long responser;
+    private Long receiver;
     // 요청 받는 사람 user_role_id
 
     @NotNull

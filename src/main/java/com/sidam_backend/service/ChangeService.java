@@ -64,7 +64,7 @@ public class ChangeService {
         ChangeRequest request = new ChangeRequest();
 
         request.setRequester(roleId);
-        request.setResponser(targetId);
+        request.setReceiver(targetId);
         request.setDate(LocalDateTime.now());
         request.setOldSchedule(schedule);
         request.setTargetSchedule(target);

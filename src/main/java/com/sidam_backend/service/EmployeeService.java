@@ -1,14 +1,14 @@
 package com.sidam_backend.service;
 
 import com.sidam_backend.data.Account;
+import com.sidam_backend.data.Alarm;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.UserRole;
-import com.sidam_backend.repo.StoreRepository;
-import com.sidam_backend.repo.UserRepository;
-import com.sidam_backend.repo.UserRoleRepository;
+import com.sidam_backend.repo.*;
 
 import com.sidam_backend.resources.ColorSet;
 import com.sidam_backend.resources.MinimumWages;
+import com.sidam_backend.service.base.UsingAlarmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,21 @@ import java.util.List;
 
 @Slf4j
 @Service // DB와 Controller 사이에서 실질적인 비즈니스 로직을 작업하는 역할
-@RequiredArgsConstructor // final로 선언된 인스턴스를 받아오는 생성자를 자동으로 생성해줌
-public class EmployeeService {
+public class EmployeeService extends UsingAlarmService {
+
+    public EmployeeService(
+            UserRoleRepository userRoleRepository,
+            StoreRepository storeRepository,
+            UserRepository userRepository,
+            AlarmRepository alarmRepository,
+            AlarmReceiverRepository receiverRepository
+    ) {
+        super(alarmRepository, userRoleRepository, receiverRepository);
+
+        this.userRepository = userRepository;
+        this.storeRepository = storeRepository;
+        this.userRoleRepository = userRoleRepository;
+    }
 
     private final UserRoleRepository userRoleRepository;
     private final StoreRepository storeRepository;
@@ -87,6 +100,8 @@ public class EmployeeService {
         userRoleRepository.save(userRole);
 
         // 점주에게 매장 가입 요청 알림 전송
+        managerAlarmMaker(store, userRole.getAlias(), Alarm.Category.JOIN, Alarm.State.NON);
+        // 알림서버 처리
 
         return getEmployee(storeId, userRole.getId());
     }

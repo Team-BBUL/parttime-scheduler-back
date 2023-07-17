@@ -58,7 +58,7 @@ public class NoticeController {
             store = noticeService.validatedStoreId(storeId);
             notice = input.toNotice(store);
             notice.setImage(noticeService.saveFile(input.getImages(), uploadPath, notice.getDate(), store));
-            noticeService.saveNotice(notice);
+            noticeService.saveNotice(notice, store);
 
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());

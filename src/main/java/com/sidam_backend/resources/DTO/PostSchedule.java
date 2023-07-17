@@ -9,5 +9,5 @@ import java.util.List;
 public class PostSchedule {
 
     private LocalDateTime timeStamp;
-    private List<PostDaily> date;
+    private List<PostDaily> data;
 }

@@ -150,12 +150,12 @@ public class ScheduleController {
         log.info("make schedule : Store" + storeId + " ver" + schedule.getTimeStamp());
 
         Store store;
-        DailySchedule[] weekly;
+        List<DailySchedule> weekly;
 
         try {
             store = scheduleService.validateStoreId(storeId);
             weekly = scheduleService.toDailySchedule(store, schedule);
-            scheduleService.saveSchedule(weekly);
+            scheduleService.saveSchedule(weekly, store);
 
         } catch (IllegalArgumentException ex) {
             result.put("status_code", 400);

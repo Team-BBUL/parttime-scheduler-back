@@ -9,6 +9,4 @@ import java.util.List;
 public interface WorkAlarmRepository extends CrudRepository<WorkAlarm, Long> {
 
     List<WorkAlarm> findAllByUserRole(UserRole role);
-
-    WorkAlarm findByTimeAndUserRole(int time, UserRole role);
 }

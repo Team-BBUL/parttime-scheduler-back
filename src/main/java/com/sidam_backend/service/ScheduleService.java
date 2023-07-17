@@ -1,20 +1,16 @@
 package com.sidam_backend.service;
 
-import com.sidam_backend.data.AbleTime;
-import com.sidam_backend.data.DailySchedule;
-import com.sidam_backend.data.Store;
-import com.sidam_backend.data.UserRole;
-import com.sidam_backend.repo.AbleTimeRepository;
-import com.sidam_backend.repo.DailyScheduleRepository;
-import com.sidam_backend.repo.StoreRepository;
-import com.sidam_backend.repo.UserRoleRepository;
+import com.sidam_backend.data.*;
+import com.sidam_backend.repo.*;
 
 import com.sidam_backend.resources.DTO.*;
+import com.sidam_backend.service.base.UsingAlarmService;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -22,14 +18,27 @@ import java.util.*;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class ScheduleService {
+public class ScheduleService extends UsingAlarmService {
+
+    public ScheduleService(
+            DailyScheduleRepository scheduleRepository,
+            StoreRepository storeRepository,
+            UserRoleRepository userRoleRepository,
+            AbleTimeRepository ableTimeRepository,
+            AlarmRepository alarmRepository,
+            AlarmReceiverRepository receiverRepository
+    ) {
+        super(alarmRepository, userRoleRepository, receiverRepository);
+        this.userRoleRepository = userRoleRepository;
+        this.scheduleRepository = scheduleRepository;
+        this.ableTimeRepository = ableTimeRepository;
+        this.storeRepository = storeRepository;
+    }
 
     private final DailyScheduleRepository scheduleRepository;
     private final StoreRepository storeRepository;
     private final UserRoleRepository userRoleRepository;
     private final AbleTimeRepository ableTimeRepository;
-
     private LocalDate validateDate(int year, int month, int day) {
 
         LocalDate date = LocalDate.of(year, month, day);
@@ -83,15 +92,24 @@ public class ScheduleService {
         return scheduleRepository.findAllByDateAndStore(date, store);
     }
 
-    public void saveSchedule(DailySchedule[] schedules) {
+    public void saveSchedule(List<DailySchedule> schedules, Store store) {
 
-        scheduleRepository.saveAll(Arrays.asList(schedules));
+        scheduleRepository.saveAll(schedules);
 
         for(DailySchedule ds : schedules) {
             scheduleRepository.findById(ds.getId())
                     .orElseThrow(() -> new IllegalArgumentException(
                             "data " + ds.getId() + " save fails."));
         }
+
+        log.debug("스케줄 저장 완료");
+        schedules.sort(Comparator.comparing(DailySchedule::getDate));
+
+        String dateInfo = formattingDate(schedules.get(0).getDate().atStartOfDay(),
+                schedules.get(schedules.size() - 1).getDate().atStartOfDay());
+        log.debug("스케줄 정렬 및 날짜 formatting 완료 " + dateInfo);
+        // 알림 생성
+        employeeAlarmMaker(store, dateInfo, Alarm.Category.SCHEDULE, Alarm.State.ADD);
     }
 
     public void deleteWeeklySchedule(List<DailySchedule> schedules) {
@@ -120,31 +138,40 @@ public class ScheduleService {
 
             oldSchedule.setUsers(users);
         }
+
+        log.debug("스케줄 업데이트 완료");
+        schedule.getDate().sort(Comparator.comparing(GetDaily::getDay));
+
+        String dateInfo = formattingDate(schedule.getDate().get(0).getDay().atStartOfDay(),
+                schedule.getDate().get(schedule.getDate().size() - 1).getDay().atStartOfDay());
+        log.debug("스케줄 정렬 및 날짜 formatting 완료 " + dateInfo);
+        // 알림 생성
+        employeeAlarmMaker(store, dateInfo, Alarm.Category.SCHEDULE, Alarm.State.UPDATE);
     }
 
-    public DailySchedule[] toDailySchedule(Store store, PostSchedule input) {
+    public List<DailySchedule> toDailySchedule(Store store, PostSchedule input) {
 
-        DailySchedule[] schedules = new DailySchedule[input.getDate().size()];
+        List<DailySchedule> schedules = new ArrayList<>();
 
-        for(int i = 0; i < schedules.length; i++) {
+        for(PostDaily daily : input.getData()) {
 
-            schedules[i] = new DailySchedule();
+            DailySchedule schedule = new DailySchedule();
 
-            schedules[i].setDate(input.getDate().get(i).getDay());
-            schedules[i].setTime(input.getDate().get(i).getTime());
-            schedules[i].setStore(store);
+            schedule.setDate(daily.getDay());
+            schedule.setTime(daily.getTime());
+            schedule.setStore(store);
 
             ArrayList<UserRole> workers = new ArrayList<>();
-            for(Long id : input.getDate().get(i).getWorkers()) {
+            for(Long id : daily.getWorkers()) {
                 workers.add(
                         userRoleRepository.findByIdAndStore(id, store)
                                 .orElseThrow(() -> new IllegalArgumentException(
                                         id + " userRole is not exist."))
                 );
             }
-            schedules[i].setUsers(workers);
-
-            schedules[i].setVersion(input.getTimeStamp());
+            schedule.setUsers(workers);
+            schedule.setVersion(input.getTimeStamp());
+            schedules.add(schedule);
         }
 
         return schedules;
