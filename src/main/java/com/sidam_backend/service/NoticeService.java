@@ -100,8 +100,6 @@ public class NoticeService extends UsingAlarmService {
 
         noticeRepository.save(content);
 
-        employeeAlarmMaker(store, content.getSubject(), Alarm.Category.NOTICE, Alarm.State.ADD);
-
         noticeRepository.findById(content.getId())
                 .orElseThrow(() -> new IllegalArgumentException("save failed"));
 

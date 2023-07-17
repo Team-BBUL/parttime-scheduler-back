@@ -10,6 +10,7 @@ public class GetAlarm {
 
     private long id;
     private Alarm.Category type;
+    private Alarm.State state;
     private String content;
     private boolean read;
     private LocalDateTime date;

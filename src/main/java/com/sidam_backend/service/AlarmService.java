@@ -94,19 +94,13 @@ public class AlarmService {
     // 알림 list 가져오기
     public List<GetAlarm> getAlarmList(UserRole userRole) {
 
-        List<Alarm> alarms = alarmRepository.findCntByUserRole(userRole.getId(), 10);
+        List<AlarmReceiver> receiverList = receiverRepository.findAllByUserRole(userRole);
         List<GetAlarm> result = new ArrayList<>();
 
-        for (Alarm alarm : alarms) {
-
-            GetAlarm tmp = alarm.toGetAlarm();
-            AlarmReceiver receiver = receiverRepository.findByUserRoleAndAlarm(userRole, alarm)
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            alarm.getId() + "alarm to " + userRole.getId() + "user does not exist."
-                    ));
-            tmp.setRead(receiver.isCheck());
-
-            result.add(tmp);
+        for (AlarmReceiver ar : receiverList) {
+            GetAlarm alarm = ar.getAlarm().toGetAlarm();
+            alarm.setRead(ar.isCheck());
+            result.add(alarm);
         }
 
         return result;

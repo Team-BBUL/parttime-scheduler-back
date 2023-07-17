@@ -70,9 +70,10 @@ public class Alarm {
 
         alarm.setId(id);
         alarm.setType(type);
+        alarm.setState(state);
         alarm.setDate(date);
         alarm.setContent(content);
-        alarm.setRequest(changeRequest.getRequester());
+        alarm.setRequest(changeRequest != null ? changeRequest.getRequester() : null);
 
         return alarm;
     }
