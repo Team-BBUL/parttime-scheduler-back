@@ -26,11 +26,11 @@ public class Store implements Serializable {
     @NotBlank
     private String phone;
 
-    @NotBlank
+    @NotNull
     private int open;
     // hh 형식
 
-    @NotBlank
+    @NotNull
     private int close;
     // hh 형식
 

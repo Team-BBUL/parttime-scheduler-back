@@ -2,7 +2,6 @@ package com.sidam_backend.resources;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,16 +57,18 @@ public class FileUtils {
 
     public static void deleteImage(String path, String name) {
 
-        File file = new File(path + name);
+        File file = new File(path);
+
+        log.debug("file path = " + path + " file name = " + name);
 
         if (file.exists()) {
             if (file.delete()) {
-                log.info(path + name + " delete success.");
+                log.info(path + " delete success.");
             } else {
-                log.warn(path + name + " delete failed.");
+                log.warn(path + " delete failed.");
             }
         } else {
-            log.warn(path + name + " is not exist. delete failed.");
+            log.warn(path + " is not exist. delete failed.");
         }
     }
 }

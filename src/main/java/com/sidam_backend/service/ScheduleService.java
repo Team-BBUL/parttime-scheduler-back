@@ -9,8 +9,6 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -23,13 +21,13 @@ public class ScheduleService extends UsingAlarmService {
     public ScheduleService(
             DailyScheduleRepository scheduleRepository,
             StoreRepository storeRepository,
-            UserRoleRepository userRoleRepository,
+            AccountRoleRepository accountRoleRepository,
             AbleTimeRepository ableTimeRepository,
             AlarmRepository alarmRepository,
             AlarmReceiverRepository receiverRepository
     ) {
-        super(alarmRepository, userRoleRepository, receiverRepository);
-        this.userRoleRepository = userRoleRepository;
+        super(alarmRepository, accountRoleRepository, receiverRepository);
+        this.accountRoleRepository = accountRoleRepository;
         this.scheduleRepository = scheduleRepository;
         this.ableTimeRepository = ableTimeRepository;
         this.storeRepository = storeRepository;
@@ -37,7 +35,7 @@ public class ScheduleService extends UsingAlarmService {
 
     private final DailyScheduleRepository scheduleRepository;
     private final StoreRepository storeRepository;
-    private final UserRoleRepository userRoleRepository;
+    private final AccountRoleRepository accountRoleRepository;
     private final AbleTimeRepository ableTimeRepository;
     private LocalDate validateDate(int year, int month, int day) {
 
@@ -57,9 +55,9 @@ public class ScheduleService extends UsingAlarmService {
                 .orElseThrow(() -> new IllegalArgumentException(storeId + " store is not exist."));
     }
 
-    public UserRole validateRoleId(Long roleId) {
+    public AccountRole validateRoleId(Long roleId) {
 
-        return userRoleRepository.findById(roleId)
+        return accountRoleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
     }
 
@@ -109,7 +107,7 @@ public class ScheduleService extends UsingAlarmService {
                 schedules.get(schedules.size() - 1).getDate().atStartOfDay());
         log.debug("스케줄 정렬 및 날짜 formatting 완료 " + dateInfo);
         // 알림 생성
-        employeeAlarmMaker(store, dateInfo, Alarm.Category.SCHEDULE, Alarm.State.ADD);
+        employeeAlarmMaker(store, dateInfo, Alarm.Category.SCHEDULE, Alarm.State.ADD, schedules.get(0).getId());
     }
 
     public void deleteWeeklySchedule(List<DailySchedule> schedules) {
@@ -128,9 +126,9 @@ public class ScheduleService extends UsingAlarmService {
             oldSchedule.setTime(pd.getTime());
             oldSchedule.setVersion(schedule.getTimeStamp());
 
-            List<UserRole> users = new ArrayList<>();
+            List<AccountRole> users = new ArrayList<>();
             for (Worker worker : pd.getWorkers()) {
-                users.add(userRoleRepository.findByIdAndStore(worker.getId(), store)
+                users.add(accountRoleRepository.findByIdAndStore(worker.getId(), store)
                         .orElseThrow(() -> new IllegalArgumentException(
                                 worker.getId() + " userRole is not exist."
                         )));
@@ -146,7 +144,8 @@ public class ScheduleService extends UsingAlarmService {
                 schedule.getDate().get(schedule.getDate().size() - 1).getDay().atStartOfDay());
         log.debug("스케줄 정렬 및 날짜 formatting 완료 " + dateInfo);
         // 알림 생성
-        employeeAlarmMaker(store, dateInfo, Alarm.Category.SCHEDULE, Alarm.State.UPDATE);
+        employeeAlarmMaker(store, dateInfo, Alarm.Category.SCHEDULE, Alarm.State.UPDATE,
+                schedule.getDate().get(0).getId());
     }
 
     public List<DailySchedule> toDailySchedule(Store store, PostSchedule input) {
@@ -161,10 +160,10 @@ public class ScheduleService extends UsingAlarmService {
             schedule.setTime(daily.getTime());
             schedule.setStore(store);
 
-            ArrayList<UserRole> workers = new ArrayList<>();
+            ArrayList<AccountRole> workers = new ArrayList<>();
             for(Long id : daily.getWorkers()) {
                 workers.add(
-                        userRoleRepository.findByIdAndStore(id, store)
+                        accountRoleRepository.findByIdAndStore(id, store)
                                 .orElseThrow(() -> new IllegalArgumentException(
                                         id + " userRole is not exist."))
                 );
@@ -177,7 +176,7 @@ public class ScheduleService extends UsingAlarmService {
         return schedules;
     }
 
-    public AbleTime[] toAbleTime(Store store, UserRole role, PostImpossibleTime data) {
+    public AbleTime[] toAbleTime(Store store, AccountRole role, PostImpossibleTime data) {
 
         AbleTime[] ableTime = new AbleTime[data.getData().size()];
 
@@ -188,7 +187,7 @@ public class ScheduleService extends UsingAlarmService {
             ableTime[i].setDate(data.getData().get(i).getDate());
             ableTime[i].setTime(data.getData().get(i).getTime());
             ableTime[i].setStore(store);
-            ableTime[i].setUserRole(role);
+            ableTime[i].setAccountRole(role);
         }
 
         return ableTime;
@@ -213,7 +212,7 @@ public class ScheduleService extends UsingAlarmService {
         }
     }
 
-    public ImpossibleTime[] getAbleTimes(Store store, UserRole userRole,
+    public ImpossibleTime[] getAbleTimes(Store store, AccountRole accountRole,
                                             int year, int month, int day) {
 
         ImpossibleTime[] impossibleTimes = new ImpossibleTime[7];
@@ -233,7 +232,7 @@ public class ScheduleService extends UsingAlarmService {
             }
 
             date = LocalDate.of(year, month, day + add++);
-            ableTimes[i] = ableTimeRepository.findByStoreAndUserRoleAndDate(store, userRole, date);
+            ableTimes[i] = ableTimeRepository.findByStoreAndAccountRoleAndDate(store, accountRole, date);
 
             if (ableTimes[i] != null) {
                 impossibleTimes[i] = ableTimes[i].toImpossibleTime();
@@ -249,7 +248,7 @@ public class ScheduleService extends UsingAlarmService {
         return impossibleTimes;
     }
 
-    public void deleteAbleTimes(Store store, UserRole role, int year, int month, int day) {
+    public void deleteAbleTimes(Store store, AccountRole role, int year, int month, int day) {
 
         List<AbleTime> ableTimes = new ArrayList<>();
 
@@ -266,7 +265,7 @@ public class ScheduleService extends UsingAlarmService {
             }
 
             date = LocalDate.of(year, month, day + add++);
-            ableTimes.add(ableTimeRepository.findByStoreAndUserRoleAndDate(store, role, date));
+            ableTimes.add(ableTimeRepository.findByStoreAndAccountRoleAndDate(store, role, date));
         }
 
         ableTimeRepository.deleteAll(ableTimes);

@@ -14,5 +14,5 @@ public class GetAlarm {
     private String content;
     private boolean read;
     private LocalDateTime date;
-    private Long request;
+    private GetChange request;
 }

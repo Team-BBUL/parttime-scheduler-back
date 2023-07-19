@@ -1,15 +1,12 @@
 package com.sidam_backend.service;
 
-import com.sidam_backend.data.Account;
-import com.sidam_backend.data.Alarm;
-import com.sidam_backend.data.Store;
-import com.sidam_backend.data.UserRole;
+import com.sidam_backend.data.*;
 import com.sidam_backend.repo.*;
 
 import com.sidam_backend.resources.ColorSet;
 import com.sidam_backend.resources.MinimumWages;
 import com.sidam_backend.service.base.UsingAlarmService;
-import lombok.RequiredArgsConstructor;
+import com.sidam_backend.service.base.Validation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,106 +15,113 @@ import java.util.List;
 
 @Slf4j
 @Service // DB와 Controller 사이에서 실질적인 비즈니스 로직을 작업하는 역할
-public class EmployeeService extends UsingAlarmService {
+public class EmployeeService extends UsingAlarmService implements Validation {
 
     public EmployeeService(
-            UserRoleRepository userRoleRepository,
+            AccountRoleRepository accountRoleRepository,
             StoreRepository storeRepository,
-            UserRepository userRepository,
+            AccountRepository accountRepository,
             AlarmRepository alarmRepository,
             AlarmReceiverRepository receiverRepository
     ) {
-        super(alarmRepository, userRoleRepository, receiverRepository);
+        super(alarmRepository, accountRoleRepository, receiverRepository);
 
-        this.userRepository = userRepository;
+        this.accountRepository = accountRepository;
         this.storeRepository = storeRepository;
-        this.userRoleRepository = userRoleRepository;
+        this.accountRoleRepository = accountRoleRepository;
     }
 
-    private final UserRoleRepository userRoleRepository;
+    private final AccountRoleRepository accountRoleRepository;
     private final StoreRepository storeRepository;
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
 
     private MinimumWages wages;
 
-    public List<UserRole> getAllEmployees(Long storeId) {
+    public Store validateStoreId(Long storeId) {
+        return storeRepository.findById(storeId)
+                .orElseThrow(() -> new IllegalArgumentException(storeId + " store is not exist."));
+    }
+    public AccountRole validateRoleId(Long roleId) {
+        return accountRoleRepository.findById(roleId)
+                .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
+    }
+    public Account validateAccount(String accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException(accountId + " account is not exist."));
+    }
 
-        ArrayList<UserRole> users;
+    @Override
+    public DailySchedule validateSchedule(Long scheduleId) {
+        return null;
+    }
+
+    public List<AccountRole> getAllEmployees(Long storeId) {
+
+        ArrayList<AccountRole> users;
 
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
 
-        UserRole ex = new UserRole();
+        AccountRole ex = new AccountRole();
         ex.setStore(store);
 
-        users = (ArrayList<UserRole>) userRoleRepository.findByStore(store)
+        users = (ArrayList<AccountRole>) accountRoleRepository.findByStore(store)
                 .orElseThrow(() -> new IllegalArgumentException(store.getId() + " store is not exist."));
 
-        for(UserRole u : users) {
+        for(AccountRole u : users) {
             log.info("GET users : " + u.getAlias() + "/" + u.getId());
         }
 
         return users;
     }
 
-    public UserRole postEmployee(Long storeId, String userId) {
+    public AccountRole postEmployee(Store store, String userId) {
 
-        UserRole userRole = new UserRole();
+        AccountRole accountRole = new AccountRole();
 
-        // store id로 검색해서 store 객체 저장 및 userRole 객체에 set
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
-        userRole.setStore(store);
+        // account id로 검색
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(()-> new IllegalArgumentException(accountRole + " user is not exist."));
 
-        // user id로 검색해서 user 객체 저장 및 userRole 객체에 set
-        Account account = userRepository.findById(userId)
-                .orElseThrow(()-> new IllegalArgumentException(userRole + " user is not exist."));
-        userRole.setAccount(account);
-
-        userRole.setId(null);
+        // account 및 store 정보 set
+        accountRole.setAccount(account);
+        accountRole.setStore(store);
 
         wages = new MinimumWages();
-        if (userRole.getCost() < wages.getWages()) {
-            userRole.setCost(wages.getWages());
+        if (accountRole.getCost() < wages.getWages()) {
+            accountRole.setCost(wages.getWages());
         }
 
         // color 셋팅
         ColorSet colors = new ColorSet(store.getIdx());
-        userRole.setColor(colors.getColor());
+        accountRole.setColor(colors.getColor());
         store.setIdx(store.getIdx() + 1);
         storeRepository.save(store);
 
         // isSalary 판단
-        userRole.setSalary(true);
+        accountRole.setSalary(true);
 
         // level = 1?
-        userRole.setLevel(1);
+        accountRole.setLevel(1);
 
-        userRole.setAlias(account.getName());
+        accountRole.setAlias(account.getName());
 
-        log.info("add: " + userRole);
+        log.info("add: " + accountRole);
 
-        userRoleRepository.save(userRole);
+        accountRoleRepository.save(accountRole);
 
-        // 점주에게 매장 가입 요청 알림 전송
-        managerAlarmMaker(store, userRole.getAlias(), Alarm.Category.JOIN, Alarm.State.NON);
-        // 알림서버 처리
-
-        return getEmployee(storeId, userRole.getId());
+        return getEmployee(store, accountRole.getId());
     }
 
-    public UserRole getEmployee(Long storeId, Long roleId) {
+    public AccountRole getEmployee(Store store, Long roleId) {
 
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
-
-        return userRoleRepository.findByIdAndStore(roleId, store)
-                .orElseThrow(() -> new IllegalArgumentException(roleId + " userRole is not exist."));
+        return accountRoleRepository.findByIdAndStore(roleId, store)
+                .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
     }
 
-    public UserRole putEmployee(Long storeId, Long roleId, UserRole editRole) {
+    public AccountRole putEmployee(Store store, Long roleId, AccountRole editRole) {
 
-        UserRole oldRole = userRoleRepository.findById(roleId)
+        AccountRole oldRole = accountRoleRepository.findById(roleId)
                 .orElseThrow(()-> new IllegalArgumentException(roleId + " user is not exist."));
 
         editRole.setAccount(oldRole.getAccount());
@@ -125,19 +129,16 @@ public class EmployeeService extends UsingAlarmService {
         editRole.setColor(oldRole.getColor());
         editRole.setId(oldRole.getId());
 
-        userRoleRepository.save(editRole);
+        accountRoleRepository.save(editRole);
 
-        return getEmployee(storeId, editRole.getId());
+        return getEmployee(store, editRole.getId());
     }
 
-    public void deleteEmployee(Long storeId, Long roleId) {
+    public void deleteEmployee(Store store, Long roleId) {
 
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
-
-        UserRole userRole = userRoleRepository.findByIdAndStore(roleId, store)
+        AccountRole accountRole = accountRoleRepository.findByIdAndStore(roleId, store)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " userRole is not exist."));
 
-        userRoleRepository.delete(userRole);
+        accountRoleRepository.delete(accountRole);
     }
 }

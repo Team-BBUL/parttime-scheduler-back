@@ -1,5 +1,6 @@
 package com.sidam_backend.controller;
 
+import com.sidam_backend.data.Alarm;
 import com.sidam_backend.data.ImageFile;
 import com.sidam_backend.data.Notice;
 import com.sidam_backend.data.Store;
@@ -58,7 +59,11 @@ public class NoticeController {
             store = noticeService.validatedStoreId(storeId);
             notice = input.toNotice(store);
             notice.setImage(noticeService.saveFile(input.getImages(), uploadPath, notice.getDate(), store));
-            noticeService.saveNotice(notice, store);
+            noticeService.saveNotice(notice);
+
+            // 알림 주기
+            noticeService.employeeAlarmMaker(store, notice.getSubject(),
+                    Alarm.Category.NOTICE, Alarm.State.ADD, notice.getId());
 
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
@@ -68,8 +73,6 @@ public class NoticeController {
             res.put("message", "file save failed.");
             return ResponseEntity.internalServerError().body(res);
         }
-
-        // 공지사항 작성 알림 주기
 
         res.put("message", "notice save successful");
         return ResponseEntity.ok(res);

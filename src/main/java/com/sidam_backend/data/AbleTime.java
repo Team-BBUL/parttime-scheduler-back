@@ -29,7 +29,7 @@ public class AbleTime {
 
     @ManyToOne
     @JoinColumn(name="role_id")
-    private UserRole userRole;
+    private AccountRole accountRole;
 
     public ImpossibleTime toImpossibleTime() {
 

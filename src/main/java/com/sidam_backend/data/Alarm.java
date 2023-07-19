@@ -13,12 +13,13 @@ import java.time.LocalDateTime;
 public class Alarm {
 
     public Alarm() {}
-    public Alarm(Category type, String content, State state) {
+    public Alarm(Category type, String content, State state, long cid) {
         this.type = type;
         this.content = content;
         date = LocalDateTime.now().withNano(0);
         this.state = state;
         changeRequest = null;
+        this.contentId = cid;
     }
     public Alarm(ChangeRequest cr) {
         changeRequest = cr;
@@ -64,16 +65,20 @@ public class Alarm {
     @JoinColumn(name = "change_id")
     private ChangeRequest changeRequest;
 
-    public GetAlarm toGetAlarm() {
+    @Column(name = "content_id")
+    private Long contentId;
+
+    public GetAlarm toGetAlarm(Long receiverId,AccountRole req, AccountRole rec) {
 
         GetAlarm alarm = new GetAlarm();
 
-        alarm.setId(id);
+        alarm.setId(receiverId);
         alarm.setType(type);
         alarm.setState(state);
         alarm.setDate(date);
         alarm.setContent(content);
-        alarm.setRequest(changeRequest != null ? changeRequest.getRequester() : null);
+
+        alarm.setRequest(changeRequest != null ? changeRequest.toGetChange(req, rec) : null);
 
         return alarm;
     }

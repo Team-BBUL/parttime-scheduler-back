@@ -1,5 +1,6 @@
 package com.sidam_backend.data;
 
+import com.sidam_backend.resources.DTO.GetChange;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -13,8 +14,8 @@ import java.time.LocalDateTime;
 public class ChangeRequest implements Serializable {
 
     public enum State {
-        PASS, FAIL, NON
-    };
+        PASS, FAIL, NON, INVALID
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,10 +23,10 @@ public class ChangeRequest implements Serializable {
 
     @NotNull
     private Long requester;
-    // 요청자 user_role_id
+    // 요청자 account_role_id
 
     private Long receiver;
-    // 요청 받는 사람 user_role_id
+    // 요청 받는 사람 account_role_id
 
     @NotNull
     @Enumerated
@@ -42,4 +43,10 @@ public class ChangeRequest implements Serializable {
     private Long oldSchedule;
 
     private Long targetSchedule;
+
+    public GetChange toGetChange(AccountRole requester, AccountRole receiver) {
+
+        return new GetChange(id, requester, receiver,
+                resState, ownState, oldSchedule, targetSchedule);
+    }
 }

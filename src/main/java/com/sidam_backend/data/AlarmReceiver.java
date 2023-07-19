@@ -11,9 +11,9 @@ public class AlarmReceiver {
 
     public AlarmReceiver() {}
 
-    public AlarmReceiver(Alarm alarm, UserRole role) {
+    public AlarmReceiver(Alarm alarm, AccountRole role) {
         this.alarm = alarm;
-        this.userRole = role;
+        this.accountRole = role;
         check = false;
     }
 
@@ -27,7 +27,7 @@ public class AlarmReceiver {
 
     @ManyToOne
     @JoinColumn(name = "role_id")
-    private UserRole userRole;
+    private AccountRole accountRole;
 
     @NotNull
     @Column(name = "check_bit")

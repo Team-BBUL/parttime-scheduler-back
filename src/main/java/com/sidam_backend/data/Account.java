@@ -26,8 +26,5 @@ public class Account implements Serializable {
     private String name;
 
     @NotBlank
-    private String phone;
-
-    @NotBlank
     private String device;
 }

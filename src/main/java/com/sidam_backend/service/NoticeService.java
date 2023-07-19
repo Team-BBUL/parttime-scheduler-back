@@ -25,13 +25,13 @@ public class NoticeService extends UsingAlarmService {
 
     public NoticeService(
             AlarmRepository alarmRepository,
-            UserRoleRepository userRoleRepository,
+            AccountRoleRepository accountRoleRepository,
             NoticeRepository noticeRepository,
             StoreRepository storeRepository,
             ImageFileRepository imageFileRepository,
             AlarmReceiverRepository receiverRepository
             ) {
-        super(alarmRepository, userRoleRepository, receiverRepository);
+        super(alarmRepository, accountRoleRepository, receiverRepository);
         this.noticeRepository = noticeRepository;
         this.imageFileRepository = imageFileRepository;
         this.storeRepository = storeRepository;
@@ -67,6 +67,8 @@ public class NoticeService extends UsingAlarmService {
             tmp.setFilePath(path);
             tmp.setFileName(name);
 
+            log.info(name + " save");
+
             // 파일 이름 유효성 검사
             originName = FileUtils.validFileName(originName);
             tmp.setOrigName(originName);
@@ -82,6 +84,7 @@ public class NoticeService extends UsingAlarmService {
             );
         }
 
+        log.info("image file save successful");
         imageFileRepository.saveAll(imageFiles);
 
         return imageFiles;
@@ -92,7 +95,7 @@ public class NoticeService extends UsingAlarmService {
                 .orElseThrow(() -> new IllegalArgumentException("notice table is empty"));
     }
 
-    public void saveNotice(Notice content, Store store) {
+    public void saveNotice(Notice content) {
 
         if (content.getImage() != null && content.getImage().size() > 0) {
             imageFileRepository.saveAll(content.getImage());
@@ -102,11 +105,6 @@ public class NoticeService extends UsingAlarmService {
 
         noticeRepository.findById(content.getId())
                 .orElseThrow(() -> new IllegalArgumentException("save failed"));
-
-        log.debug("공지 저장 완료");
-
-        employeeAlarmMaker(store, content.getSubject(), Alarm.Category.NOTICE, Alarm.State.ADD);
-        log.debug("공지 알림 저장 완료");
     }
 
     public List<GetNoticeList> findAllList(Store store, int lastId) {
@@ -167,7 +165,7 @@ public class NoticeService extends UsingAlarmService {
                 .orElseThrow(() -> new IllegalArgumentException(notice.getId() + "notice is not exist."));
 
         // 게시글이 유효한지 확인
-        if (data.isValid()) {
+        if (!data.isValid()) {
             throw new IllegalArgumentException("notice is invalid.");
         }
 
@@ -195,7 +193,7 @@ public class NoticeService extends UsingAlarmService {
         imageFileRepository.deleteAllById(ids);
 
         // 알림 생성
-        employeeAlarmMaker(store, notice.getSubject(), Alarm.Category.NOTICE, Alarm.State.UPDATE);
+        employeeAlarmMaker(store, notice.getSubject(), Alarm.Category.NOTICE, Alarm.State.UPDATE, notice.getId());
     }
 
     public ImageFile findImageById(Long id) {

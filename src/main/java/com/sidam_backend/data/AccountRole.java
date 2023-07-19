@@ -10,8 +10,8 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name="user_role")
-public class UserRole implements Serializable {
+@Table(name="account_role")
+public class AccountRole implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -47,7 +47,7 @@ public class UserRole implements Serializable {
         return isSalary;
     }
 
-    public Worker toWorker(UserRole role) {
+    public Worker toWorker(AccountRole role) {
 
         Worker worker = new Worker();
 
