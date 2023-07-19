@@ -1,7 +1,6 @@
 package com.sidam_backend.controller;
 
-import com.sidam_backend.data.UserRole;
-import com.sidam_backend.data.WorkAlarm;
+import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.service.AlarmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,7 @@ public class AlarmController {
         log.info("get before work alarms : " + roleId);
 
         List<Integer> alarms;
-        UserRole role;
+        AccountRole role;
         try {
             role = alarmService.validateRole(roleId);
             alarms = alarmService.getAlarm(role);
@@ -54,7 +53,7 @@ public class AlarmController {
 
         log.info("set before work alarm : before " + term + "m of " + roleId);
 
-        UserRole role;
+        AccountRole role;
         try {
             role = alarmService.validateRole(roleId);
             alarmService.saveAlarm(term, role);

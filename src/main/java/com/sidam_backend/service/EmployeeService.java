@@ -1,16 +1,14 @@
 package com.sidam_backend.service;
 
 import com.sidam_backend.data.Store;
-import com.sidam_backend.data.User;
-import com.sidam_backend.data.UserRole;
+import com.sidam_backend.data.Account;
+import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.repo.StoreRepository;
-import com.sidam_backend.repo.UserRepository;
-import com.sidam_backend.repo.UserRoleRepository;
+import com.sidam_backend.repo.AccountRepository;
+import com.sidam_backend.repo.AccountRoleRepository;
 
 import com.sidam_backend.resources.ColorSet;
 import com.sidam_backend.resources.MinimumWages;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,35 +21,35 @@ import java.util.List;
 @RequiredArgsConstructor // final로 선언된 인스턴스를 받아오는 생성자를 자동으로 생성해줌
 public class EmployeeService {
 
-    private final UserRoleRepository userRoleRepository;
+    private final AccountRoleRepository userRoleRepository;
     private final StoreRepository storeRepository;
-    private final UserRepository userRepository;
+    private final AccountRepository userRepository;
 
     private MinimumWages wages;
 
-    public List<UserRole> getAllEmployees(Long storeId) {
+    public List<AccountRole> getAllEmployees(Long storeId) {
 
-        ArrayList<UserRole> users;
+        ArrayList<AccountRole> users;
 
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
 
-        UserRole ex = new UserRole();
+        AccountRole ex = new AccountRole();
         ex.setStore(store);
 
-        users = (ArrayList<UserRole>) userRoleRepository.findByStore(store)
+        users = (ArrayList<AccountRole>) userRoleRepository.findByStore(store)
                 .orElseThrow(() -> new IllegalArgumentException(store.getId() + " store is not exist."));
 
-        for(UserRole u : users) {
+        for(AccountRole u : users) {
             log.info("GET users : " + u.getAlias() + "/" + u.getId());
         }
 
         return users;
     }
 
-    public UserRole postEmployee(Long storeId, String userId) {
+    public AccountRole postEmployee(Long storeId, String userId) {
 
-        UserRole userRole = new UserRole();
+        AccountRole userRole = new AccountRole();
 
         // store id로 검색해서 store 객체 저장 및 userRole 객체에 set
         Store store = storeRepository.findById(storeId)
@@ -59,7 +57,7 @@ public class EmployeeService {
         userRole.setStore(store);
 
         // user id로 검색해서 user 객체 저장 및 userRole 객체에 set
-        User user = userRepository.findById(userId)
+        Account user = userRepository.findById(userId)
                 .orElseThrow(()-> new IllegalArgumentException(userRole + " user is not exist."));
         userRole.setMember(user);
 
@@ -93,7 +91,7 @@ public class EmployeeService {
         return getEmployee(storeId, userRole.getId());
     }
 
-    public UserRole getEmployee(Long storeId, Long roleId) {
+    public AccountRole getEmployee(Long storeId, Long roleId) {
 
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
@@ -102,9 +100,9 @@ public class EmployeeService {
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " userRole is not exist."));
     }
 
-    public UserRole putEmployee(Long storeId, Long roleId, UserRole editRole) {
+    public AccountRole putEmployee(Long storeId, Long roleId, AccountRole editRole) {
 
-        UserRole oldRole = userRoleRepository.findById(roleId)
+        AccountRole oldRole = userRoleRepository.findById(roleId)
                 .orElseThrow(()-> new IllegalArgumentException(roleId + " user is not exist."));
 
         editRole.setMember(oldRole.getMember());
@@ -122,7 +120,7 @@ public class EmployeeService {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
 
-        UserRole userRole = userRoleRepository.findByIdAndStore(roleId, store)
+        AccountRole userRole = userRoleRepository.findByIdAndStore(roleId, store)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " userRole is not exist."));
 
         userRoleRepository.delete(userRole);

@@ -3,6 +3,7 @@ package com.sidam_backend.data;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sidam_backend.resources.Worker;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -10,8 +11,8 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name="user_role")
-public class UserRole implements Serializable {
+@Table(name="account_role")
+public class AccountRole implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,18 +37,21 @@ public class UserRole implements Serializable {
     private boolean valid;
 
     @ManyToOne
-    @JoinColumn(name="kakao_id")
-    private User member;
+    @JoinColumn(name = "kakao_id")
+    @JsonIgnore
+    private Account member;
+
 
     @ManyToOne
-    @JoinColumn(name="store_id")
+    @JoinColumn(name = "store_id")
+    @JsonIgnore
     private Store store;
 
     public boolean getSalary() {
         return isSalary;
     }
 
-    public Worker toWorker(UserRole role) {
+    public Worker toWorker(AccountRole role) {
 
         Worker worker = new Worker();
 

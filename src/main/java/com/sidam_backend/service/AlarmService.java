@@ -1,8 +1,8 @@
 package com.sidam_backend.service;
 
-import com.sidam_backend.data.UserRole;
+import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.data.WorkAlarm;
-import com.sidam_backend.repo.UserRoleRepository;
+import com.sidam_backend.repo.AccountRoleRepository;
 import com.sidam_backend.repo.WorkAlarmRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,16 +16,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AlarmService {
 
-    private final UserRoleRepository userRoleRepository;
+    private final AccountRoleRepository userRoleRepository;
     private final WorkAlarmRepository workAlarmRepository;
 
-    public UserRole validateRole(Long roleId) {
+    public AccountRole validateRole(Long roleId) {
 
         return userRoleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + "is not valid."));
     }
 
-    public List<Integer> getAlarm(UserRole role) {
+    public List<Integer> getAlarm(AccountRole role) {
 
         List<WorkAlarm> alarms = workAlarmRepository.findAllByUserRole(role);
         List<Integer> result = new ArrayList<>();
@@ -41,7 +41,7 @@ public class AlarmService {
         return result;
     }
 
-    public void saveAlarm(int time, UserRole role) {
+    public void saveAlarm(int time, AccountRole role) {
 
         WorkAlarm search = workAlarmRepository.findByTimeAndUserRole(time, role);
 

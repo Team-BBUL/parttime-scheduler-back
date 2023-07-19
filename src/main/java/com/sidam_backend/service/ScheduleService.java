@@ -3,11 +3,11 @@ package com.sidam_backend.service;
 import com.sidam_backend.data.AbleTime;
 import com.sidam_backend.data.DailySchedule;
 import com.sidam_backend.data.Store;
-import com.sidam_backend.data.UserRole;
+import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.repo.AbleTimeRepository;
 import com.sidam_backend.repo.DailyScheduleRepository;
 import com.sidam_backend.repo.StoreRepository;
-import com.sidam_backend.repo.UserRoleRepository;
+import com.sidam_backend.repo.AccountRoleRepository;
 import com.sidam_backend.resources.*;
 
 import jakarta.transaction.Transactional;
@@ -27,7 +27,7 @@ public class ScheduleService {
 
     private final DailyScheduleRepository scheduleRepository;
     private final StoreRepository storeRepository;
-    private final UserRoleRepository userRoleRepository;
+    private final AccountRoleRepository userRoleRepository;
     private final AbleTimeRepository ableTimeRepository;
 
     private LocalDate validateDate(int year, int month, int day) {
@@ -48,7 +48,7 @@ public class ScheduleService {
                 .orElseThrow(() -> new IllegalArgumentException(storeId + " store is not exist."));
     }
 
-    public UserRole validateRoleId(Long roleId) {
+    public AccountRole validateRoleId(Long roleId) {
 
         return userRoleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
@@ -110,7 +110,7 @@ public class ScheduleService {
             oldSchedule.setTime(pd.getTime());
             oldSchedule.setVersion(schedule.getTimeStamp());
 
-            List<UserRole> users = new ArrayList<>();
+            List<AccountRole> users = new ArrayList<>();
             for (Worker worker : pd.getWorkers()) {
                 users.add(userRoleRepository.findByIdAndStore(worker.getId(), store)
                         .orElseThrow(() -> new IllegalArgumentException(
@@ -134,7 +134,7 @@ public class ScheduleService {
             schedules[i].setTime(input.getDate().get(i).getTime());
             schedules[i].setStore(store);
 
-            ArrayList<UserRole> workers = new ArrayList<>();
+            ArrayList<AccountRole> workers = new ArrayList<>();
             for(Long id : input.getDate().get(i).getWorkers()) {
                 workers.add(
                         userRoleRepository.findByIdAndStore(id, store)
@@ -150,7 +150,7 @@ public class ScheduleService {
         return schedules;
     }
 
-    public AbleTime[] toAbleTime(Store store, UserRole role, PostImpossibleTime data) {
+    public AbleTime[] toAbleTime(Store store, AccountRole role, PostImpossibleTime data) {
 
         AbleTime[] ableTime = new AbleTime[data.getData().size()];
 
@@ -186,7 +186,7 @@ public class ScheduleService {
         }
     }
 
-    public ImpossibleTime[] getAbleTimes(Store store, UserRole userRole,
+    public ImpossibleTime[] getAbleTimes(Store store, AccountRole userRole,
                                             int year, int month, int day) {
 
         ImpossibleTime[] impossibleTimes = new ImpossibleTime[7];
@@ -222,7 +222,7 @@ public class ScheduleService {
         return impossibleTimes;
     }
 
-    public void deleteAbleTimes(Store store, UserRole role, int year, int month, int day) {
+    public void deleteAbleTimes(Store store, AccountRole role, int year, int month, int day) {
 
         List<AbleTime> ableTimes = new ArrayList<>();
 

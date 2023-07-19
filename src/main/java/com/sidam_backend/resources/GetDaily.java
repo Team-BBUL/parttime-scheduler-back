@@ -2,7 +2,7 @@ package com.sidam_backend.resources;
 
 import com.sidam_backend.data.DailySchedule;
 import com.sidam_backend.data.Store;
-import com.sidam_backend.data.UserRole;
+import com.sidam_backend.data.AccountRole;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -18,7 +18,7 @@ public class GetDaily {
     private List<Boolean> time = new ArrayList<>();
     private List<Worker> workers;
 
-    public DailySchedule toDailySchedule(LocalDateTime ver, Store store, List<UserRole> workers) {
+    public DailySchedule toDailySchedule(LocalDateTime ver, Store store, List<AccountRole> workers) {
 
         DailySchedule result = new DailySchedule();
 

@@ -3,11 +3,11 @@ package com.sidam_backend.service;
 import com.sidam_backend.data.ImageFile;
 import com.sidam_backend.data.Notice;
 import com.sidam_backend.data.Store;
-import com.sidam_backend.data.UserRole;
+import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.repo.ImageFileRepository;
 import com.sidam_backend.repo.NoticeRepository;
 import com.sidam_backend.repo.StoreRepository;
-import com.sidam_backend.repo.UserRoleRepository;
+import com.sidam_backend.repo.AccountRoleRepository;
 
 import com.sidam_backend.resources.GetNotice;
 import com.sidam_backend.resources.GetNoticeList;
@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ public class NoticeService {
 
     private final NoticeRepository noticeRepository;
     private final StoreRepository storeRepository;
-    private final UserRoleRepository roleRepository;
+    private final AccountRoleRepository roleRepository;
     private final ImageFileRepository imageFileRepository;
 
     public Store validatedStoreId(Long id) {
@@ -41,9 +40,9 @@ public class NoticeService {
                 .orElseThrow(() -> new IllegalArgumentException(id + " store is not exist."));
     }
 
-    public UserRole validatedUserRoleId(Long id) {
+    public AccountRole validatedUserRoleId(Long id) {
 
-        UserRole role = roleRepository.findById(id)
+        AccountRole role = roleRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + " role is not exist."));
 
         if (role.getSalary()) {

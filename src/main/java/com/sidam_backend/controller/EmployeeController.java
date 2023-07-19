@@ -1,12 +1,11 @@
 package com.sidam_backend.controller;
 
 
-import com.sidam_backend.data.UserRole;
+import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,21 +27,21 @@ public class EmployeeController {
         Map<String, Object> response = new HashMap<>();
 
         log.info("get all employee: Store" + storeId);
-        List<UserRole> res = employeeService.getAllEmployees(storeId);
+        List<AccountRole> res = employeeService.getAllEmployees(storeId);
 
         response.put("data", res);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/employee/{storeId}")
-    public ResponseEntity<UserRole> singleEmployee(
+    public ResponseEntity<AccountRole> singleEmployee(
             @PathVariable Long storeId,
             @RequestParam("id") Long roleId) {
 
         log.info("get a employee: store " + storeId + " UserRole " + roleId);
 
         try {
-            UserRole userRole = employeeService.getEmployee(storeId, roleId);
+            AccountRole userRole = employeeService.getEmployee(storeId, roleId);
             return ResponseEntity.ok(userRole);
         } catch (IllegalArgumentException ex) {
             log.warn(ex.getMessage());
@@ -55,10 +54,10 @@ public class EmployeeController {
             @PathVariable Long storeId,
             @RequestParam("kakaoId") String userId) {
 
-        log.info("register a employee: Store " + storeId + "/ User " + userId);
+        log.info("register a employee: Store " + storeId + "/ Account " + userId);
 
         try {
-            UserRole newUser = employeeService.postEmployee(storeId, userId);
+            AccountRole newUser = employeeService.postEmployee(storeId, userId);
             return ResponseEntity.ok(newUser.getId().toString());
         } catch (IllegalArgumentException ex) {
             log.warn(ex.getMessage());
@@ -67,15 +66,15 @@ public class EmployeeController {
     }
 
     @PutMapping("/employee/{storeId}")
-    public ResponseEntity<UserRole> modifyEmployee(
+    public ResponseEntity<AccountRole> modifyEmployee(
             @PathVariable Long storeId,
             @RequestParam(value = "id") Long userId,
-            @Valid UserRole editUser) {
+            @Valid AccountRole editUser) {
 
         log.info("edit employee: Store " + storeId + "/ UserRole " + userId);
 
         try {
-            UserRole edit = employeeService.putEmployee(storeId, userId, editUser);
+            AccountRole edit = employeeService.putEmployee(storeId, userId, editUser);
             return ResponseEntity.ok(edit);
         } catch (IllegalArgumentException ex) {
             log.warn(ex.getMessage());

@@ -2,7 +2,7 @@ package com.sidam_backend.controller;
 
 import com.sidam_backend.data.DailySchedule;
 import com.sidam_backend.data.Store;
-import com.sidam_backend.data.UserRole;
+import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.resources.*;
 import com.sidam_backend.service.ScheduleService;
 
@@ -24,7 +24,7 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    private List<GetDaily> postFormatting(List<DailySchedule> schedules, UserRole role) {
+    private List<GetDaily> postFormatting(List<DailySchedule> schedules, AccountRole role) {
 
         // 전송형태로 변환
         List<GetDaily> getDaily = new ArrayList<>();
@@ -53,7 +53,7 @@ public class ScheduleController {
                 " " + year + "." + month + "." + day);
 
         Store store;
-        UserRole role;
+        AccountRole role;
         List<DailySchedule> schedules;
 
         try {
@@ -106,7 +106,7 @@ public class ScheduleController {
                 " " + year + "." + month + "." + day);
 
         Store store;
-        UserRole role;
+        AccountRole role;
 
         try {
             store = scheduleService.validateStoreId(storeId);
@@ -259,7 +259,7 @@ public class ScheduleController {
         log.info("impossible time post: " + data.getData());
 
         Store store;
-        UserRole userRole;
+        AccountRole userRole;
         try {
             store = scheduleService.validateStoreId(storeId);
             userRole = scheduleService.validateRoleId(roleId);
@@ -290,7 +290,7 @@ public class ScheduleController {
                 + " " + year + "." + month + "." + day);
 
         Store store;
-        UserRole userRole;
+        AccountRole userRole;
         try {
             store = scheduleService.validateStoreId(storeId);
             userRole = scheduleService.validateRoleId(roleId);
@@ -346,7 +346,7 @@ public class ScheduleController {
     ) {
         Map<String, Object> response = new HashMap<>();
 
-        UserRole role;
+        AccountRole role;
         Store store;
 
         try {

@@ -3,12 +3,12 @@ package com.sidam_backend.service;
 import com.sidam_backend.data.ChangeRequest;
 import com.sidam_backend.data.DailySchedule;
 import com.sidam_backend.data.Store;
-import com.sidam_backend.data.UserRole;
+import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.repo.ChangeRequestRepository;
 
 import com.sidam_backend.repo.DailyScheduleRepository;
 import com.sidam_backend.repo.StoreRepository;
-import com.sidam_backend.repo.UserRoleRepository;
+import com.sidam_backend.repo.AccountRoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class ChangeService {
 
     private final ChangeRequestRepository changeRequestRepository;
     private final StoreRepository storeRepository;
-    private final UserRoleRepository userRoleRepository;
+    private final AccountRoleRepository userRoleRepository;
     private final DailyScheduleRepository dailyScheduleRepository;
 
     public Store validateStoreId(Long storeId) {
@@ -31,7 +31,7 @@ public class ChangeService {
                 .orElseThrow(() -> new IllegalArgumentException(storeId + " store is not exist."));
     }
 
-    public UserRole validateRoleId(Long roleId) {
+    public AccountRole validateRoleId(Long roleId) {
 
         return userRoleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));

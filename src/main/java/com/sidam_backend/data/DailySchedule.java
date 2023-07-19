@@ -32,12 +32,12 @@ public class DailySchedule implements Serializable {
 
     @ManyToMany
     @JoinTable(name="workers")
-    private List<UserRole> users = new ArrayList<>();
+    private List<AccountRole> users = new ArrayList<>();
 
     @NotNull
     private LocalDateTime version;
 
-    public GetDaily toDaily(UserRole role) {
+    public GetDaily toDaily(AccountRole role) {
 
         GetDaily daily = new GetDaily();
 
@@ -46,7 +46,7 @@ public class DailySchedule implements Serializable {
         daily.setTime(time);
 
         List<Worker> workers = new ArrayList<>();
-        for(UserRole userRole : users) {
+        for(AccountRole userRole : users) {
             workers.add(userRole.toWorker(role));
         }
         daily.setWorkers(workers);
