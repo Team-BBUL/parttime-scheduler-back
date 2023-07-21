@@ -1,9 +1,6 @@
 package com.sidam_backend.controller;
 
-import com.sidam_backend.data.Alarm;
-import com.sidam_backend.data.DailySchedule;
-import com.sidam_backend.data.Store;
-import com.sidam_backend.data.AccountRole;
+import com.sidam_backend.data.*;
 import com.sidam_backend.resources.DTO.*;
 import com.sidam_backend.service.ScheduleService;
 
@@ -382,5 +379,36 @@ public class ScheduleController {
 
         response.put("message", "delete successful");
         return ResponseEntity.ok(response);
+    }
+
+    // 자동편성
+    @GetMapping("/make/{storeId}")
+    public ResponseEntity<Map<String, Object>> autoMake(
+            @PathVariable Long storeId,
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam int day
+    ) {
+        Map<String, Object> res = new HashMap<>();
+
+        Store store;
+        List<GetDaily> dailyList;
+
+        log.info(storeId + " store, auto make");
+
+        try {
+            store = scheduleService.validateStoreId(storeId);
+            dailyList = scheduleService.autoMake(store, year, month, day);
+
+        } catch (IllegalArgumentException ex) {
+
+            res.put("message", ex.getMessage());
+            res.put("status_code", 400);
+
+            return ResponseEntity.badRequest().body(res);
+        }
+
+        res.put("date", dailyList);
+        return ResponseEntity.ok(res);
     }
 }

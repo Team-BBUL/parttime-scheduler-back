@@ -3,6 +3,7 @@ package com.sidam_backend.service;
 import com.sidam_backend.data.*;
 import com.sidam_backend.repo.*;
 
+import com.sidam_backend.resources.AutoMaker;
 import com.sidam_backend.resources.DTO.*;
 import com.sidam_backend.service.base.UsingAlarmService;
 import jakarta.transaction.Transactional;
@@ -61,6 +62,7 @@ public class ScheduleService extends UsingAlarmService {
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
     }
 
+    // 일주일 치의 스케줄을 한번에 가져오는 메소드
     public List<DailySchedule> getWeeklySchedule(Store store, int year, int month, int day) {
 
         List<DailySchedule> dailySchedules = new ArrayList<>();
@@ -84,12 +86,14 @@ public class ScheduleService extends UsingAlarmService {
         return dailySchedules;
     }
 
+    // 하루의 단일 스케줄을 가져오는 메소드
     public List<DailySchedule> getSchedule(Store store, int year, int month, int day) {
 
         LocalDate date = LocalDate.of(year, month, day);
         return scheduleRepository.findAllByDateAndStore(date, store);
     }
 
+    // 스케줄을 저장하는 메소드
     public void saveSchedule(List<DailySchedule> schedules, Store store) {
 
         scheduleRepository.saveAll(schedules);
@@ -115,6 +119,7 @@ public class ScheduleService extends UsingAlarmService {
         scheduleRepository.deleteAll(schedules);
     }
 
+    // 스케줄을 수정하는 메소드
     @Transactional
     public void updateSchedule(UpdateSchedule schedule, Store store) {
 
@@ -148,6 +153,7 @@ public class ScheduleService extends UsingAlarmService {
                 schedule.getDate().get(0).getId());
     }
 
+    // post 스케줄을 DB에 저장하는 형식으로 변형하는 메소드
     public List<DailySchedule> toDailySchedule(Store store, PostSchedule input) {
 
         List<DailySchedule> schedules = new ArrayList<>();
@@ -176,6 +182,7 @@ public class ScheduleService extends UsingAlarmService {
         return schedules;
     }
 
+    // post 데이터를 DB에 저장할 수 있는 형태로 변형하는 메소드
     public AbleTime[] toAbleTime(Store store, AccountRole role, PostImpossibleTime data) {
 
         AbleTime[] ableTime = new AbleTime[data.getData().size()];
@@ -193,12 +200,14 @@ public class ScheduleService extends UsingAlarmService {
         return ableTime;
     }
 
+    // DB에 불가능 시간 일괄 저장
     public void saveAbleTime(AbleTime[] ableTime) {
 
         log.info("save " + Arrays.toString(ableTime));
         ableTimeRepository.saveAll(Arrays.asList(ableTime));
     }
 
+    // 불가능 시간 업데이트 메소드
     @Transactional
     public void updateAbleTime(PostImpossibleTime input) {
 
@@ -212,6 +221,7 @@ public class ScheduleService extends UsingAlarmService {
         }
     }
 
+    // 불가능 시간을 가져오는 메소드
     public ImpossibleTime[] getAbleTimes(Store store, AccountRole accountRole,
                                             int year, int month, int day) {
 
@@ -248,6 +258,7 @@ public class ScheduleService extends UsingAlarmService {
         return impossibleTimes;
     }
 
+    // 근무 불가능 시간 일괄 삭제
     public void deleteAbleTimes(Store store, AccountRole role, int year, int month, int day) {
 
         List<AbleTime> ableTimes = new ArrayList<>();
@@ -269,5 +280,60 @@ public class ScheduleService extends UsingAlarmService {
         }
 
         ableTimeRepository.deleteAll(ableTimes);
+    }
+
+    // 특정 매장의 전 근무자의 근무 불가능 시간 일괄 select
+    public List<AbleTime> getAllAbleTime(Store store) {
+
+        List<AbleTime> result = ableTimeRepository.findAllByStore(store);
+
+        // 저장된 근무 불가능 시간 데이터가 없다면 null 반환
+        if (result.size() == 0) {
+            return null;
+        }
+        return result;
+    }
+
+    // 자동편성 메소드
+    public List<GetDaily> autoMake(Store store, int year, int month, int day) {
+
+        AutoMaker maker =
+                new AutoMaker(scheduleRepository, storeRepository, accountRoleRepository, ableTimeRepository);
+
+        LocalDate lastWeek = maker.lastWeek(year, month, day);
+        // 저번주 근무 조회
+        List<DailySchedule> pastSchedule =
+                getWeeklySchedule(store, lastWeek.getYear(), lastWeek.getMonthValue(), lastWeek.getDayOfMonth());
+        List<DailySchedule> newSchedule; // 자동편성스케줄
+
+        // 저번주 스케줄이 없으면 종료?
+        if (pastSchedule.isEmpty()) {
+            throw new IllegalArgumentException("past schedule is not exist");
+        }
+
+        // 반환할 자동편성스케줄
+        List<GetDaily> result = new ArrayList<>();
+
+        AccountRole manager = accountRoleRepository.findOwner(store.getId())
+                .orElseThrow(() -> new IllegalArgumentException(store.getId() + " store, find manager error"));
+
+        // 저번주 근무표에서 근무가 불가능한 근무자 삭제
+        newSchedule = maker.deleteWorker(pastSchedule, store);
+
+        // 삭제된 자리에 근무자 추가
+        for (DailySchedule schedule : newSchedule) {
+            for (AccountRole worker : schedule.getUsers()) {
+
+                // 삭제한 자리면 삭제 후, 최적해 집어넣기
+                if (!worker.isValid()) {
+                    schedule.getUsers().remove(worker);
+                    schedule.getUsers().add(maker.fitting(newSchedule, schedule, store));
+                }
+            }
+
+            result.add(schedule.toDaily(manager));
+        }
+
+        return result;
     }
 }

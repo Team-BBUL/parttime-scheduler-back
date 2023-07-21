@@ -19,6 +19,10 @@ public interface AccountRoleRepository extends CrudRepository<AccountRole, Long>
     Optional<AccountRole> findOwner(Long store);
 
     // 직원 찾기 메소드
-    @Query(value = "SELECT * FROM user_role WHERE store_id = :store AND is_salary = true", nativeQuery = true)
+    @Query(value = "SELECT * FROM user_role WHERE store_id = :store AND is_salary = true AND valid = true", nativeQuery = true)
     List<AccountRole> findEmployees(Long store);
+
+    // 특정 레벨 이상의 직원 찾기
+    @Query(value = "SELECT * FROM user_role WHERE store_id = :store AND is_salary = true AND level >= :level - 1 AND valid = true", nativeQuery = true)
+    List<AccountRole> findEmployeesOverLevel(Long store, int level);
 }
