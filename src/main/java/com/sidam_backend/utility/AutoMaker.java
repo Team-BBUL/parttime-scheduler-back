@@ -6,8 +6,6 @@ import com.sidam_backend.data.DailySchedule;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.repo.AbleTimeRepository;
 import com.sidam_backend.repo.AccountRoleRepository;
-import com.sidam_backend.repo.DailyScheduleRepository;
-import com.sidam_backend.repo.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,8 +16,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AutoMaker {
 
-    private final DailyScheduleRepository scheduleRepository;
-    private final StoreRepository storeRepository;
     private final AccountRoleRepository accountRoleRepository;
     private final AbleTimeRepository ableTimeRepository;
 
