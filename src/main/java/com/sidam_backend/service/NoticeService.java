@@ -3,7 +3,7 @@ package com.sidam_backend.service;
 import com.sidam_backend.data.*;
 import com.sidam_backend.repo.*;
 
-import com.sidam_backend.resources.FileUtils;
+import com.sidam_backend.utility.FileUtils;
 import com.sidam_backend.resources.DTO.GetNotice;
 import com.sidam_backend.resources.DTO.GetNoticeList;
 import com.sidam_backend.resources.DTO.UpdateNotice;

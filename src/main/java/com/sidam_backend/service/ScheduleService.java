@@ -3,7 +3,7 @@ package com.sidam_backend.service;
 import com.sidam_backend.data.*;
 import com.sidam_backend.repo.*;
 
-import com.sidam_backend.resources.AutoMaker;
+import com.sidam_backend.utility.AutoMaker;
 import com.sidam_backend.resources.DTO.*;
 import com.sidam_backend.service.base.UsingAlarmService;
 import jakarta.transaction.Transactional;
@@ -203,7 +203,7 @@ public class ScheduleService extends UsingAlarmService {
     // DB에 불가능 시간 일괄 저장
     public void saveAbleTime(AbleTime[] ableTime) {
 
-        log.info("save " + Arrays.toString(ableTime));
+        log.info("impossible time save " + ableTime[0].getDate());
         ableTimeRepository.saveAll(Arrays.asList(ableTime));
     }
 
@@ -301,6 +301,8 @@ public class ScheduleService extends UsingAlarmService {
                 new AutoMaker(scheduleRepository, storeRepository, accountRoleRepository, ableTimeRepository);
 
         LocalDate lastWeek = maker.lastWeek(year, month, day);
+        log.debug("get last week " + lastWeek);
+
         // 저번주 근무 조회
         List<DailySchedule> pastSchedule =
                 getWeeklySchedule(store, lastWeek.getYear(), lastWeek.getMonthValue(), lastWeek.getDayOfMonth());
@@ -316,23 +318,31 @@ public class ScheduleService extends UsingAlarmService {
 
         AccountRole manager = accountRoleRepository.findOwner(store.getId())
                 .orElseThrow(() -> new IllegalArgumentException(store.getId() + " store, find manager error"));
-
         // 저번주 근무표에서 근무가 불가능한 근무자 삭제
         newSchedule = maker.deleteWorker(pastSchedule, store);
+        log.debug("first step, delete and set dummy");
 
         // 삭제된 자리에 근무자 추가
         for (DailySchedule schedule : newSchedule) {
-            for (AccountRole worker : schedule.getUsers()) {
+            List<AccountRole> workers = schedule.getUsers();
 
-                // 삭제한 자리면 삭제 후, 최적해 집어넣기
-                if (!worker.isValid()) {
-                    schedule.getUsers().remove(worker);
-                    schedule.getUsers().add(maker.fitting(newSchedule, schedule, store));
+            for (int i = workers.size() - 1; i >= 0; i--) {
+
+                // 삭제한 자리면 최적해 집어넣고 dummy 삭제
+                if (!workers.get(i).isValid()) {
+
+                    AccountRole role = maker.fitting(newSchedule, schedule, store, workers.get(i).getLevel());
+
+                    if (role != null) {
+                        schedule.getUsers().add(role);
+                    }
+                    schedule.getUsers().remove(workers.get(i));
                 }
             }
 
             result.add(schedule.toDaily(manager));
         }
+        log.debug("second step, replace dummy");
 
         return result;
     }

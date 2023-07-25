@@ -1,4 +1,4 @@
-package com.sidam_backend.resources;
+package com.sidam_backend.utility;
 
 import com.sidam_backend.data.AbleTime;
 import com.sidam_backend.data.AccountRole;
@@ -70,19 +70,30 @@ public class AutoMaker {
 
             // 주간 근무 시간을 구하기 위해 각 근무자의 근무 시간을 더함
             for (AccountRole role : schedule.getUsers()) {
-                Integer base = workTime.get(role);
-                workTime.put(role, (base != null ? base + time : time));
+
+                if (!role.isValid() || role.getId() == null) { continue; }
+
+                int base = workTime.getOrDefault(role, 0);
+                workTime.put(role, base + time);
             }
+        }
+
+        for (Map.Entry<AccountRole, Integer> item : workTime.entrySet()) {
+            log.debug(item.getKey().getAlias() + ": " + item.getValue() + "시간");
         }
 
         return workTime;
     }
 
     // worker가 schedule이 불가능 시간과 겹치는지 확인하는 메소드
-    private boolean ableCheck (DailySchedule schedule, Store store, AccountRole worker){
+    private boolean ableCheck (DailySchedule schedule, Store store, AccountRole worker){ // 불가능 시간과 schedule이 ruqclaus false, 안 겹치면 true
 
         AbleTime ableTime = ableTimeRepository.
                 findByStoreAndAccountRoleAndDate(store, worker, schedule.getDate());
+
+        if (ableTime == null) {
+            return true;
+        }
 
         for (int i = 0; i < schedule.getTime().size(); i++) {
 
@@ -94,35 +105,42 @@ public class AutoMaker {
         return true;
     }
 
-    // worker가 weekly로 주어진 스케줄에서 base날 근무가 없는지 확인하는 메소드
-    private boolean sameDay(List<DailySchedule> weekly, AccountRole worker, LocalDate base) {
-
-        for (DailySchedule schedule : weekly) {
-            if (schedule.getUsers().contains(worker) && schedule.getDate().equals(base)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    // schedule에 들어갈 level-1 이상에 해당하는 가능한 모든 근무자 return
-    private List<AccountRole> substitute(DailySchedule schedule, int level, Store store) {
+    // schedule에 들어갈 (근무 불가능 시간에 걸리지 않고 schedule 날짜에 근무가 없는 경우)
+    // level-1 이상에 해당하는 가능한 모든 근무자 return
+    private List<AccountRole> substitute(List<DailySchedule> weekly, DailySchedule schedule, int level, Store store) {
 
         List<AccountRole> result = new ArrayList<>();
         List<AccountRole> workers = accountRoleRepository.findEmployeesOverLevel(store.getId(), level);
         // level-1 이상의 level을 가진 전체 근무자 조회
 
         // 레벨이 높은 순(내림차순)으로 정렬해서 높은 레벨의 근무자부터 조회
-        Comparator<AccountRole> levelComp = Comparator.comparingInt(AccountRole::getLevel).reversed();
+        Comparator<AccountRole> levelComp = Comparator.comparingInt(AccountRole::getLevel).reversed()
+                .thenComparing(AccountRole::getCost);
         workers.sort(levelComp);
 
         for (AccountRole worker : workers) {
+
             // worker가 불가능 시간에 걸리지 않았고, schedule에 없을 경우 result에 추가
             if (ableCheck(schedule, store, worker)
                     && !schedule.getUsers().contains(worker)) {
                 result.add(worker);
             }
+        }
+
+        // 같은 날 근무가 있는 근무자 제외
+        List<AccountRole> removed = new ArrayList<>();
+        for (DailySchedule day : weekly) {
+
+            if (day.getDate().equals(schedule.getDate())) {
+                removed.addAll(day.getUsers());
+            }
+        }
+
+        result.removeAll(removed);
+
+        log.debug("대체 가능 근무자");
+        for (AccountRole role : result) {
+            log.debug(role.getAlias() + " = lv" + role.getLevel() + " cost=" + role.getCost());
         }
 
         return result;
@@ -137,20 +155,19 @@ public class AutoMaker {
             List<AccountRole> workers = schedule.getUsers();
 
             // 각 근무자 한 명 한 명의 불가능 시간을 확인해서 스케줄에서 삭제
-            for (AccountRole worker : workers) {
+            for (int i = workers.size() - 1; i >= 0; i--) {
 
                 // 근무 시간과 불가능 시간이 겹치는지 확인, 겹치면 삭제하고 dummy 추가
                 // dummy = valid field가 false이고, level은 삭제된 근무자의 level을 가짐
-                if (ableCheck(schedule, store, worker)) {
+                if (!ableCheck(schedule, store, workers.get(i))) {
                     AccountRole dummy = new AccountRole();
                     dummy.setValid(false);
-                    dummy.setLevel(worker.getLevel());
+                    dummy.setLevel(workers.get(i).getLevel());
 
-                    schedule.getUsers().remove(worker);
+                    schedule.getUsers().remove(workers.get(i));
                     schedule.getUsers().add(dummy);
                 }
             }
-
             result.add(schedule);
         }
 
@@ -158,51 +175,43 @@ public class AutoMaker {
     }
 
     // schedule에 들어갈 최적 근무자 찾기
-    public AccountRole fitting(List<DailySchedule> weekly, DailySchedule schedule, Store store) {
+    public AccountRole fitting(List<DailySchedule> weekly, DailySchedule schedule, Store store, int level) {
 
-        AccountRole result = new AccountRole();
-        int workTime = getWorkTime(schedule);
-        boolean second = false, alternative = false;
-        List<AccountRole> workers = schedule.getUsers();
-        Map<AccountRole, Integer> totalTime = sumTotalTime(weekly);
+        AccountRole result = new AccountRole(); // 반환
 
-        for (AccountRole worker : workers) {
+        int workTime = getWorkTime(schedule); // 바꿔야할 근무의 근무 시간 계산
+        boolean second = false, alternative = false; // 등급 조건
+        Map<AccountRole, Integer> totalTime = sumTotalTime(weekly); // 각 근무자의 주간 근로 시간 계산
 
-            List<AccountRole> subWorkers;
+        List<AccountRole> subWorkers;
+        subWorkers = substitute(weekly, schedule, level, store); // 대체 가능한 근무자 List 찾아오기
 
-            // schedule에 있는 근무자 중 invalid한 근무자(= dummy 근무자)를 찾아 대체 근무자 list를 반환
-            if (!worker.isValid()) {
-                subWorkers = substitute(schedule, worker.getLevel(), store);
-            } else {
-                continue;
+        // 대체 근무자 리스트(subWorkers)를 확인해서 찾음
+        for (AccountRole sub : subWorkers) {
+
+            // first = 주 15시간 미만, 레벨 일치 근무자 = 최적해
+            if (totalTime.get(sub) < (14 - workTime) && sub.getLevel() == level) {
+                return sub;
             }
 
-            for (AccountRole sub : subWorkers) {
-                // first = 주 15시간 미만, 레벨 일치 근무자
-                if (totalTime.get(sub) < (14 - workTime) && sub.getLevel() == worker.getLevel()) {
-                    return sub;
-                }
+            // second = 주 15시간 미만, 레벨 불일치 근무자
+            else if (totalTime.get(sub) < (14 - workTime)) {
+                second = true;
+                result = sub;
+            }
 
-                // second = 주 15시간 미만, 레벨 불일치 근무자
-                if (totalTime.get(sub) < (14 - workTime)) {
-                    second = true;
-                    result = sub;
-                }
+            // alternative = 주 15시간 이상, 레벨 일치 근무자
+            else if (sub.getLevel() == level && !second) {
+                alternative = true;
+                result = sub;
+            }
 
-                // alternative = 주 15시간 이상, 레벨 일치 근무자
-                if (sub.getLevel() == worker.getLevel() && !second) {
-                    alternative = true;
-                    result = sub;
-                }
-
-                // worst = 주 15시간 이상, 레벨 불일치 근무자
-                if (!second && !alternative) {
-                    result = sub;
-                }
+            // worst = 주 15시간 이상, 레벨 불일치 근무자
+            else if (!second && !alternative) {
+                result = sub;
             }
         }
 
         return result;
     }
-
 }
