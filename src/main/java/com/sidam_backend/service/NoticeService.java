@@ -107,9 +107,11 @@ public class NoticeService extends UsingAlarmService {
                 .orElseThrow(() -> new IllegalArgumentException("save failed"));
     }
 
-    public List<GetNoticeList> findAllList(Store store, int lastId) {
+    public List<GetNoticeList> findAllList(Store store, int lastId, int cnt) {
 
-        List<Notice> list = noticeRepository.selectAllAfterLast(lastId, store.getId(), 10);
+        if (cnt > 10) { cnt = 10; }
+
+        List<Notice> list = noticeRepository.selectAllAfterLast(lastId, store.getId(), cnt);
         List<GetNoticeList> resultNotice = new ArrayList<>();
 
         for (Notice notice : list) {

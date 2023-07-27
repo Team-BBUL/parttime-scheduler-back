@@ -298,7 +298,7 @@ public class ScheduleService extends UsingAlarmService {
     public List<GetDaily> autoMake(Store store, int year, int month, int day) {
 
         AutoMaker maker =
-                new AutoMaker(scheduleRepository, storeRepository, accountRoleRepository, ableTimeRepository);
+                new AutoMaker(accountRoleRepository, ableTimeRepository);
 
         LocalDate lastWeek = maker.lastWeek(year, month, day);
         log.debug("get last week " + lastWeek);
@@ -333,7 +333,7 @@ public class ScheduleService extends UsingAlarmService {
 
                     AccountRole role = maker.fitting(newSchedule, schedule, store, workers.get(i).getLevel());
 
-                    if (role != null) {
+                    if (role.getId() != null) {
                         schedule.getUsers().add(role);
                     }
                     schedule.getUsers().remove(workers.get(i));

@@ -75,7 +75,7 @@ public class AutoMaker {
         }
 
         for (Map.Entry<AccountRole, Integer> item : workTime.entrySet()) {
-            log.debug(item.getKey().getAlias() + ": " + item.getValue() + "시간");
+            log.info(item.getKey().getAlias() + ": " + item.getValue() + "시간");
         }
 
         return workTime;
@@ -134,9 +134,9 @@ public class AutoMaker {
 
         result.removeAll(removed);
 
-        log.debug("대체 가능 근무자");
+        log.info("대체 가능 근무자");
         for (AccountRole role : result) {
-            log.debug(role.getAlias() + " = lv" + role.getLevel() + " cost=" + role.getCost());
+            log.info(role.getAlias() + " = lv" + role.getLevel() + " cost=" + role.getCost());
         }
 
         return result;
@@ -153,7 +153,7 @@ public class AutoMaker {
             // 각 근무자 한 명 한 명의 불가능 시간을 확인해서 스케줄에서 삭제
             for (int i = workers.size() - 1; i >= 0; i--) {
 
-                // 근무 시간과 불가능 시간이 겹치는지 확인, 겹치면 삭제하고 dummy 추가
+                // 근무 시간과 불가능 시간이 겹치는지 확인, 겹치면 삭제하고 dummy 추가 -> 삭제하지 마?
                 // dummy = valid field가 false이고, level은 삭제된 근무자의 level을 가짐
                 if (!ableCheck(schedule, store, workers.get(i))) {
                     AccountRole dummy = new AccountRole();

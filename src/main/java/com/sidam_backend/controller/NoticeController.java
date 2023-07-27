@@ -82,7 +82,8 @@ public class NoticeController {
     @GetMapping("/view/list")
     public ResponseEntity<Map<String, Object>> getAllNotice(
             @PathVariable Long storeId,
-            @RequestParam int last
+            @RequestParam int last,
+            @RequestParam int cnt
     ) {
 
         Map<String, Object> res = new HashMap<>();
@@ -99,7 +100,7 @@ public class NoticeController {
             if (last == 0) { lastId = (int) noticeService.getLastId(store) + 1; }
             log.info("last ID: " + lastId);
 
-            result = noticeService.findAllList(store, lastId);
+            result = noticeService.findAllList(store, lastId, cnt);
 
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
