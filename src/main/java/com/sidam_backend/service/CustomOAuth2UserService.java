@@ -1,7 +1,9 @@
-package com.sidam_backend.security;
+package com.sidam_backend.service;
 
 import com.sidam_backend.data.Account;
 import com.sidam_backend.repo.AccountRepository;
+import com.sidam_backend.security.AccountPrincipal;
+import com.sidam_backend.security.OAuthAttributes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -12,6 +14,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.attribute.UserPrincipal;
 import java.util.Collections;
 
 @Slf4j
@@ -33,21 +36,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
+        log.info("CustomOAuth2UserService = {}",attributes.getAttributes());
+        log.info("userNameAttributeName = {}", userNameAttributeName);
+        Account account = save(attributes);
 
-        Account account = saveOrUpdate(attributes);
-
-        log.info(attributes.getNameAttributeKey());
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(account.getRoleKey())),
-                attributes.getAttributes(),
-                attributes.getNameAttributeKey()
-        );
+        log.info("attributes.getNameAttributeKey = {}",attributes.getNameAttributeKey());
+        return AccountPrincipal.create(account, oAuth2User.getAttributes());
     }
 
-    private Account saveOrUpdate(OAuthAttributes attributes) {
+    private Account save(OAuthAttributes attributes) {
         Account account = (Account) accountRepository.findByEmail(attributes.getEmail())
-                .map(entity -> entity.update(attributes.getProfile()))
+//                .map(entity -> entity.update(attributes.getProfile()))
                 .orElse(attributes.toEntity());
+        log.info("saveOrUpdate = {}", account.toString());
         return accountRepository.save(account);
     }
 }

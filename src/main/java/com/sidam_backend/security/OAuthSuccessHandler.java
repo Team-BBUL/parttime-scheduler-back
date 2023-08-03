@@ -1,7 +1,5 @@
 package com.sidam_backend.security;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -11,8 +9,8 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -27,15 +25,17 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         log.info("auth success");
         TokenProvider tokenProvider = new TokenProvider();
         String token = tokenProvider.create(authentication);
-
+        Map<String, Object> data = new HashMap<>();
+        data.put("status", response.getStatus());
+        data.put("token", token);
 /*        Optional<Cookie> oCookie = Arrays.stream(request.getCookies()).filter(cookie ->
                 cookie.getName().equals(REDIRECT_URI_PARAM)).findFirst();
         Optional<String> redirectUri = oCookie.map(Cookie::getValue);*/
-
+//        response.setContentType("application/json");
         log.info("token {}", token);
-
-        response.getWriter().write(token);
-
+//        ResponseEntity.ok().body(jsonData);
+//        response.getWriter().write(result);
 //        response.sendRedirect(redirectUri.orElseGet(() -> LOCAL_REDIRECT_URL);
+        response.sendRedirect("http://10.0.2.2:8088/sociallogin?token="+token);
     }
 }
