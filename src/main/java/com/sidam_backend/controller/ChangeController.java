@@ -1,6 +1,7 @@
 package com.sidam_backend.controller;
 
-import com.sidam_backend.data.DailySchedule;
+import com.sidam_backend.data.ChangeRequest;
+import com.sidam_backend.data.Store;
 import com.sidam_backend.service.ChangeService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class ChangeController {
 
     private final ChangeService changeService;
 
+    // 대상 비지정 근무 교환 요청
     @PostMapping("/{storeId}")
     public ResponseEntity<Map<String, Object>> postRequest(
             @PathVariable("storeId") Long storeId,
@@ -26,22 +28,25 @@ public class ChangeController {
             @RequestParam("schedule") Long scheduleId
     ) {
         Map<String, Object> response = new HashMap<>();
+        Store store;
+        ChangeRequest request;
 
         log.info("unassigned work change request : user_role" + roleId + " schedule" + scheduleId);
 
         try {
-            changeService.validateStoreId(storeId);
+            store = changeService.validateStoreId(storeId);
             changeService.validateRoleId(roleId);
             changeService.validateSchedule(scheduleId);
 
-            changeService.saveChangeRequest(roleId, scheduleId);
+            request = changeService.saveChangeRequest(roleId, scheduleId);
 
         } catch (Exception ex) {
             response.put("message", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
 
-        // 점주에게 알람 전송
+        // 점주에 대해 알람 저장
+        changeService.changeAlarmMaker(store, request);
 
         response.put("message", "save success");
 
@@ -57,27 +62,28 @@ public class ChangeController {
             @RequestParam("objective") Long objectiveId
     ) {
         Map<String, Object> response = new HashMap<>();
+        Store store;
+        ChangeRequest request;
 
         log.info("assigned work change request : " + roleId + " to " + targetId +
                 " schedule " + scheduleId + " to " + objectiveId);
 
         try {
-            changeService.validateStoreId(storeId);
+            store = changeService.validateStoreId(storeId);
             changeService.validateRoleId(roleId);
             changeService.validateRoleId(targetId);
             changeService.validateSchedule(scheduleId);
             changeService.validateSchedule(objectiveId);
 
-            changeService.saveChangeRequest(roleId, targetId, scheduleId, objectiveId);
+            request = changeService.saveChangeRequest(roleId, targetId, scheduleId, objectiveId);
 
         } catch (Exception ex) {
             response.put("message", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
 
-        // 점주에게 알람 전송
-
-        // 요청 대상자에게 알람 전송
+        // 점주와 요청 대상자에 대해 알람 저장
+        changeService.changeAlarmMaker(store, request);
 
         response.put("message", "save success");
 

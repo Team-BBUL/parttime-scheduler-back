@@ -9,5 +9,4 @@ class SidamBackendApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

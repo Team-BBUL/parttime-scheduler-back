@@ -1,15 +1,10 @@
 package com.sidam_backend.service;
 
-import com.sidam_backend.data.ChangeRequest;
-import com.sidam_backend.data.DailySchedule;
-import com.sidam_backend.data.Store;
-import com.sidam_backend.data.AccountRole;
-import com.sidam_backend.repo.ChangeRequestRepository;
+import com.sidam_backend.data.*;
+import com.sidam_backend.repo.*;
 
-import com.sidam_backend.repo.DailyScheduleRepository;
-import com.sidam_backend.repo.StoreRepository;
-import com.sidam_backend.repo.AccountRoleRepository;
-import lombok.RequiredArgsConstructor;
+import com.sidam_backend.service.base.UsingAlarmService;
+import com.sidam_backend.service.base.Validation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +12,26 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class ChangeService {
+public class ChangeService extends UsingAlarmService implements Validation {
+
+    public ChangeService(
+            ChangeRequestRepository changeRequestRepository,
+            StoreRepository storeRepository,
+            AccountRoleRepository accountRoleRepository,
+            DailyScheduleRepository dailyScheduleRepository,
+            AlarmRepository alarmRepository,
+            AlarmReceiverRepository receiverRepository
+    ) {
+        super(alarmRepository, accountRoleRepository, receiverRepository);
+        this.changeRequestRepository = changeRequestRepository;
+        this.dailyScheduleRepository = dailyScheduleRepository;
+        this.accountRoleRepository = accountRoleRepository;
+        this.storeRepository = storeRepository;
+    }
 
     private final ChangeRequestRepository changeRequestRepository;
     private final StoreRepository storeRepository;
-    private final AccountRoleRepository userRoleRepository;
+    private final AccountRoleRepository accountRoleRepository;
     private final DailyScheduleRepository dailyScheduleRepository;
 
     public Store validateStoreId(Long storeId) {
@@ -33,8 +42,13 @@ public class ChangeService {
 
     public AccountRole validateRoleId(Long roleId) {
 
-        return userRoleRepository.findById(roleId)
+        return accountRoleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
+    }
+
+    @Override
+    public Account validateAccount(String accountId) {
+        return null;
     }
 
     public DailySchedule validateSchedule(Long scheduleId) {
@@ -43,7 +57,7 @@ public class ChangeService {
                 .orElseThrow(() -> new IllegalArgumentException(scheduleId + " schedule is not exist."));
     }
 
-    public void saveChangeRequest(Long roleId, Long schedule) {
+    public ChangeRequest saveChangeRequest(Long roleId, Long schedule) {
 
         ChangeRequest request = new ChangeRequest();
 
@@ -51,20 +65,20 @@ public class ChangeService {
         request.setDate(LocalDateTime.now().withNano(0));
         request.setOldSchedule(schedule);
         request.setOwnState(ChangeRequest.State.NON);
-        request.setResState(ChangeRequest.State.NON);
+        request.setResState(ChangeRequest.State.INVALID);
 
         changeRequestRepository.save(request);
 
-        changeRequestRepository.findById(request.getId())
+        return changeRequestRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalArgumentException(request.getId() + " save fails"));
     }
 
-    public void saveChangeRequest(Long roleId, Long targetId, Long schedule, Long target) {
+    public ChangeRequest saveChangeRequest(Long roleId, Long targetId, Long schedule, Long target) {
 
         ChangeRequest request = new ChangeRequest();
 
         request.setRequester(roleId);
-        request.setResponser(targetId);
+        request.setReceiver(targetId);
         request.setDate(LocalDateTime.now());
         request.setOldSchedule(schedule);
         request.setTargetSchedule(target);
@@ -73,7 +87,7 @@ public class ChangeService {
 
         changeRequestRepository.save(request);
 
-        changeRequestRepository.findById(request.getId())
+        return changeRequestRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalArgumentException(request.getId() + " save fails"));
     }
 }

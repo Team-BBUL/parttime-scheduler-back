@@ -21,5 +21,5 @@ public class JoinAlarm implements Serializable {
     private Store store;
 
     @OneToOne
-    private AccountRole userRole;
+    private AccountRole accountRole;
 }

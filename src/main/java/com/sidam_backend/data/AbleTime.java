@@ -1,6 +1,6 @@
 package com.sidam_backend.data;
 
-import com.sidam_backend.resources.ImpossibleTime;
+import com.sidam_backend.resources.DTO.ImpossibleTime;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -29,7 +29,7 @@ public class AbleTime {
 
     @ManyToOne
     @JoinColumn(name="role_id")
-    private AccountRole userRole;
+    private AccountRole accountRole;
 
     public ImpossibleTime toImpossibleTime() {
 

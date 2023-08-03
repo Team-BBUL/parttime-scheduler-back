@@ -15,7 +15,7 @@ public class UserChatting implements Serializable {
     private Long id;
 
     @ManyToOne
-    private AccountRole userRole;
+    private AccountRole accountRole;
 
     @ManyToOne
     @JoinColumn(name="room_id")

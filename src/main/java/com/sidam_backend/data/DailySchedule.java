@@ -1,7 +1,7 @@
 package com.sidam_backend.data;
 
-import com.sidam_backend.resources.GetDaily;
-import com.sidam_backend.resources.Worker;
+import com.sidam_backend.resources.DTO.GetDaily;
+import com.sidam_backend.resources.DTO.Worker;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -46,8 +46,8 @@ public class DailySchedule implements Serializable {
         daily.setTime(time);
 
         List<Worker> workers = new ArrayList<>();
-        for(AccountRole userRole : users) {
-            workers.add(userRole.toWorker(role));
+        for(AccountRole accountRole : users) {
+            workers.add(accountRole.toWorker(role));
         }
         daily.setWorkers(workers);
 

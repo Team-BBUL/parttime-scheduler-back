@@ -1,8 +1,8 @@
 package com.sidam_backend.data;
 
-import com.sidam_backend.resources.GetImage;
-import com.sidam_backend.resources.GetNotice;
-import com.sidam_backend.resources.GetNoticeList;
+import com.sidam_backend.resources.DTO.GetImage;
+import com.sidam_backend.resources.DTO.GetNotice;
+import com.sidam_backend.resources.DTO.GetNoticeList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name="notice")
+@Table(name="notice_tbl")
 public class Notice implements Serializable {
 
     @Id
@@ -33,6 +33,9 @@ public class Notice implements Serializable {
 
     @OneToMany
     private List<ImageFile> image;
+
+    @NotNull
+    private boolean valid = true;
 
     @ManyToOne
     @JoinColumn(name="store_id")

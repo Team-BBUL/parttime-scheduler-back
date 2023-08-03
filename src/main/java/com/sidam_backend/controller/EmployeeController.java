@@ -1,6 +1,8 @@
 package com.sidam_backend.controller;
 
 
+import com.sidam_backend.data.Alarm;
+import com.sidam_backend.data.Store;
 import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -21,6 +23,7 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
+    // 모든 근무자 조회
     @GetMapping("/employees/{storeId}")
     public ResponseEntity<Map<String, Object>> allEmployee(@PathVariable Long storeId) {
 
@@ -33,6 +36,7 @@ public class EmployeeController {
         return ResponseEntity.ok(response);
     }
 
+    // 단일 유저 조회
     @GetMapping("/employee/{storeId}")
     public ResponseEntity<AccountRole> singleEmployee(
             @PathVariable Long storeId,
@@ -41,30 +45,46 @@ public class EmployeeController {
         log.info("get a employee: store " + storeId + " UserRole " + roleId);
 
         try {
-            AccountRole userRole = employeeService.getEmployee(storeId, roleId);
-            return ResponseEntity.ok(userRole);
+            Store store = employeeService.validateStoreId(storeId);
+            AccountRole accountRole = employeeService.getEmployee(store, roleId);
+            return ResponseEntity.ok(accountRole);
         } catch (IllegalArgumentException ex) {
             log.warn(ex.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
 
+    // 근무자 가입
     @PostMapping("/employee/{storeId}")
-    public ResponseEntity<String> registerEmployee(
+    public ResponseEntity<Map<String, Object>> registerEmployee(
             @PathVariable Long storeId,
             @RequestParam("kakaoId") String userId) {
 
-        log.info("register a employee: Store " + storeId + "/ Account " + userId);
+        Map<String, Object> res = new HashMap<>();
+        log.info("register a employee: Store " + storeId + "/ User " + userId);
 
         try {
-            AccountRole newUser = employeeService.postEmployee(storeId, userId);
-            return ResponseEntity.ok(newUser.getId().toString());
+            Store store = employeeService.validateStoreId(storeId);
+            AccountRole newUser = employeeService.postEmployee(store, userId);
+
+            // 알림 저장
+            employeeService.managerAlarmMaker(store, newUser.getId().toString(),
+                    Alarm.Category.JOIN, Alarm.State.NON, newUser.getId());
+            // 알림 서버에 전송?
+
+            res.put("status_code", 200);
+            res.put("message", "employee register successful");
+            return ResponseEntity.ok(res);
+
         } catch (IllegalArgumentException ex) {
-            log.warn(ex.getMessage());
-            return ResponseEntity.badRequest().body(ex.getMessage());
+
+            res.put("status_code", 400);
+            res.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(res);
         }
     }
 
+    // 직원 정보 변경
     @PutMapping("/employee/{storeId}")
     public ResponseEntity<AccountRole> modifyEmployee(
             @PathVariable Long storeId,
@@ -74,7 +94,8 @@ public class EmployeeController {
         log.info("edit employee: Store " + storeId + "/ UserRole " + userId);
 
         try {
-            AccountRole edit = employeeService.putEmployee(storeId, userId, editUser);
+            Store store = employeeService.validateStoreId(storeId);
+            AccountRole edit = employeeService.putEmployee(store, userId, editUser);
             return ResponseEntity.ok(edit);
         } catch (IllegalArgumentException ex) {
             log.warn(ex.getMessage());
@@ -82,12 +103,14 @@ public class EmployeeController {
         }
     }
 
+    // 직원 삭제
     @DeleteMapping("/employee/{storeId}")
     public ResponseEntity<String> deleteEmployee(@PathVariable Long storeId, @RequestParam(value = "id") Long userId) {
         log.info("delete employee: Store " + storeId + "/ UserRole " + userId);
 
         try {
-            employeeService.deleteEmployee(storeId, userId);
+            Store store = employeeService.validateStoreId(storeId);
+            employeeService.deleteEmployee(store, userId);
             return ResponseEntity.ok().body("delete successful");
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());

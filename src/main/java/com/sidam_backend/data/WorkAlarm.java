@@ -21,5 +21,5 @@ public class WorkAlarm implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="role_id")
-    private AccountRole userRole;
+    private AccountRole accountRole;
 }

@@ -1,9 +1,7 @@
 package com.sidam_backend.controller;
 
-import com.sidam_backend.data.DailySchedule;
-import com.sidam_backend.data.Store;
-import com.sidam_backend.data.AccountRole;
-import com.sidam_backend.resources.*;
+import com.sidam_backend.data.*;
+import com.sidam_backend.resources.DTO.*;
 import com.sidam_backend.service.ScheduleService;
 
 import lombok.RequiredArgsConstructor;
@@ -150,12 +148,12 @@ public class ScheduleController {
         log.info("make schedule : Store" + storeId + " ver" + schedule.getTimeStamp());
 
         Store store;
-        DailySchedule[] weekly;
+        List<DailySchedule> weekly;
 
         try {
             store = scheduleService.validateStoreId(storeId);
             weekly = scheduleService.toDailySchedule(store, schedule);
-            scheduleService.saveSchedule(weekly);
+            scheduleService.saveSchedule(weekly, store);
 
         } catch (IllegalArgumentException ex) {
             result.put("status_code", 400);
@@ -191,19 +189,28 @@ public class ScheduleController {
             store = scheduleService.validateStoreId(storeId);
             schedule = scheduleService.getWeeklySchedule(store, year, month, day);
         } catch (IllegalArgumentException ex) {
+            response.put("status_code", 400);
             response.put("message", ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         if (schedule.size() == 0) {
-            log.info(ver + " schedule is not exist.");
+            response.put("status_code", 400);
             response.put("message", "data not exist");
             return ResponseEntity.ok(response);
         }
 
         LocalDateTime version = schedule.get(0).getVersion();
 
+        // 삭제 알림에 전달할 문구를 스케줄 시작일부터 종료일로 정하기 위해 정렬함
+        schedule.sort(Comparator.comparing(DailySchedule::getDate));
+        // 삭제 알림에 전달할 문구 "n월 m일 - n월 m일"
+        String dateInfo = scheduleService.formattingDate(schedule.get(0).getDate().atStartOfDay(),
+                schedule.get(schedule.size() - 1).getDate().atStartOfDay());
+
+        // 전달받은 버전 정보가 일치하지 않으면 삭제할 수 없게 처리
         if (!version.isEqual(ver)) {
+            response.put("status_code", 400);
             response.put("message", ver + " is not the same.");
             response.put("time_stamp", version);
             return ResponseEntity.ok(response);
@@ -213,10 +220,16 @@ public class ScheduleController {
             scheduleService.deleteWeeklySchedule(schedule);
 
         } catch (EmptyResultDataAccessException ex) {
+            response.put("status_code", 400);
             response.put("message", "data not exist");
             return ResponseEntity.ok(response);
         }
 
+        // 삭제 알림 저장
+        scheduleService.employeeAlarmMaker(store, dateInfo,
+                Alarm.Category.SCHEDULE, Alarm.State.DELETE, null);
+
+        response.put("status_code", 200);
         response.put("message", ver + " delete successful");
 
         return ResponseEntity.ok(response);
@@ -259,11 +272,11 @@ public class ScheduleController {
         log.info("impossible time post: " + data.getData());
 
         Store store;
-        AccountRole userRole;
+        AccountRole accountRole;
         try {
             store = scheduleService.validateStoreId(storeId);
-            userRole = scheduleService.validateRoleId(roleId);
-            scheduleService.saveAbleTime(scheduleService.toAbleTime(store, userRole, data));
+            accountRole = scheduleService.validateRoleId(roleId);
+            scheduleService.saveAbleTime(scheduleService.toAbleTime(store, accountRole, data));
 
         } catch (IllegalArgumentException ex) {
             response.put("message", ex.getMessage());
@@ -290,17 +303,17 @@ public class ScheduleController {
                 + " " + year + "." + month + "." + day);
 
         Store store;
-        AccountRole userRole;
+        AccountRole accountRole;
         try {
             store = scheduleService.validateStoreId(storeId);
-            userRole = scheduleService.validateRoleId(roleId);
+            accountRole = scheduleService.validateRoleId(roleId);
         } catch (IllegalArgumentException ex) {
             response.put("message", ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         ImpossibleTime[] ableTime;
-        ableTime = scheduleService.getAbleTimes(store, userRole, year, month, day);
+        ableTime = scheduleService.getAbleTimes(store, accountRole, year, month, day);
 
         if (ableTime != null) {
             response.put("data", ableTime);
@@ -366,5 +379,36 @@ public class ScheduleController {
 
         response.put("message", "delete successful");
         return ResponseEntity.ok(response);
+    }
+
+    // 자동편성
+    @GetMapping("/make/{storeId}")
+    public ResponseEntity<Map<String, Object>> autoMake(
+            @PathVariable Long storeId,
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam int day
+    ) {
+        Map<String, Object> res = new HashMap<>();
+
+        Store store;
+        List<GetDaily> dailyList;
+
+        log.info(storeId + " store, auto make");
+
+        try {
+            store = scheduleService.validateStoreId(storeId);
+            dailyList = scheduleService.autoMake(store, year, month, day);
+
+        } catch (IllegalArgumentException ex) {
+
+            res.put("message", ex.getMessage());
+            res.put("status_code", 400);
+
+            return ResponseEntity.badRequest().body(res);
+        }
+
+        res.put("date", dailyList);
+        return ResponseEntity.ok(res);
     }
 }

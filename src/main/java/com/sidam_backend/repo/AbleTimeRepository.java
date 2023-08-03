@@ -6,8 +6,11 @@ import com.sidam_backend.data.AccountRole;
 import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface AbleTimeRepository extends CrudRepository<AbleTime, Long> {
 
-    AbleTime findByStoreAndUserRoleAndDate(Store store, AccountRole user, LocalDate date);
+    AbleTime findByStoreAndAccountRoleAndDate(Store store, AccountRole user, LocalDate date);
+
+    List<AbleTime> findAllByStore(Store store);
 }

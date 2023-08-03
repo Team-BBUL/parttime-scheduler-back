@@ -1,7 +1,8 @@
-package com.sidam_backend.resources;
+package com.sidam_backend.resources.DTO;
 
-import com.sidam_backend.data.Notice;
+
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -11,6 +12,6 @@ public class UpdateNotice {
     private Long id;
     private String subject;
     private String content;
-    private List<UploadFile> photo;
+    private List<MultipartFile> photo;
 
 }
