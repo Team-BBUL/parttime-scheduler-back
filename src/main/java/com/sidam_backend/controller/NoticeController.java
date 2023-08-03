@@ -17,6 +17,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +40,7 @@ public class NoticeController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> makeNotice(
             @PathVariable Long storeId,
-            @RequestParam PostNotice input
+            @RequestBody PostNotice input
     ) {
 
         Map<String, Object> res = new HashMap<>();
@@ -47,7 +48,7 @@ public class NoticeController {
         Store store;
 
         log.info("post notice: " + storeId + "store "
-                + input.getSubject().length() + "/" + input.getBody().length());
+                + input.getSubject().length() + "/" + input.getContent().length());
 
         try {
             store = noticeService.validatedStoreId(storeId);
@@ -62,13 +63,19 @@ public class NoticeController {
     }
 
     // 목록 조회
-    @GetMapping("/view/list")
+    @GetMapping(value ="/view/list", produces ="application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getAllNotice(
+            @AuthenticationPrincipal Long id,
             @PathVariable Long storeId,
             @RequestParam int last
     ) {
 
         Map<String, Object> res = new HashMap<>();
+        if(!noticeService.isParticipate(id, storeId)){
+            log.info("해당 매장에 속해 있지 않습니다");
+            res.put("message", "해당 매장에 속해 있지 않습니다.");
+            return ResponseEntity.badRequest().body(res);
+        }
 
         Store store;
         List<GetNoticeList> result;
@@ -92,18 +99,18 @@ public class NoticeController {
     @GetMapping("/view/detail")
     public ResponseEntity<Map<String, Object>> getDetail(
             @PathVariable Long storeId,
-            @RequestParam Long noticeId
+            @RequestParam Long id
     ) {
 
         Map<String, Object> res = new HashMap<>();
 
-        log.info("notice detail: store" + storeId + " notice" + noticeId);
+        log.info("notice detail: store" + storeId + " notice" + id);
 
         GetNotice notice;
 
         try {
             noticeService.validatedStoreId(storeId);
-            notice = noticeService.findId(noticeId, "/api/notice/{storeId}/download/");
+            notice = noticeService.findId(id, "/api/notice/{storeId}/download/");
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
             return ResponseEntity.badRequest().body(res);
@@ -156,7 +163,7 @@ public class NoticeController {
         Map<String, Object> res = new HashMap<>();
 
         Store store;
-
+        log.info(" editNotice requestBody = [}", body);
         try {
             store = noticeService.validatedStoreId(storeId);
             noticeService.updateNotice(body, uploadPath, store);
