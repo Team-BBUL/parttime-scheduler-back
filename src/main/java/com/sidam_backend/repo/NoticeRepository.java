@@ -11,6 +11,6 @@ public interface NoticeRepository extends CrudRepository<Notice, Long> {
 
     List<Notice> findAllByStore (Store store);
 
-    @Query(value="SELECT * FROM notice WHERE store = ?2 AND id < ?1 LiMIT ?3", nativeQuery = true)
-    List<Notice> selectAllAfterLast(int last, Store store, int cnt);
+    @Query(value="SELECT * FROM notice WHERE store_id = ?2 AND id < ?1 LiMIT ?3", nativeQuery = true)
+    List<Notice> selectAllAfterLast(int last, Long store_id, int cnt);
 }
