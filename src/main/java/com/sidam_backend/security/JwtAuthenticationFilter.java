@@ -34,11 +34,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = parseBearerToken(request);
             log.info("Filter is running...");
+            log.info("token = {}", token);
             if (token != null && !token.equalsIgnoreCase("null")) {
-                String userId = tokenProvider.validateAndGetEmail(token);
-                log.info("Authenticated user ID : " + userId );
+                Long id = tokenProvider.validateAndGetSubject(token);
+                log.info("Authenticated user ID : " + id );
                 AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userId,
+                        id,
                         null,
                         AuthorityUtils.NO_AUTHORITIES
                 );
@@ -57,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String parseBearerToken(HttpServletRequest request) {
         // Http 리퀘스트의 헤더를 파싱해 Bearer 토큰을 리턴한다.
         String bearerToken = request.getHeader("Authorization");
-
+        log.info("bearerToken={}",bearerToken);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
