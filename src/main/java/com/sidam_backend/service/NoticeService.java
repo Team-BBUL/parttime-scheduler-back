@@ -40,6 +40,10 @@ public class NoticeService {
                 .orElseThrow(() -> new IllegalArgumentException(id + " store is not exist."));
     }
 
+    public boolean isParticipate(Long id, Long storeId){
+        return roleRepository.existsByMemberIdAndStoreId(id, storeId);
+    }
+
     public AccountRole validatedUserRoleId(Long id) {
 
         AccountRole role = roleRepository.findById(id)
@@ -85,7 +89,7 @@ public class NoticeService {
 
     public List<GetNoticeList> findAllList(Store store, int lastId) {
 
-        List<Notice> list = noticeRepository.selectAllAfterLast(lastId, store, 10);
+        List<Notice> list = noticeRepository.selectAllAfterLast(lastId, store.getId(), 10);
         List<GetNoticeList> resultNotice = new ArrayList<>();
 
         for (Notice notice : list) {
