@@ -1,5 +1,6 @@
 package com.sidam_backend.controller;
 
+import com.sidam_backend.data.Alarm;
 import com.sidam_backend.data.AlarmReceiver;
 import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.resources.DTO.GetAlarm;
@@ -79,7 +80,8 @@ public class AlarmController {
     @GetMapping("/list/{roleId}")
     public ResponseEntity<Map<String, Object>> getAlarmList(
             @PathVariable Long roleId,
-            @RequestParam long last
+            //@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime date,
+            @RequestParam(name = "page") int pageNum
     ) {
         Map<String, Object> res = new HashMap<>();
 
@@ -89,7 +91,7 @@ public class AlarmController {
         List<GetAlarm> result;
         try {
             role = alarmService.validateRoleId(roleId);
-            result = alarmService.getAlarmList(role, last);
+            result = alarmService.getAlarmList(role, pageNum);
 
             res.put("data", result);
             return ResponseEntity.ok(res);
@@ -117,6 +119,10 @@ public class AlarmController {
             requester = alarmService.validateRoleId(roleId);
             alarmReceiver = alarmService.validateReceive(receiveId);
 
+            if (alarmReceiver.getAlarm().getType() != Alarm.Category.CHANGE) {
+                throw new IllegalArgumentException("잘못된 receiver ID: " + receiveId);
+            }
+
             // 이 때 accept가 false이면 따로 push 알림을 줘야지 않을까?
 
             int code = alarmService.changeAccept(accept, alarmReceiver, requester);
@@ -124,13 +130,14 @@ public class AlarmController {
             res.put("message", accept ? "accept" : "denial" + " successful");
             res.put("status_code", code);
 
+            return ResponseEntity.ok(res);
+
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
             res.put("status_code", 400);
+
             return ResponseEntity.badRequest().body(res);
         }
-
-        return ResponseEntity.ok(res);
     }
 
     // 매장 가입 요청 거부/승낙
@@ -150,6 +157,10 @@ public class AlarmController {
             alarmReceiver = alarmService.validateReceive(receiveId);
             alarmService.joinAccept(accept, alarmReceiver, role);
 
+            if (alarmReceiver.getAlarm().getType() != Alarm.Category.JOIN) {
+                throw new IllegalArgumentException("잘못된 receiver ID: " + receiveId);
+            }
+
             // 매장 가입 요청자에게 알림 줘 말어?
 
         } catch (IllegalArgumentException ex) {
@@ -160,6 +171,38 @@ public class AlarmController {
 
         res.put("message", accept ? "accept" : "denial" + " successful");
         res.put("status_code", 200);
+        return ResponseEntity.ok(res);
+    }
+
+    // 알림 삭제
+    @DeleteMapping("/list/{roleId}")
+    public ResponseEntity<Map<String, Object>> deleteAlarm(
+            @PathVariable Long roleId,
+            @RequestParam("id") Long alarmId
+    ) {
+        Map<String, Object> res = new HashMap<>();
+
+        AlarmReceiver alarm;
+        AccountRole role;
+
+        try {
+            role = alarmService.validateRoleId(roleId);
+            alarm = alarmService.validateReceive(alarmId);
+
+            if (alarm.getAccountRole().equals(role)) {
+                alarmService.deleteReceiver(alarm);
+            } else {
+                throw new IllegalArgumentException(alarm.getId() + " 알림은 role" + role.getId() + "의 알림이 아닙니다.");
+            }
+        } catch (IllegalArgumentException ex) {
+            res.put("statusCode", 400);
+            res.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(res);
+        }
+
+        res.put("statusCode", 200);
+        res.put("message", "delete successful");
+
         return ResponseEntity.ok(res);
     }
 }

@@ -64,4 +64,9 @@ public class AccountRole implements Serializable {
 
         return worker;
     }
+
+    public Worker toWorker() {
+
+        return new Worker(id, alias, color, 0);
+    }
 }

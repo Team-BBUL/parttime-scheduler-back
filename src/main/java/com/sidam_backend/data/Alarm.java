@@ -26,6 +26,7 @@ public class Alarm {
         date = LocalDateTime.now().withNano(0);
         type = Category.CHANGE;
         state = State.INVALID;
+        content = "";
     }
 
     public enum Category {
