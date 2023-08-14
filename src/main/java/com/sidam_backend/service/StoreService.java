@@ -17,21 +17,16 @@ public class StoreService {
 
     private final StoreRepository storeRepository;
 
-    public List<GetStore> findStore(String input) throws IllegalArgumentException {
+    public List<Store> findStore(String input) throws IllegalArgumentException {
 
         List<Store> stores = storeRepository.findAllByName(input)
                 .orElseThrow(() -> new IllegalArgumentException(input + " is invalid."));
-        List<GetStore> result = new ArrayList<>();
 
         if (stores.size() == 0) {
-            throw new IllegalArgumentException("no search results found.");
+            throw new IllegalArgumentException("results not found.");
         }
 
-        for (Store store : stores) {
-            result.add(store.toGetStore());
-        }
-
-        return result;
+        return stores;
     }
 
     public List<String> findAllStoreName() {

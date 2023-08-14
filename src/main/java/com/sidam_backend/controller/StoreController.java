@@ -37,6 +37,7 @@ public class StoreController {
         try {
             res.put("data", storeService.findStore(input));
             return ResponseEntity.ok(res);
+
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
             return ResponseEntity.badRequest().body(res);
