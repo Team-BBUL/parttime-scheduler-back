@@ -5,10 +5,12 @@ import com.sidam_backend.data.Alarm;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.service.EmployeeService;
+import com.sidam_backend.service.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,20 +26,29 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     // 모든 근무자 조회
-    @GetMapping("/employees/{storeId}")
-    public ResponseEntity<Map<String, Object>> allEmployee(@PathVariable Long storeId) {
+    @GetMapping(value = "/employees/{storeId}", produces="application/json; charset=UTF-8")
+    public ResponseEntity<Map<String, Object>> allEmployee(
+            @AuthenticationPrincipal Long id,
+            @PathVariable Long storeId
+    ) {
+        Map<String, Object> res = new HashMap<>();
 
-        Map<String, Object> response = new HashMap<>();
+        try {
+            log.info("get all employee: Store" + storeId);
+            Store store = employeeService.validateStoreId(storeId);
+            List<AccountRole> result = employeeService.getAllEmployees(store, id);
 
-        log.info("get all employee: Store" + storeId);
-        List<AccountRole> res = employeeService.getAllEmployees(storeId);
-
-        response.put("data", res);
-        return ResponseEntity.ok(response);
+            res.put("data", result);
+            return ResponseEntity.ok(res);
+        } catch (IllegalArgumentException ex) {
+            res.put("status_code", 400);
+            res.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(res);
+        }
     }
 
     // 단일 유저 조회
-    @GetMapping("/employee/{storeId}")
+    @GetMapping(value = "/employee/{storeId}", produces="application/json; charset=UTF-8")
     public ResponseEntity<AccountRole> singleEmployee(
             @PathVariable Long storeId,
             @RequestParam("id") Long roleId) {
@@ -68,8 +79,8 @@ public class EmployeeController {
             AccountRole newUser = employeeService.postEmployee(store, userId);
 
             // 알림 저장
-            employeeService.managerAlarmMaker(store, newUser.getId().toString(),
-                    Alarm.Category.JOIN, Alarm.State.NON, newUser.getId());
+//            employeeService.managerAlarmMaker(store, newUser.getId().toString(),
+//                    Alarm.Category.JOIN, Alarm.State.NON, newUser.getId());
             // 알림 서버에 전송?
 
             res.put("status_code", 200);
