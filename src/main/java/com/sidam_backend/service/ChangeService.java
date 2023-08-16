@@ -47,7 +47,7 @@ public class ChangeService extends UsingAlarmService implements Validation {
     }
 
     @Override
-    public Account validateAccount(String accountId) {
+    public Account validateAccount(Long accountId) {
         return null;
     }
 
