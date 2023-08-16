@@ -7,6 +7,4 @@ import lombok.Data;
 public class AccountForm {
     @NotBlank
     private String name;
-
-    private boolean onceVerified;
 }
