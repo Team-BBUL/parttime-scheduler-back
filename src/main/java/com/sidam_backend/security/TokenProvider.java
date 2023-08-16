@@ -25,8 +25,8 @@ public class TokenProvider {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-
-        log.info("Authorities = {}",authorities);
+        log.info("TokenProvider.create...");
+        log.info("CreateToken = {}",authorities);
         log.info("Authentication.getName() = {}", authentication.getName());
 //        String email = (String) account.get("email");
 //        log.info("email = {}", email);
@@ -38,8 +38,8 @@ public class TokenProvider {
         return Jwts.builder()
                 .setSubject(String.valueOf(authentication.getName()))
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
-                .setIssuedAt(new Date()) // iat
-                .setExpiration(expiryDate) // exp
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
                 .compact();
     }
 
