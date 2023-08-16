@@ -45,7 +45,6 @@ public class Account implements Serializable{
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private boolean onceVerified;
 
     public Object update(String name) {
         this.name = name;
