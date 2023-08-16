@@ -95,7 +95,7 @@ public class NoticeService extends UsingAlarmService {
                 .orElseThrow(() -> new IllegalArgumentException("notice table is empty"));
     }
 
-    public void saveNotice(Notice content) {
+    public Notice saveNotice(Notice content) {
 
         if (content.getImage() != null && content.getImage().size() > 0) {
             imageFileRepository.saveAll(content.getImage());
@@ -103,7 +103,7 @@ public class NoticeService extends UsingAlarmService {
 
         noticeRepository.save(content);
 
-        noticeRepository.findById(content.getId())
+        return noticeRepository.findById(content.getId())
                 .orElseThrow(() -> new IllegalArgumentException("save failed"));
     }
 
