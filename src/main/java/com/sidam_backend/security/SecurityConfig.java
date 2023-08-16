@@ -1,17 +1,14 @@
 package com.sidam_backend.security;
 
 import com.sidam_backend.service.CustomOAuth2UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
@@ -24,22 +21,14 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    private final CustomAuthenticationManager customAuthenticationManager;
+
     public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, OAuthSuccessHandler oAuthSuccessHandler,
-                          JwtAuthenticationFilter jwtAuthenticationFilter) {
+                          JwtAuthenticationFilter jwtAuthenticationFilter, CustomAuthenticationManager customAuthenticationManager) {
         this.customOAuth2UserService = customOAuth2UserService;
         this.oAuthSuccessHandler = oAuthSuccessHandler;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
-
-    @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint(){
-        return (request, response, e) ->{
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("text/plain;charset=UTF-8");
-            response.getWriter().write("UNAUTHORIZED");
-            response.getWriter().flush();
-            response.getWriter().close();
-        };
+        this.customAuthenticationManager = customAuthenticationManager;
     }
 
     @Bean
@@ -57,7 +46,7 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/","/auth/** ","/auth2/**", "/oauth","/login","/sociallogin*").permitAll()
+                .requestMatchers("/","/auth/** ","/auth2/**", "/oauth","/login","/sociallogin").permitAll()
                 .requestMatchers("/api").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -73,12 +62,17 @@ public class SecurityConfig {
                 .successHandler(oAuthSuccessHandler)
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint());
-
+                .authenticationEntryPoint(customAuthenticationManager);
         http.addFilterAfter(
                 jwtAuthenticationFilter,
                 CorsFilter.class
         );
+//        http.addFilterAfter(
+//                jwtAuthenticationFilter,
+//                JwtExceptionFilter.class
+//        );
+
+
 
         return http.build();
     }
