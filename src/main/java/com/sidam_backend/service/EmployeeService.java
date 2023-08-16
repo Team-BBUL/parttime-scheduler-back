@@ -1,30 +1,33 @@
 package com.sidam_backend.service;
 
 import com.sidam_backend.data.*;
+import com.sidam_backend.data.enums.Role;
 import com.sidam_backend.repo.*;
 
 import com.sidam_backend.resources.ColorSet;
 import com.sidam_backend.resources.MinimumWages;
-import com.sidam_backend.service.base.UsingAlarmService;
+//import com.sidam_backend.service.base.UsingAlarmService;
 import com.sidam_backend.service.base.Validation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
 @Service // DB와 Controller 사이에서 실질적인 비즈니스 로직을 작업하는 역할
-public class EmployeeService extends UsingAlarmService implements Validation {
+public class EmployeeService implements Validation {
 
     public EmployeeService(
             AccountRoleRepository accountRoleRepository,
             StoreRepository storeRepository,
-            AccountRepository accountRepository,
-            AlarmRepository alarmRepository,
-            AlarmReceiverRepository receiverRepository
+            AccountRepository accountRepository
+//            AlarmRepository alarmRepository,
+//            AlarmReceiverRepository receiverRepository
     ) {
-        super(alarmRepository, accountRoleRepository, receiverRepository);
+//        super(alarmRepository, accountRoleRepository, receiverRepository);
 
         this.accountRepository = accountRepository;
         this.storeRepository = storeRepository;
@@ -45,7 +48,7 @@ public class EmployeeService extends UsingAlarmService implements Validation {
         return accountRoleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
     }
-    public Account validateAccount(String accountId) {
+    public Account validateAccount(Long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException(accountId + " account is not exist."));
     }
@@ -55,12 +58,11 @@ public class EmployeeService extends UsingAlarmService implements Validation {
         return null;
     }
 
-    public List<AccountRole> getAllEmployees(Long storeId) {
+    public List<AccountRole> getAllEmployees(Store store, Long accountId) {
+        checkIfManager(accountId,store);
 
         ArrayList<AccountRole> users;
 
-        Store store = storeRepository.findById(storeId)
-                .orElseThrow(()-> new IllegalArgumentException(storeId + " store is not exist."));
 
         AccountRole ex = new AccountRole();
         ex.setStore(store);
@@ -119,6 +121,8 @@ public class EmployeeService extends UsingAlarmService implements Validation {
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
     }
 
+
+
     public AccountRole putEmployee(Store store, Long roleId, AccountRole editRole) {
 
         AccountRole oldRole = accountRoleRepository.findById(roleId)
@@ -140,5 +144,28 @@ public class EmployeeService extends UsingAlarmService implements Validation {
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " userRole is not exist."));
 
         accountRoleRepository.delete(accountRole);
+    }
+
+    public boolean checkIfUserHasRole(Long accountId, Long roleId){
+
+        AccountRole accountRole = accountRoleRepository.findById(roleId).
+                orElseThrow(() -> new IllegalArgumentException(roleId + " AccountRole is not exist."));
+        return accountId.equals(accountRole.getAccount().getId());
+    }
+
+    public AccountRole getEmployeeByAccountId(Store store, Long accountId) {
+        return accountRoleRepository
+                .findByAccountIdAndStore(accountId, store)
+                .orElseThrow(() -> new IllegalArgumentException("AccountRole is not exist"));
+    }
+
+    private void checkIfManager(Long accountId, Store store){
+        AccountRole accountRole = accountRoleRepository
+                .findByAccountIdAndStore(accountId, store)
+                .orElseThrow(() -> new IllegalArgumentException("AccountRole is not exist."));
+
+        if(!accountRole.isManager()){
+            throw new AccessDeniedException("No Authority");
+        }
     }
 }
