@@ -47,7 +47,6 @@ public class OAuthAttributes {
         account.setEmail(email);
         account.setRole(Role.EMPLOYEE);
         account.setOauth2Id(oauth2Id);
-        account.setOnceVerified(false);
         return account;
     }
 }
