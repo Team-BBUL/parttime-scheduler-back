@@ -12,7 +12,7 @@ import java.util.List;
 public class PostNotice {
 
     private String subject;
-    private String body;
+    private String content;
     private List<MultipartFile> images;
 
     public Notice toNotice(Store store) {
@@ -24,12 +24,12 @@ public class PostNotice {
             throw new IllegalArgumentException("number of subject characters exceeded.");
         }
         // 내용
-        if (body.length() > 200) {
+        if (content.length() > 200) {
             throw new IllegalArgumentException("number of content characters exceeded.");
         }
 
         notice.setSubject(subject);
-        notice.setContent(body);
+        notice.setContent(content);
         notice.setStore(store);
 
         LocalDateTime now = LocalDateTime.now().withNano(0);
