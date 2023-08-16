@@ -10,14 +10,15 @@ import com.sidam_backend.resources.DTO.GetNoticeList;
 import com.sidam_backend.resources.DTO.PostNotice;
 
 import com.sidam_backend.resources.DTO.UpdateNotice;
-import com.sidam_backend.service.NoticeService;
 
+import com.sidam_backend.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class NoticeController {
 
 
     // 공지사항 작성
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> makeNotice(
             @PathVariable Long storeId,
             PostNotice input
@@ -53,17 +54,17 @@ public class NoticeController {
         Notice notice;
 
         log.info("post notice: " + storeId + "store subject length"
-                + input.getSubject().length() + "/ content length" + input.getBody().length());
+                + input.getSubject().length() + "/ content length" + input.getContent().length());
 
         try {
             store = noticeService.validatedStoreId(storeId);
             notice = input.toNotice(store);
             notice.setImage(noticeService.saveFile(input.getImages(), uploadPath, notice.getDate(), store));
-            noticeService.saveNotice(notice);
+            notice = noticeService.saveNotice(notice);
 
             // 알림 주기
-            noticeService.employeeAlarmMaker(store, notice.getSubject(),
-                    Alarm.Category.NOTICE, Alarm.State.ADD, notice.getId());
+//            noticeService.employeeAlarmMaker(store, notice.getSubject(),
+//                    Alarm.Category.NOTICE, Alarm.State.ADD, notice.getId());
 
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
@@ -73,7 +74,8 @@ public class NoticeController {
             res.put("message", "file save failed.");
             return ResponseEntity.internalServerError().body(res);
         }
-
+        res.put("id", notice.getId());
+        res.put("timeStamp", notice.getDate());
         res.put("message", "notice save successful");
         return ResponseEntity.ok(res);
     }
@@ -177,7 +179,7 @@ public class NoticeController {
     @PutMapping("/view/detail")
     public ResponseEntity<Map<String, Object>> editNotice(
             @PathVariable Long storeId,
-            UpdateNotice body
+            @RequestBody UpdateNotice body
     ) {
 
         Map<String, Object> res = new HashMap<>();
