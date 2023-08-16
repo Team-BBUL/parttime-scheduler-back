@@ -18,6 +18,7 @@ import java.util.Map;
 public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private static final String LOCAL_REDIRECT_URL = "http://localhost:8088";
+    private static final String FLUTTER_REDIRECT_URL = "http://10.0.2.2:8088";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -35,7 +36,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         log.info("token {}", token);
 //        ResponseEntity.ok().body(jsonData);
 //        response.getWriter().write(result);
-//        response.sendRedirect(redirectUri.orElseGet(() -> LOCAL_REDIRECT_URL);
-        response.sendRedirect("http://10.0.2.2:8088/sociallogin?token="+token);
+//        response.sendRedirect(redirectUri.orElseGet(() -> LOCAL_REDIRExCT_URL);
+        response.sendRedirect(FLUTTER_REDIRECT_URL+"/sociallogin?token="+token);
     }
 }
