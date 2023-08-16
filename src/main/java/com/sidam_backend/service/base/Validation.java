@@ -9,7 +9,7 @@ public interface Validation {
 
     Store validateStoreId(Long storeId);
     AccountRole validateRoleId(Long roleId);
-    Account validateAccount(String accountId);
+    Account validateAccount(Long accountId);
 
     DailySchedule validateSchedule(Long scheduleId);
 }
