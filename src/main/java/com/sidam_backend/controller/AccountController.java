@@ -24,7 +24,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping(produces="application/json; charset=UTF-8")
-    public ResponseEntity<Map<String,Object>> getAccount(
+    public ResponseEntity<Map<String,Object>> getAccountInfo(
             @AuthenticationPrincipal Long id
     ){
         Map<String, Object> res = new HashMap<>();
@@ -35,7 +35,6 @@ public class AccountController {
             log.info("email = {}", id);
             Account account = accountService.getAccount(id);
             accountForm.setName(account.getName());
-            accountForm.setOnceVerified(account.isOnceVerified());
             res.put("data",accountForm);
 
             return ResponseEntity.ok().body(res);
