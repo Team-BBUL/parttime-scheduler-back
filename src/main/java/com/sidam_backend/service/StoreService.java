@@ -8,10 +8,14 @@ import com.sidam_backend.repo.AccountRepository;
 import com.sidam_backend.repo.AccountRoleRepository;
 import com.sidam_backend.repo.StoreRepository;
 import com.sidam_backend.resources.ColorSet;
+import com.sidam_backend.resources.DTO.GetStore;
 import com.sidam_backend.resources.StoreForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -31,7 +35,7 @@ public class StoreService {
         store.setClose(storeForm.getClosed());
         store.setIdx(-1);
         store.setPayday(storeForm.getPayday());
-        store.setWeekStartDay(storeForm.getWeekStartDay());
+        store.setStartDayOfWeek(storeForm.getWeekStartDay());
 
         Store newStore = storeRepository.save(store);
         log.info("newStore = {}", newStore);
@@ -51,7 +55,7 @@ public class StoreService {
         newAccountRole.setSalary(true);
         newAccountRole.setValid(true);
         newAccountRole.setStore(newStore);
-        newAccountRole.setMember(account);
+        newAccountRole.setAccount(account);
         newAccountRole.setRole(role);
 
         AccountRole accountRole = accountRoleRepository.save(newAccountRole);
@@ -61,11 +65,44 @@ public class StoreService {
         return accountRole;
     }
 
-    public Store findStore(Long storeId) {
+    public Store findStoreById(Long storeId) {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(IllegalArgumentException::new);
         return store;
     }
 
+    public List<GetStore> findStore(String input) throws IllegalArgumentException {
+
+        List<Store> stores = storeRepository.findAllByName(input)
+                .orElseThrow(() -> new IllegalArgumentException(input + " is invalid."));
+        List<GetStore> result = new ArrayList<>();
+
+        if (stores.size() == 0) {
+            throw new IllegalArgumentException("no search results found.");
+        }
+
+        for (Store store : stores) {
+            result.add(store.toGetStore());
+        }
+
+        return result;
+    }
+
+    public List<String> findAllStoreName() {
+
+        return storeRepository.findNameAll();
+    }
+
+    public List<Store> getMyStores(Long id, Role role) {
+        List<AccountRole> accountRoles = accountRoleRepository.
+                findAccountRolesByAccountIdAndRole(id, role)
+                .orElseThrow(() -> new IllegalArgumentException(id + " userRoles is not exist"));
+
+        List<Store> stores = new ArrayList<>();
+        for (AccountRole accountRole : accountRoles) {
+            stores.add(accountRole.getStore());
+        }
+        return stores;
+    }
 
 }
