@@ -89,9 +89,9 @@ public class AlarmController {
         List<GetAlarm> result;
         try {
             role = alarmService.validateRoleId(roleId);
-            result = alarmService.getAlarmList(role, last);
+//            result = alarmService.getAlarmList(role, last);
 
-            res.put("data", result);
+//            res.put("data", result);
             return ResponseEntity.ok(res);
 
         } catch (IllegalArgumentException ex) {

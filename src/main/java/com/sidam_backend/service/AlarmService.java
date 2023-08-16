@@ -76,7 +76,7 @@ public class AlarmService implements Validation {
     }
 
     @Override
-    public Account validateAccount(String accountId) {
+    public Account validateAccount(Long accountId) {
 
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException(accountId + " account is not exist."));
