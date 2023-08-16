@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sidam_backend.data.enums.Role;
-import com.sidam_backend.resources.Worker;
+import com.sidam_backend.resources.DTO.Worker;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -43,7 +43,7 @@ public class AccountRole implements Serializable {
     @ManyToOne
     @JoinColumn(name = "kakao_id")
     @JsonIgnore
-    private Account member;
+    private Account account;
 
     @ManyToOne
     @JoinColumn(name = "store_id")
@@ -72,8 +72,12 @@ public class AccountRole implements Serializable {
     }
 
     public void isValidEmail(String email){
-        if (!this.getMember().getEmail().equals(email)) {
+        if (!this.getAccount().getEmail().equals(email)) {
             throw new IllegalArgumentException("본인이 아닙니다.");
         }
+    }
+
+    public boolean isManager(){
+        return this.role == Role.MANAGER;
     }
 }
