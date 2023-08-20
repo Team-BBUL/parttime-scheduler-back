@@ -2,10 +2,12 @@ package com.sidam_backend.service;
 
 import com.sidam_backend.data.*;
 import com.sidam_backend.repo.*;
+
+import com.sidam_backend.utility.FileUtils;
+import com.sidam_backend.resources.DTO.GetNotice;
 import com.sidam_backend.resources.DTO.GetNoticeList;
 import com.sidam_backend.resources.DTO.UpdateNotice;
 import com.sidam_backend.service.base.UsingAlarmService;
-import com.sidam_backend.utility.FileUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,34 +29,23 @@ public class NoticeService extends UsingAlarmService {
             NoticeRepository noticeRepository,
             StoreRepository storeRepository,
             ImageFileRepository imageFileRepository,
-            AlarmReceiverRepository receiverRepository,
-            NoticeReceiveRepository noticeReceiveRepository
+            AlarmReceiverRepository receiverRepository
             ) {
         super(alarmRepository, accountRoleRepository, receiverRepository);
         this.noticeRepository = noticeRepository;
         this.imageFileRepository = imageFileRepository;
         this.storeRepository = storeRepository;
-        this.noticeReceiveRepository = noticeReceiveRepository;
-        this.accountRoleRepository = accountRoleRepository;
     }
 
     private final NoticeRepository noticeRepository;
     private final StoreRepository storeRepository;
     private final ImageFileRepository imageFileRepository;
-    private final NoticeReceiveRepository noticeReceiveRepository;
-    private final AccountRoleRepository accountRoleRepository;
 
 
     public Store validatedStoreId(Long id) {
 
         return storeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + " store is not exist."));
-    }
-
-    public AccountRole validatedRoleId(Long id) {
-
-        return accountRoleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " role is not exist."));
     }
 
     public List<ImageFile> saveFile(List<MultipartFile> images, String path, LocalDateTime now, Store store)
@@ -116,7 +107,7 @@ public class NoticeService extends UsingAlarmService {
                 .orElseThrow(() -> new IllegalArgumentException("save failed"));
     }
 
-    public List<GetNoticeList> findAllList(Store store, int lastId, int cnt, AccountRole role) {
+    public List<GetNoticeList> findAllList(Store store, int lastId, int cnt) {
 
         if (cnt > 10) { cnt = 10; }
 
@@ -124,19 +115,17 @@ public class NoticeService extends UsingAlarmService {
         List<GetNoticeList> resultNotice = new ArrayList<>();
 
         for (Notice notice : list) {
-            // noticeReceive에서 값을 찾아서 없으면 생성(없으면 읽지 않은 것으로 처리)
-            boolean check = noticeReceiveRepository.findCheckByNoticeAndRole(notice, role)
-                            .orElse(false);
-            resultNotice.add(notice.toGetNoticeList(check));
+            resultNotice.add(notice.toGetNoticeList());
         }
 
         return resultNotice;
     }
 
-    public Notice findId(Long id) {
+    public GetNotice findId(Long id, String url) {
 
         return noticeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException(id + " notice is not exist."));
+                .orElseThrow(() -> new IllegalArgumentException(id + " notice is not exist."))
+                .toGetNotice(url);
     }
 
     @Transactional
@@ -213,25 +202,5 @@ public class NoticeService extends UsingAlarmService {
 
         return imageFileRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + " image is not exist."));
-    }
-
-    // 특정 직원에 대해 공지사항 읽음 확인을 만드는 함수
-    public NoticeReceive makeNoticeReceive(Notice notice, AccountRole role) {
-
-        NoticeReceive receive = new NoticeReceive(notice, role);
-
-        noticeReceiveRepository.save(receive);
-
-        return receive;
-    }
-
-    // 공지사항 읽음 확인을 조회 및 수정하는 메소드
-    @Transactional
-    public void noticeReadSet(Notice notice, AccountRole role) {
-
-        NoticeReceive receive = noticeReceiveRepository.findByNoticeAndRole(notice, role)
-                .orElseGet(() -> makeNoticeReceive(notice, role));
-
-        receive.setCheck(true);
     }
 }

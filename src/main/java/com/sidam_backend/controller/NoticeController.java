@@ -1,6 +1,9 @@
 package com.sidam_backend.controller;
 
-import com.sidam_backend.data.*;
+import com.sidam_backend.data.Alarm;
+import com.sidam_backend.data.ImageFile;
+import com.sidam_backend.data.Notice;
+import com.sidam_backend.data.Store;
 
 import com.sidam_backend.resources.DTO.GetNotice;
 import com.sidam_backend.resources.DTO.GetNoticeList;
@@ -82,8 +85,7 @@ public class NoticeController {
     public ResponseEntity<Map<String, Object>> getAllNotice(
             @PathVariable Long storeId,
             @RequestParam int last,
-            @RequestParam int cnt,
-            @RequestParam("role") Long roleId
+            @RequestParam int cnt
     ) {
 
         Map<String, Object> res = new HashMap<>();
@@ -91,18 +93,16 @@ public class NoticeController {
         Store store;
         int lastId = last;
         List<GetNoticeList> result;
-        AccountRole role;
 
         log.info("get notice list: " + storeId + "store");
 
         try {
             store = noticeService.validatedStoreId(storeId);
-            role = noticeService.validatedRoleId(roleId);
 
             if (last == 0) { lastId = (int) noticeService.getLastId(store) + 1; }
             log.info("last ID: " + lastId);
 
-            result = noticeService.findAllList(store, lastId, cnt, role);
+            result = noticeService.findAllList(store, lastId, cnt);
 
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
@@ -117,33 +117,24 @@ public class NoticeController {
     @GetMapping("/view/detail")
     public ResponseEntity<Map<String, Object>> getDetail(
             @PathVariable Long storeId,
-            @RequestParam("id") Long noticeId,
-            @RequestParam("role") Long roleId
+            @RequestParam("id") Long noticeId
     ) {
 
         Map<String, Object> res = new HashMap<>();
 
         log.info("notice detail: store" + storeId + " notice" + noticeId);
 
-        GetNotice getNotice;
-        Notice notice;
-        AccountRole role;
+        GetNotice notice;
 
         try {
             noticeService.validatedStoreId(storeId);
-            role = noticeService.validatedRoleId(roleId);
-            notice = noticeService.findId(noticeId);
-            getNotice = notice.toGetNotice("/api/notice/" + storeId + "/download/");
-
-            // 읽음확인 생성
-            noticeService.noticeReadSet(notice, role);
-
+            notice = noticeService.findId(noticeId, "/api/notice/" + storeId + "/download/");
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
             return ResponseEntity.badRequest().body(res);
         }
 
-        res.put("data", getNotice);
+        res.put("data", notice);
 
         return ResponseEntity.ok(res);
     }
