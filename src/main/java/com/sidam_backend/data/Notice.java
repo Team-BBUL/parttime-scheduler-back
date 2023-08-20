@@ -41,13 +41,14 @@ public class Notice implements Serializable {
     @JoinColumn(name="store_id")
     private Store store;
 
-    public GetNoticeList toGetNoticeList() {
+    public GetNoticeList toGetNoticeList(boolean check) {
 
         GetNoticeList noticeList = new GetNoticeList();
 
         noticeList.setId(id);
         noticeList.setSubject(subject);
         noticeList.setTimeStamp(date);
+        noticeList.setCheck(check);
 
         return noticeList;
     }
