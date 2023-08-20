@@ -17,7 +17,7 @@ public class CustomAuthenticationManager implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
-        String exception = (String)request.getAttribute("exception");
+        Integer exception = (Integer) request.getAttribute("exception");
 
         if(exception == null) {
             setResponse(response, CustomCode.UNKNOWN_ERROR);
