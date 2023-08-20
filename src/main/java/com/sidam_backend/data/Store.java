@@ -35,7 +35,7 @@ public class Store implements Serializable {
     // hh 형식
 
 //    @NotBlank
-    private int close;
+    private int closed;
     // hh 형식
 
     @NotNull
@@ -43,14 +43,14 @@ public class Store implements Serializable {
 
 //    @NotNull
     private int payday;
-    // 근무불가능시간 선택 마감일 = 주차 시작일로부터 n일 전까지
-//    @NotNull
-    private int deadlineOfSubmit;
-
     // 주차 시작일 = 월 화 수 목 금 토 일
     //             1  2  3 4  5  6 7
 //    @NotNull
     private int startDayOfWeek;
+
+    // 근무불가능시간 선택 마감일 = 주차 시작일로부터 n일 전까지
+//    @NotNull
+    private int deadlineOfSubmit;
 
     public GetStore toGetStore() {
         GetStore store = new GetStore();

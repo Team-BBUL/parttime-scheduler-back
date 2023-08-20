@@ -54,6 +54,8 @@ public class UsingAlarmService {
         AccountRole manager = accountRoleRepository.findOwner(store.getId())
                 .orElseThrow(() -> new IllegalArgumentException(store.getId() + "store owner not found."));
         AccountRole receiver = null;
+        AccountRole requester = accountRoleRepository.findById(req.getRequester())
+                .orElseThrow(() -> new IllegalArgumentException(req.getRequester() + " role not found."));
 
         if (req.getReceiver() != null) {
             receiver = accountRoleRepository.findByIdAndStore(req.getReceiver(), store)
@@ -74,6 +76,10 @@ public class UsingAlarmService {
             AlarmReceiver targetReceive = new AlarmReceiver(alarm, receiver);
             receiverRepository.save(targetReceive);
         }
+
+        // 본인 알림 저장
+        AlarmReceiver requesterReceive = new AlarmReceiver(alarm, requester);
+        receiverRepository.save(requesterReceive);
     }
 
     public String formattingDate(LocalDateTime start, LocalDateTime end) {

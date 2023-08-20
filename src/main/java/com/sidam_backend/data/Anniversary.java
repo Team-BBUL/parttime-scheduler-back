@@ -2,6 +2,7 @@ package com.sidam_backend.data;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -19,7 +20,7 @@ public class Anniversary implements Serializable {
     @NotBlank
     private String name;
 
-    @NotBlank
+    @NotNull
     private LocalDateTime date;
 
     @ManyToOne

@@ -89,7 +89,7 @@ public class NoticeController {
         Map<String, Object> res = new HashMap<>();
 
         Store store;
-        int lastId = last;
+        long lastId = last;
         List<GetNoticeList> result;
         AccountRole role;
 
@@ -125,25 +125,25 @@ public class NoticeController {
 
         log.info("notice detail: store" + storeId + " notice" + noticeId);
 
-        GetNotice getNotice;
         Notice notice;
+        GetNotice result;
         AccountRole role;
 
         try {
             noticeService.validatedStoreId(storeId);
             role = noticeService.validatedRoleId(roleId);
             notice = noticeService.findId(noticeId);
-            getNotice = notice.toGetNotice("/api/notice/" + storeId + "/download/");
 
-            // 읽음확인 생성
-            noticeService.noticeReadSet(notice, role);
+            result = notice.toGetNotice("/api/notice/" + storeId + "/download/");
+
+            noticeService.readCheck(notice, role);
 
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
             return ResponseEntity.badRequest().body(res);
         }
 
-        res.put("data", getNotice);
+        res.put("data", result);
 
         return ResponseEntity.ok(res);
     }

@@ -7,6 +7,9 @@ import com.sidam_backend.service.base.Validation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,8 +21,6 @@ import java.util.List;
 public class AlarmService implements Validation {
 
     private final AccountRoleRepository accountRoleRepository;
-    private final WorkAlarmRepository workAlarmRepository;
-    private final AlarmRepository alarmRepository;
     private final AlarmReceiverRepository receiverRepository;
     private final StoreRepository storeRepository;
     private final AccountRepository accountRepository;
@@ -155,14 +156,21 @@ public class AlarmService implements Validation {
 
     // 알림 list 가져오기
     @Transactional
-    public List<GetAlarm> getAlarmList(AccountRole accountRole, long in) {
+    public List<GetAlarm> getAlarmList(AccountRole accountRole, int pageNum) {
 
-        List<AlarmReceiver> receiverList = receiverRepository.findAllByRole(accountRole.getId(), 10, in);
+        // pageable 생성, 페이지 번호, 한 페이지의 객체 수
+        Pageable page = PageRequest.of(pageNum, 10, Sort.by(Sort.Direction.DESC, "date"));
+
+        List<AlarmReceiver> receiverList
+                = receiverRepository.findByAccountRole(accountRole, page);
         List<GetAlarm> result = new ArrayList<>();
+
+        log.info(receiverList.size() + "개의 아이템을 받아왔습니다.");
 
         for (AlarmReceiver ar : receiverList) {
 
             AccountRole req = null, rec = null;
+            // 근무 교환 종류의 알람이면 req와 rec 가져오기
             if (ar.getAlarm().getType() == Alarm.Category.CHANGE) {
                 ChangeRequest changeRequest = ar.getAlarm().getChangeRequest();
                 req = validateRoleId(changeRequest.getRequester());
@@ -172,6 +180,19 @@ public class AlarmService implements Validation {
 
             GetAlarm alarm = ar.getAlarm().toGetAlarm(ar.getId(), req, rec);
             alarm.setRead(ar.isCheck());
+
+            // 근무 변경이면 스케줄 날짜 넣기
+            if (alarm.getType() == Alarm.Category.CHANGE) {
+                DailySchedule oldSchedule = validateSchedule(alarm.getRequest().getOld());
+                alarm.getRequest().setOldSchedule(oldSchedule.toFormatString());
+
+                if (alarm.getRequest().getTarget() != 0) {
+                    DailySchedule targetSchedule = validateSchedule(alarm.getRequest().getTarget());
+                    alarm.getRequest().setTargetSchedule(targetSchedule.toFormatString());
+                }
+            }
+
+            // 알림 목록에 추가
             result.add(alarm);
 
             ar.setCheck(true);
@@ -257,5 +278,11 @@ public class AlarmService implements Validation {
 
         AccountRole target = validateRoleId(receiver.getAlarm().getContentId());
         target.setValid(res);
+    }
+
+    // 알림(AlarmReceiver) 삭제하기
+    public void deleteReceiver(AlarmReceiver receiver) {
+
+        receiverRepository.delete(receiver);
     }
 }

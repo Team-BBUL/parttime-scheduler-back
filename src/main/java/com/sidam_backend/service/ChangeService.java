@@ -8,6 +8,7 @@ import com.sidam_backend.service.base.Validation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -34,6 +35,12 @@ public class ChangeService extends UsingAlarmService implements Validation {
     private final AccountRoleRepository accountRoleRepository;
     private final DailyScheduleRepository dailyScheduleRepository;
 
+    public void validateDate(LocalDate date) {
+        if (LocalDate.now().isAfter(date)) {
+            throw new IllegalArgumentException("지난 근무는 바꿀 수 없습니다.");
+        }
+    }
+
     public Store validateStoreId(Long storeId) {
 
         return storeRepository.findById(storeId)
@@ -55,6 +62,13 @@ public class ChangeService extends UsingAlarmService implements Validation {
 
         return dailyScheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new IllegalArgumentException(scheduleId + " schedule is not exist."));
+    }
+
+    public void validateWorker(DailySchedule schedule, AccountRole role) {
+
+        if (!schedule.getUsers().contains(role)) {
+            throw new IllegalArgumentException("스케줄에 " + role.getId() + " 근무자가 존재하지 않음");
+        }
     }
 
     public ChangeRequest saveChangeRequest(Long roleId, Long schedule) {

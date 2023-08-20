@@ -1,5 +1,8 @@
 package com.sidam_backend.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,9 +51,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 securityContext.setAuthentication(authentication);
                 SecurityContextHolder.setContext(securityContext);
             }
-        } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
-            throw ex;
+        } catch (SecurityException | MalformedJwtException e) {
+            request.setAttribute("exception", CustomCode.WRONG_TYPE_TOKEN.getCode());
+        } catch (ExpiredJwtException e) {
+            request.setAttribute("exception", CustomCode.EXPIRED_TOKEN.getCode());
+        } catch (UnsupportedJwtException e) {
+            request.setAttribute("exception", CustomCode.UNSUPPORTED_TOKEN.getCode());
+        } catch (Exception e) {
+            log.error("================================================");
+            log.error("JwtAuthenticationFilter - doFilterInternal exception occured");
+            log.error("Exception Message : {}", e.getMessage());
+            log.error("Exception StackTrace : {");
+            e.printStackTrace();
+            log.error("}");
+            log.error("================================================");
+            request.setAttribute("exception", CustomCode.UNKNOWN_ERROR.getCode());
         }
         log.info("Filter still running...");
         filterChain.doFilter(request, response);

@@ -54,6 +54,7 @@ public class AccountRole implements Serializable {
         return isSalary;
     }
 
+    // role은 요청을 보낸 유저 => 근무자의 경우 본인이 아닌 사람의 cost를 0으로 setting하기 위함
     public Worker toWorker(AccountRole role) {
 
         Worker worker = new Worker();
@@ -79,5 +80,10 @@ public class AccountRole implements Serializable {
 
     public boolean isManager(){
         return this.role == Role.MANAGER;
+    }
+
+    public Worker toWorker() {
+
+        return new Worker(id, alias, color, 0);
     }
 }

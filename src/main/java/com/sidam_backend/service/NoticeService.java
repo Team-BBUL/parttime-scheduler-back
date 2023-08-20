@@ -2,10 +2,12 @@ package com.sidam_backend.service;
 
 import com.sidam_backend.data.*;
 import com.sidam_backend.repo.*;
+
+import com.sidam_backend.utility.FileUtils;
+import com.sidam_backend.resources.DTO.GetNotice;
 import com.sidam_backend.resources.DTO.GetNoticeList;
 import com.sidam_backend.resources.DTO.UpdateNotice;
 import com.sidam_backend.service.base.UsingAlarmService;
-import com.sidam_backend.utility.FileUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -57,6 +59,7 @@ public class NoticeService extends UsingAlarmService {
                 .orElseThrow(() -> new IllegalArgumentException(id + " role is not exist."));
     }
 
+    // 이미지 파일 저장
     public List<ImageFile> saveFile(List<MultipartFile> images, String path, LocalDateTime now, Store store)
             throws IOException, IllegalArgumentException {
 
@@ -99,11 +102,13 @@ public class NoticeService extends UsingAlarmService {
         return imageFiles;
     }
 
+    // 마지막 공지사항 id 가져오기
     public long getLastId(Store store) {
         return noticeRepository.selectLastId(store.getId())
-                .orElseThrow(() -> new IllegalArgumentException("notice table is empty"));
+                .orElse(0L);
     }
 
+    // 공지사항 저장
     public Notice saveNotice(Notice content) {
 
         if (content.getImage() != null && content.getImage().size() > 0) {
@@ -116,7 +121,8 @@ public class NoticeService extends UsingAlarmService {
                 .orElseThrow(() -> new IllegalArgumentException("save failed"));
     }
 
-    public List<GetNoticeList> findAllList(Store store, int lastId, int cnt, AccountRole role) {
+    // 공지사항 목록 조회
+    public List<GetNoticeList> findAllList(Store store, long lastId, int cnt, AccountRole role) {
 
         if (cnt > 10) { cnt = 10; }
 
@@ -133,12 +139,23 @@ public class NoticeService extends UsingAlarmService {
         return resultNotice;
     }
 
+    // 공지사항 세부 조회
     public Notice findId(Long id) {
 
         return noticeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException(id + " notice is not exist."));
     }
 
+    // 공지사항 읽음 처리
+    @Transactional
+    public void readCheck(Notice notice, AccountRole role) {
+        NoticeReceive receive = noticeReceiveRepository.findByNoticeAndRole(notice, role)
+                .orElse(makeNoticeReceive(notice, role));
+
+        receive.setCheck(true);
+    }
+
+    // 공지사항 삭제
     @Transactional
     public void deleteNotice(Long id) {
 
@@ -159,6 +176,7 @@ public class NoticeService extends UsingAlarmService {
         log.debug("공지 삭제 완료");
     }
 
+    // 공지사항 수정
     @Transactional
     public void updateNotice(UpdateNotice notice, String path, Store store)
             throws IOException, IllegalArgumentException{
@@ -209,6 +227,7 @@ public class NoticeService extends UsingAlarmService {
         employeeAlarmMaker(store, notice.getSubject(), Alarm.Category.NOTICE, Alarm.State.UPDATE, notice.getId());
     }
 
+    // 이미지 파일의 DB ID 찾기
     public ImageFile findImageById(Long id) {
 
         return imageFileRepository.findById(id)
