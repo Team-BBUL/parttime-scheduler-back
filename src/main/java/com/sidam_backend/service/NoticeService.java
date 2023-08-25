@@ -4,7 +4,6 @@ import com.sidam_backend.data.*;
 import com.sidam_backend.repo.*;
 
 import com.sidam_backend.utility.FileUtils;
-import com.sidam_backend.resources.DTO.GetNotice;
 import com.sidam_backend.resources.DTO.GetNoticeList;
 import com.sidam_backend.resources.DTO.UpdateNotice;
 import com.sidam_backend.service.base.UsingAlarmService;
@@ -244,13 +243,16 @@ public class NoticeService extends UsingAlarmService {
         return receive;
     }
 
-    // 공지사항 읽음 확인을 조회 및 수정하는 메소드
-    @Transactional
-    public void noticeReadSet(Notice notice, AccountRole role) {
+    // 공지사항 생성 시 모든 직원에게 읽음 확인 만드는 함수
+    public void makeNoticeReceive(Notice notice, Long storeId) {
 
-        NoticeReceive receive = noticeReceiveRepository.findByNoticeAndRole(notice, role)
-                .orElseGet(() -> makeNoticeReceive(notice, role));
+        List<AccountRole> roles = accountRoleRepository.findEmployees(storeId);
+        List<NoticeReceive> receives = new ArrayList<>();
 
-        receive.setCheck(true);
+        for (AccountRole role : roles) {
+            receives.add(new NoticeReceive(notice, role));
+        }
+
+        noticeReceiveRepository.saveAll(receives);
     }
 }

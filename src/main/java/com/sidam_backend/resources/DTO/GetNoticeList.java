@@ -11,5 +11,4 @@ public class GetNoticeList {
     private String subject;
     private boolean check;
     private LocalDateTime timeStamp;
-    private boolean check;
 }
