@@ -7,6 +7,7 @@ import com.sidam_backend.repo.*;
 import com.sidam_backend.resources.ColorSet;
 import com.sidam_backend.resources.MinimumWages;
 //import com.sidam_backend.service.base.UsingAlarmService;
+import com.sidam_backend.service.base.UsingAlarmService;
 import com.sidam_backend.service.base.Validation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,16 +19,16 @@ import java.util.List;
 
 @Slf4j
 @Service // DB와 Controller 사이에서 실질적인 비즈니스 로직을 작업하는 역할
-public class EmployeeService implements Validation {
+public class EmployeeService extends UsingAlarmService implements Validation  {
 
     public EmployeeService(
             AccountRoleRepository accountRoleRepository,
             StoreRepository storeRepository,
-            AccountRepository accountRepository
-//            AlarmRepository alarmRepository,
-//            AlarmReceiverRepository receiverRepository
+            AccountRepository accountRepository,
+            AlarmRepository alarmRepository,
+            AlarmReceiverRepository receiverRepository
     ) {
-//        super(alarmRepository, accountRoleRepository, receiverRepository);
+        super(alarmRepository, accountRoleRepository, receiverRepository);
 
         this.accountRepository = accountRepository;
         this.storeRepository = storeRepository;
