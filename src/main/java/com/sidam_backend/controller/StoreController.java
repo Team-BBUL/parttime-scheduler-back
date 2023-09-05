@@ -4,7 +4,7 @@ package com.sidam_backend.controller;
 import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.enums.Role;
-import com.sidam_backend.resources.StoreForm;
+import com.sidam_backend.resources.DTO.StoreForm;
 import com.sidam_backend.service.EmployeeService;
 import com.sidam_backend.service.StoreService;
 import com.sidam_backend.validator.StoreValidator;
@@ -37,7 +37,7 @@ public class StoreController {
         webDataBinder.setValidator(storeValidator);
     }
 
-    @GetMapping("/search")
+    @GetMapping(value = "/search", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> searchStore(
             @RequestParam("input") String input
     ) {
@@ -61,7 +61,7 @@ public class StoreController {
         }
     }
 
-    @GetMapping("/search/all")
+    @GetMapping(value = "/search/all", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> searchAllStore() {
 
         Map<String, Object> res = new HashMap<>();
@@ -72,7 +72,7 @@ public class StoreController {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/my-list")
+    @GetMapping(value = "/my-list", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getMyStores(
             @AuthenticationPrincipal Long id,
             @RequestParam Role role
@@ -202,23 +202,22 @@ public class StoreController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-    @GetMapping(value = "/enter/{storeId}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Map<String, Object>> enterStore(
+
+    @PutMapping(value = "/{storeId}", produces = "application/json; charset=UTF-8")
+    public ResponseEntity<Map<String, Object>> modifyStore(
             @AuthenticationPrincipal Long id,
-            @PathVariable Long storeId
+            @PathVariable Long storeId,
+            @RequestBody StoreForm storeForm
     ) {
         Map<String, Object> response = new HashMap<>();
 
+        log.info("modifyStore = {}", storeId);
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-            Map<String, Object> data = new HashMap<>();
+            storeService.putStore(store, storeForm);
+            response.put("status_code", 200);
+            response.put("data", store);
 
-            data.put("store",store);
-            data.put("accountRole",accountRole);
-
-            response.put("data", data);
-            log.info(String.valueOf(response));
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
 

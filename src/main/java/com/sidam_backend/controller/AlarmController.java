@@ -86,7 +86,7 @@ public class AlarmController {
         Map<String, Object> res = new HashMap<>();
 
         log.info("get alarm list: id " + roleId);
-
+        
         AccountRole role;
         List<GetAlarm> result;
         try {

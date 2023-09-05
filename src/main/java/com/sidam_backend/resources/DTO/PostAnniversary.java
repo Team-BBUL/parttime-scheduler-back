@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class PostAnniversary {
 
-    String name;
+    private String name;
 
-    LocalDateTime date;
+    private LocalDateTime date;
 }

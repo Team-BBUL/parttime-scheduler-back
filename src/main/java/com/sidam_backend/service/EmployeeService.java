@@ -58,8 +58,8 @@ public class EmployeeService implements Validation {
         return null;
     }
 
-    public List<AccountRole> getAllEmployees(Store store, Long accountId) {
-        checkIfManager(accountId,store);
+    public List<AccountRole> getAllEmployees(Store store) {
+//        this.checkIfManager(accountId,store);
 
         ArrayList<AccountRole> users;
 
@@ -121,8 +121,6 @@ public class EmployeeService implements Validation {
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
     }
 
-
-
     public AccountRole putEmployee(Store store, Long roleId, AccountRole editRole) {
 
         AccountRole oldRole = accountRoleRepository.findById(roleId)
@@ -157,6 +155,11 @@ public class EmployeeService implements Validation {
         return accountRoleRepository
                 .findByAccountIdAndStore(accountId, store)
                 .orElseThrow(() -> new IllegalArgumentException("AccountRole is not exist"));
+    }
+
+    public AccountRole getAccountRoleWithStore(Store store, Long id){
+        return accountRoleRepository
+                .findWithStoreByAccountIdAndStore(id, store);
     }
 
     private void checkIfManager(Long accountId, Store store){

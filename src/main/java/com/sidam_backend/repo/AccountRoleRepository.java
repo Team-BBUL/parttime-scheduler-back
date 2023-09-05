@@ -3,6 +3,7 @@ package com.sidam_backend.repo;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.data.enums.Role;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -31,4 +32,10 @@ public interface AccountRoleRepository extends CrudRepository<AccountRole, Long>
     @Query(value = "SELECT * FROM account_role WHERE store_id = :store AND is_salary = true AND level >= :level - 1 AND valid = true", nativeQuery = true)
     List<AccountRole> findEmployeesOverLevel(Long store, int level);
 
+    @EntityGraph(value = "AccountRole.store")
+    AccountRole findWithStoreByAccountIdAndStore(Long accountId, Store store);
+
+
+    @EntityGraph(value = "AccountRole.account")
+    AccountRole findWithAccountByAccountIdAndStore(Long accountId, Store store);
 }

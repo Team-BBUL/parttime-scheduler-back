@@ -7,7 +7,8 @@ import com.sidam_backend.data.enums.Role;
 import com.sidam_backend.repo.AccountRepository;
 import com.sidam_backend.repo.AccountRoleRepository;
 import com.sidam_backend.repo.StoreRepository;
-import com.sidam_backend.resources.StoreForm;
+import com.sidam_backend.resources.DTO.StoreForm;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class StoreService {
         store.setClosed(storeForm.getClosed());
         store.setIdx(-1);
         store.setPayday(storeForm.getPayday());
-        store.setStartDayOfWeek(storeForm.getWeekStartDay());
+        store.setStartDayOfWeek(storeForm.getStartDayOfWeek());
 
         Store newStore = storeRepository.save(store);
         log.info("newStore = {}", newStore);
@@ -97,4 +98,16 @@ public class StoreService {
         return stores;
     }
 
+    @Transactional
+    public void putStore(Store store, StoreForm storeForm) {
+        store.setName(storeForm.getName());
+        store.setLocation(storeForm.getLocation());
+        store.setPhone(storeForm.getPhone());
+        store.setOpen(storeForm.getOpen());
+        store.setClosed(storeForm.getClosed());
+        store.setIdx(-1);
+        store.setPayday(storeForm.getPayday());
+        store.setStartDayOfWeek(storeForm.getStartDayOfWeek());
+        store.setDeadlineOfSubmit(storeForm.getDeadlineOfSubmit());
+    }
 }

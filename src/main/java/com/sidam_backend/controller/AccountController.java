@@ -1,9 +1,8 @@
 package com.sidam_backend.controller;
 
 import com.sidam_backend.data.Account;
-import com.sidam_backend.resources.AccountForm;
+import com.sidam_backend.resources.DTO.AccountForm;
 import com.sidam_backend.service.AccountService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -24,7 +22,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping(produces="application/json; charset=UTF-8")
-    public ResponseEntity<Map<String,Object>> getAccountInfo(
+    public ResponseEntity<Map<String,Object>> getMyAccountInfo(
             @AuthenticationPrincipal Long id
     ){
         Map<String, Object> res = new HashMap<>();
@@ -34,8 +32,7 @@ public class AccountController {
 
             log.info("email = {}", id);
             Account account = accountService.getAccount(id);
-            accountForm.setName(account.getName());
-            res.put("data",accountForm);
+            res.put("data",account);
 
             return ResponseEntity.ok().body(res);
         }catch (Exception e){

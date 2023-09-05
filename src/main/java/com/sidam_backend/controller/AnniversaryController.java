@@ -27,7 +27,8 @@ public class AnniversaryController {
 
     private final AnniversaryService anniversaryService;
 
-    @GetMapping("/stores/{storeId}/employees/{employeeId}/anniversary")
+    @GetMapping(value = "/stores/{storeId}/employees/{employeeId}/anniversary",
+            produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getAnniversaries(
             @AuthenticationPrincipal Long id,
             @PathVariable Long storeId,
@@ -54,7 +55,8 @@ public class AnniversaryController {
         }
     }
 
-    @GetMapping("/stores/{storeId}/employees/{employeeId}/anniversary/{anniversaryId}")
+    @GetMapping(value = "/stores/{storeId}/employees/{employeeId}/anniversary/{anniversaryId}",
+            produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getAnniversaryInfo(
             @AuthenticationPrincipal Long id,
             @PathVariable Long storeId,
@@ -100,7 +102,7 @@ public class AnniversaryController {
             AccountRole employee = employeeService.getEmployee(store, employeeId);
             Anniversary newAnniversary = anniversaryService.createNewAnniversary(postAnniversary, employee);
 
-            res.put("data", newAnniversary);
+            res.put("id", newAnniversary.getId());
             return ResponseEntity.ok().body(res);
         } catch (IllegalArgumentException ex) {
             res.put("status_code", 400);

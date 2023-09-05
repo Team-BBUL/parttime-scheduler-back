@@ -1,7 +1,7 @@
 package com.sidam_backend.validator;
 
 import com.sidam_backend.repo.StoreRepository;
-import com.sidam_backend.resources.StoreForm;
+import com.sidam_backend.resources.DTO.StoreForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

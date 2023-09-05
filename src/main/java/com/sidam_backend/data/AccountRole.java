@@ -13,6 +13,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name="account_role")
+@NamedEntityGraph(name = "AccountRole.store", attributeNodes = @NamedAttributeNode("store"))
 public class AccountRole implements Serializable {
 
     @Id
@@ -80,6 +81,10 @@ public class AccountRole implements Serializable {
 
     public boolean isManager(){
         return this.role == Role.MANAGER;
+    }
+
+    public boolean isSame(Long id){
+        return this.getId().equals(id);
     }
 
     public Worker toWorker() {

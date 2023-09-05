@@ -95,7 +95,8 @@ public class ScheduleController {
             @RequestParam("version") LocalDateTime ver,
             @RequestParam("year") int year,
             @RequestParam("month") int month,
-            @RequestParam("day") int day) {
+            @RequestParam("day") int day
+    ) {
 
         Map<String, Object> response = new HashMap<>();
 

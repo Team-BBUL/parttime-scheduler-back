@@ -24,8 +24,8 @@ public class AnniversaryService {
     }
 
     public Anniversary getAnniversary(Long anniversaryId){
-        return anniversaryRepository.findById(String.valueOf(anniversaryId)).
-                orElseThrow(()-> new IllegalArgumentException( anniversaryId + " anniversary is not exist."));
+        return anniversaryRepository.findById(anniversaryId)
+                .orElseThrow(()-> new IllegalArgumentException( anniversaryId + " anniversary is not exist."));
     }
 
     public Anniversary createNewAnniversary(PostAnniversary postAnniversary, AccountRole employee){

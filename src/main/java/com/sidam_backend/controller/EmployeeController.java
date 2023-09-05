@@ -1,15 +1,14 @@
 package com.sidam_backend.controller;
 
 
-import com.sidam_backend.data.Alarm;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.service.EmployeeService;
-import com.sidam_backend.service.StoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,9 +33,14 @@ public class EmployeeController {
         Map<String, Object> res = new HashMap<>();
 
         try {
-            log.info("get all employee: Store" + storeId);
             Store store = employeeService.validateStoreId(storeId);
-            List<AccountRole> result = employeeService.getAllEmployees(store, id);
+            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+            if(!accountRole.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
+            log.info("get all employee: Store" + storeId);
+
+            List<AccountRole> result = employeeService.getAllEmployees(store);
 
             res.put("data", result);
             return ResponseEntity.ok(res);
@@ -51,13 +55,14 @@ public class EmployeeController {
     @GetMapping(value = "/employee/{storeId}", produces="application/json; charset=UTF-8")
     public ResponseEntity<AccountRole> singleEmployee(
             @PathVariable Long storeId,
-            @RequestParam("id") Long roleId) {
+            @RequestParam("id") Long employeeId
+    ) {
 
-        log.info("get a employee: store " + storeId + " UserRole " + roleId);
+        log.info("get a employee: store " + storeId + " UserRole " + employeeId);
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployee(store, roleId);
+            AccountRole accountRole = employeeService.getEmployee(store, employeeId);
             return ResponseEntity.ok(accountRole);
         } catch (IllegalArgumentException ex) {
             log.warn(ex.getMessage());
@@ -65,11 +70,13 @@ public class EmployeeController {
         }
     }
 
+
     // 근무자 가입
     @PostMapping("/employee/{storeId}")
     public ResponseEntity<Map<String, Object>> registerEmployee(
             @PathVariable Long storeId,
-            @RequestParam("kakaoId") String userId) {
+            @RequestParam("kakaoId") String userId
+    ) {
 
         Map<String, Object> res = new HashMap<>();
         log.info("register a employee: Store " + storeId + "/ User " + userId);
@@ -100,7 +107,8 @@ public class EmployeeController {
     public ResponseEntity<AccountRole> modifyEmployee(
             @PathVariable Long storeId,
             @RequestParam(value = "id") Long userId,
-            @Valid AccountRole editUser) {
+            @Valid @RequestBody AccountRole editUser
+    ) {
 
         log.info("edit employee: Store " + storeId + "/ UserRole " + userId);
 
@@ -116,7 +124,10 @@ public class EmployeeController {
 
     // 직원 삭제
     @DeleteMapping("/employee/{storeId}")
-    public ResponseEntity<String> deleteEmployee(@PathVariable Long storeId, @RequestParam(value = "id") Long userId) {
+    public ResponseEntity<String> deleteEmployee(
+            @PathVariable Long storeId,
+            @RequestParam(value = "id") Long userId
+    ) {
         log.info("delete employee: Store " + storeId + "/ UserRole " + userId);
 
         try {
@@ -125,6 +136,59 @@ public class EmployeeController {
             return ResponseEntity.ok().body("delete successful");
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @GetMapping(value  = "/enter/{storeId}",produces="application/json; charset=UTF-8")
+    public ResponseEntity<Map<String,Object>> enter(
+            @AuthenticationPrincipal Long id,
+            @PathVariable Long storeId
+    ){
+        Map<String, Object> res = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+        try{
+
+            Store store = employeeService.validateStoreId(storeId);
+            AccountRole accountRole = employeeService.getAccountRoleWithStore(store, id);
+
+            log.info("enter success = {}", accountRole);
+
+            data.put("accountRole", accountRole);
+            data.put("store", accountRole.getStore());
+
+            res.put("data",data);
+            return ResponseEntity.ok(res);
+        }catch (IllegalArgumentException ex){
+            log.warn(ex.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping(value = "/employee/{storeId}/account", produces = "application/json; charset=UTF-8")
+    public ResponseEntity<Map<String,Object>> singleEmployeeWithAccount(
+            @PathVariable Long storeId,
+            @RequestParam("id") Long employeeId
+    ) {
+        Map<String, Object> res = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+
+        log.info("get a employee: store " + storeId + " UserRole " + employeeId);
+
+        try {
+
+            Store store = employeeService.validateStoreId(storeId);
+            AccountRole accountRole = employeeService.getEmployee(store, employeeId);
+
+            log.info("singleEmployeeWithAccount = {}", accountRole);
+
+            data.put("accountRole", accountRole);
+            data.put("account", accountRole.getAccount());
+            res.put("data", data);
+
+            return ResponseEntity.ok(res);
+        } catch (IllegalArgumentException ex) {
+            log.warn(ex.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 }
