@@ -1,4 +1,4 @@
-package com.sidam_backend.resources;
+package com.sidam_backend.resources.DTO;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -19,6 +19,8 @@ public class StoreForm {
 
     private int payday;
 
-    private int weekStartDay;
+    private int startDayOfWeek;
+
+    private int deadlineOfSubmit;
 
 }

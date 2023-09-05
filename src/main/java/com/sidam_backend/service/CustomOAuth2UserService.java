@@ -23,7 +23,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private final AccountRepository accountRepository;
 
-
     public CustomOAuth2UserService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }

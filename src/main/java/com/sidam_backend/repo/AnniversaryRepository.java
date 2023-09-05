@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface AnniversaryRepository extends CrudRepository<Anniversary, String> {
+public interface AnniversaryRepository extends CrudRepository<Anniversary, Long> {
 
     Optional<List<Anniversary>> findAnniversariesByAccountRole(AccountRole accountRole);
 }

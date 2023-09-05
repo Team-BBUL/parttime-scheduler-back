@@ -1,15 +1,10 @@
 package com.sidam_backend.data;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.sidam_backend.data.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serializable;
 
@@ -24,19 +19,16 @@ public class Account implements Serializable{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    @NotBlank
+    @NotBlank
     private String email;
 
 //    @NotBlank
-    private String profile;
+//    private String profile;
 
-//    @NotBlank
+    @NotBlank
     private String name;
 
 //    @NotBlank
-    private String phone;
-
-    //    @NotBlank
     private String device;
 
     @NotBlank
@@ -45,6 +37,8 @@ public class Account implements Serializable{
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @NotNull
+    private boolean onceVerified;
 
     public Object update(String name) {
         this.name = name;

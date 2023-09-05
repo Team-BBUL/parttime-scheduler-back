@@ -11,23 +11,22 @@ import java.time.LocalDate;
 @Data
 @Entity
 @Table
-public class Incentive implements Serializable {
+public class CostPolicy implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
-    private int cost;
-
     @NotBlank
     private String description;
+
+    @NotNull
+    private double multiplyCost;
 
     @NotNull
     private LocalDate date;
 
     @ManyToOne
-    @JoinColumn(name="role_id")
-    private AccountRole accountRole;
-
+    @JoinColumn(name="store_id")
+    private Store store;
 }
