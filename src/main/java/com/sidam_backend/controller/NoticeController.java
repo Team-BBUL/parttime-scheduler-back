@@ -60,11 +60,8 @@ public class NoticeController {
             notice = noticeService.saveNotice(notice);
 
             // 알림 주기
-//            noticeService.employeeAlarmMaker(store, notice.getSubject(),
-//                    Alarm.Category.NOTICE, Alarm.State.ADD, notice.getId());
-
-            // 읽음 여부 만들기
-            noticeService.makeNoticeReceive(notice, storeId);
+            noticeService.employeeAlarmMaker(store, notice.getSubject(),
+                    Alarm.Category.NOTICE, Alarm.State.ADD, notice.getId());
 
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());

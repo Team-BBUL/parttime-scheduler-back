@@ -4,7 +4,6 @@ import com.sidam_backend.data.*;
 import com.sidam_backend.repo.*;
 
 import com.sidam_backend.utility.FileUtils;
-import com.sidam_backend.resources.DTO.GetNotice;
 import com.sidam_backend.resources.DTO.GetNoticeList;
 import com.sidam_backend.resources.DTO.UpdateNotice;
 import com.sidam_backend.service.base.UsingAlarmService;
@@ -130,10 +129,10 @@ public class NoticeService extends UsingAlarmService {
         List<GetNoticeList> resultNotice = new ArrayList<>();
 
         for (Notice notice : list) {
-            // 읽음 여부를 가져오는데, 없으면 해당 role에 대해 새로 생성함
-            NoticeReceive receive = noticeReceiveRepository.findByNoticeAndRole(notice, role)
-                    .orElseGet(() -> makeNoticeReceive(notice, role));
-            resultNotice.add(notice.toGetNoticeList(receive.isCheck()));
+            // noticeReceive에서 값을 찾아서 없으면 생성(없으면 읽지 않은 것으로 처리)
+            boolean check = noticeReceiveRepository.findCheckByNoticeAndRole(notice, role)
+                            .orElse(false);
+            resultNotice.add(notice.toGetNoticeList(check));
         }
 
         return resultNotice;

@@ -65,9 +65,8 @@ public class StoreService {
     }
 
     public Store findStoreById(Long storeId) {
-        Store store = storeRepository.findById(storeId)
+        return storeRepository.findById(storeId)
                 .orElseThrow(IllegalArgumentException::new);
-        return store;
     }
 
     public List<Store> findStore(String input) throws IllegalArgumentException {
