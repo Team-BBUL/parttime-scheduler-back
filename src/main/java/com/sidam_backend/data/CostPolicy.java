@@ -24,7 +24,7 @@ public class CostPolicy implements Serializable {
     private double multiplyCost;
 
     @NotNull
-    private LocalDate date;
+    private int day;
 
     @ManyToOne
     @JoinColumn(name="store_id")

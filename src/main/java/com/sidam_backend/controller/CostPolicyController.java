@@ -60,6 +60,7 @@ public class CostPolicyController {
             @RequestBody PostPolicy postPolicy
             ){
         Map<String, Object> res = new HashMap<>();
+        log.info("costpolicy post started" );
         try {
             Store store = employeeService.validateStoreId(storeId);
             AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
