@@ -35,7 +35,7 @@ public class StoreService {
         store.setIdx(-1);
         store.setPayday(storeForm.getPayday());
         store.setStartDayOfWeek(storeForm.getStartDayOfWeek());
-
+        store.setDeadlineOfSubmit(storeForm.getDeadlineOfSubmit());
         Store newStore = storeRepository.save(store);
         log.info("newStore = {}", newStore);
 
