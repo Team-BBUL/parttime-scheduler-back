@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @Table
@@ -28,6 +30,8 @@ public class AlarmReceiver {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private AccountRole accountRole;
+
+    private LocalDateTime date;
 
     @NotNull
     @Column(name = "check_bit")

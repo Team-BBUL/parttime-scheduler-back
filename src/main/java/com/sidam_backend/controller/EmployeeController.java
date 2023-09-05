@@ -1,6 +1,7 @@
 package com.sidam_backend.controller;
 
 
+import com.sidam_backend.data.Alarm;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.service.EmployeeService;
@@ -86,7 +87,7 @@ public class EmployeeController {
             AccountRole newUser = employeeService.postEmployee(store, userId);
 
             // 알림 저장
-//            employeeService.managerAlarmMaker(store, newUser.getId().toString(),
+//            employeeService.managerAlarmMaker(store, newUser.getAlias().toString(),
 //                    Alarm.Category.JOIN, Alarm.State.NON, newUser.getId());
             // 알림 서버에 전송?
 
@@ -152,6 +153,10 @@ public class EmployeeController {
             AccountRole accountRole = employeeService.getAccountRoleWithStore(store, id);
 
             log.info("enter success = {}", accountRole);
+
+            if (!accountRole.isValid()){
+                employeeService.managerAlarmMaker(store, accountRole.getAlias(), Alarm.Category.JOIN, Alarm.State.NON, accountRole.getId());
+            }
 
             data.put("accountRole", accountRole);
             data.put("store", accountRole.getStore());
