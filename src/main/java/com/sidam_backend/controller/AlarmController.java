@@ -120,7 +120,7 @@ public class AlarmController {
             alarmReceiver = alarmService.validateReceive(receiveId);
 
             if (alarmReceiver.getAlarm().getType() != Alarm.Category.CHANGE) {
-                throw new IllegalArgumentException("잘못된 receiver ID: " + receiveId);
+                throw new IllegalArgumentException("잘못된 카테고리 or 잘못된 receiver ID: " + receiveId);
             }
 
             // 이 때 accept가 false이면 따로 push 알림을 줘야지 않을까?

@@ -1,6 +1,7 @@
 package com.sidam_backend.service;
 
 import com.sidam_backend.data.*;
+import com.sidam_backend.data.enums.Role;
 import com.sidam_backend.repo.*;
 import com.sidam_backend.resources.DTO.GetAlarm;
 import com.sidam_backend.service.base.Validation;
@@ -208,7 +209,7 @@ public class AlarmService implements Validation {
         // changeRequest 가져오기
         ChangeRequest request = receiver.getAlarm().getChangeRequest();
 
-        if (role.getSalary() && !role.equals(receiver.getAccountRole())) {
+        if (role.getRole() == Role.EMPLOYEE && !role.equals(receiver.getAccountRole())) {
             throw new IllegalArgumentException(role.getId() + " user doesn't have request.");
         }
 
@@ -217,7 +218,7 @@ public class AlarmService implements Validation {
         }
 
         // receiver 대상이 근무자인 경우
-        if (receiver.getAccountRole().getSalary()) {
+        if (receiver.getAccountRole().getRole() == Role.EMPLOYEE) {
             request.setResState(res ? ChangeRequest.State.PASS : ChangeRequest.State.FAIL);
         } else { // 점주인 경우
             request.setOwnState(res ? ChangeRequest.State.PASS : ChangeRequest.State.FAIL);
@@ -248,7 +249,7 @@ public class AlarmService implements Validation {
 
             // 비지정 변경 요청자를 스케줄에서 삭제
             DailySchedule oldSchedule = validateSchedule(request.getOldSchedule());
-            AccountRole requester = validateRoleId(request.getOldSchedule());
+            AccountRole requester = validateRoleId(request.getRequester());
             oldSchedule.getUsers().remove(requester);
 
             // 비지정 요청자를 삭제하고 근무자가 없어진 경우 스케줄 삭제처리

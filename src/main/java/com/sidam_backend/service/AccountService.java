@@ -18,7 +18,7 @@ public class AccountService {
     public void saveAccount(Long id, Map<String, Object> resultMap){
         Account account =  this.getAccount(id);
         account.setName((String) resultMap.get("name"));
-        account.setOnceVerified(true);
+        //account.setOnceVerified(true);
         accountRepository.save(account);
     }
 

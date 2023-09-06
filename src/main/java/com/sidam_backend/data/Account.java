@@ -37,8 +37,8 @@ public class Account implements Serializable{
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @NotNull
-    private boolean onceVerified;
+    //@NotNull
+    //private boolean onceVerified;
 
     public Object update(String name) {
         this.name = name;
