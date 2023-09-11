@@ -47,10 +47,10 @@ public class IncentiveController {
         LocalDate dateTime = LocalDate.from(yearMonth.atDay(1).atTime(0, 0));
         try{
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-            if(!currentUser.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
+//            if(!currentUser.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
 
             List<List<Incentive>> employeesIncentives = incentiveService.
                     getWithRoleByDate(store, dateTime);
@@ -81,10 +81,10 @@ public class IncentiveController {
         log.info("get month incentive = {}",month);
         try{
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-            if(!currentUser.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
+//            if(!currentUser.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
 
             GetIncentivesRoleInfo data = incentiveService.getIncentivesByDate(employeeId, store.getPayday(), month);
 
@@ -110,13 +110,12 @@ public class IncentiveController {
         Map<String, Object> res = new HashMap<>();
 
         try {
-
-            Store store = employeeService.validateStoreId(storeId);
-            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-            if (!currentUser.isManager() && !currentUser.isSame(employeeId)) {
-                log.info("AccessDeniedException= {}",currentUser);
-                throw new AccessDeniedException("No Authority");
-            }
+//            Store store = employeeService.validateStoreId(storeId);
+//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
+//            if (!currentUser.isManager() && !currentUser.isSame(employeeId)) {
+//                log.info("AccessDeniedException= {}",currentUser);
+//                throw new AccessDeniedException("No Authority");
+//            }
             log.info("get one's all incentive = {}",employeeId);
 
             List<Incentive> incentives = incentiveService.getIncentives(employeeId);
@@ -145,11 +144,11 @@ public class IncentiveController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-            if (!currentUser.isManager() && !currentUser.isSame(employeeId)) {
-                log.info("AccessDeniedException= {}",currentUser);
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
+//            if (!currentUser.isManager() && !currentUser.isSame(employeeId)) {
+//                log.info("AccessDeniedException= {}",currentUser);
+//                throw new AccessDeniedException("No Authority");
+//            }
 
             Incentive incentive = incentiveService.getIncentive(incentiveId);
 
@@ -177,10 +176,10 @@ public class IncentiveController {
 
         try{
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-            if (!currentUser.isManager()) {
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
+//            if (!currentUser.isManager()) {
+//                throw new AccessDeniedException("No Authority");
+//            }
 
             Incentive newIncentive = incentiveService.createNewIncentive(postIncentive, employeeId);
 
@@ -208,10 +207,10 @@ public class IncentiveController {
 
         try{
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-            if (!currentUser.isManager()) {
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
+//            if (!currentUser.isManager()) {
+//                throw new AccessDeniedException("No Authority");
+//            }
 
             incentiveService.updateIncentive(postIncentive, incentiveId);
 
@@ -237,10 +236,10 @@ public class IncentiveController {
         log.info("removeIncentiveController = {}", incentiveId);
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-            if (!currentUser.isManager()) {
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
+//            if (!currentUser.isManager()) {
+//                throw new AccessDeniedException("No Authority");
+//            }
 
             incentiveService.deleteIncentive(incentiveId);
 

@@ -1,10 +1,11 @@
 package com.sidam_backend.controller;
 
 
-import com.sidam_backend.data.Alarm;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.AccountRole;
+import com.sidam_backend.security.AccountDetail;
 import com.sidam_backend.service.EmployeeService;
+import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,20 +26,39 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
+    @GetMapping(value = "/account", produces="application/json; charset=UTF-8")
+    public ResponseEntity<Map<String,  Object>> getMyInfo(
+            @AuthenticationPrincipal AccountDetail accountDetail
+    ){
+        Map<String, Object> res = new HashMap<>();
+
+        log.info("getMyInfo.AuthenticationPrincipal.accountId = {}", accountDetail.accountId);
+        try{
+//            AccountRole accountRole = employeeService.getMyInfo(id);
+//            res.put("data",accountRole);
+            return ResponseEntity.ok().build();
+        }catch(IllegalArgumentException ex){
+
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // 모든 근무자 조회
     @GetMapping(value = "/employees/{storeId}", produces="application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> allEmployee(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal String id,
             @PathVariable Long storeId
     ) {
         Map<String, Object> res = new HashMap<>();
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+            AccountRole accountRole = employeeService.getMyInfo(id);
             if(!accountRole.isManager()){
                 throw new AccessDeniedException("No Authority");
             }
+//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+
             log.info("get all employee: Store" + storeId);
 
             List<AccountRole> result = employeeService.getAllEmployees(store);
@@ -63,7 +83,7 @@ public class EmployeeController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployee(store, employeeId);
+            AccountRole accountRole = employeeService.getMyInfo(store, employeeId);
             return ResponseEntity.ok(accountRole);
         } catch (IllegalArgumentException ex) {
             log.warn(ex.getMessage());
@@ -150,16 +170,16 @@ public class EmployeeController {
         try{
 
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getAccountRoleWithStore(store, id);
-
-            log.info("enter success = {}", accountRole);
-
-            if (!accountRole.isValid()){
-                employeeService.managerAlarmMaker(store, accountRole.getAlias(), Alarm.Category.JOIN, Alarm.State.NON, accountRole.getId());
-            }
-
-            data.put("accountRole", accountRole);
-            data.put("store", accountRole.getStore());
+//            AccountRole accountRole = employeeService.getAccountRoleWithStore(store, id);
+//
+//            log.info("enter success = {}", accountRole);
+//
+//            if (!accountRole.isValid()){
+//                employeeService.managerAlarmMaker(store, accountRole.getAlias(), Alarm.Category.JOIN, Alarm.State.NON, accountRole.getId());
+//            }
+//
+//            data.put("accountRole", accountRole);
+//            data.put("store", accountRole.getStore());
 
             res.put("data",data);
             return ResponseEntity.ok(res);
@@ -182,12 +202,11 @@ public class EmployeeController {
         try {
 
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployee(store, employeeId);
+            AccountRole accountRole = employeeService.getMyInfo(store, employeeId);
 
             log.info("singleEmployeeWithAccount = {}", accountRole);
 
             data.put("accountRole", accountRole);
-            data.put("account", accountRole.getAccount());
             res.put("data", data);
 
             return ResponseEntity.ok(res);

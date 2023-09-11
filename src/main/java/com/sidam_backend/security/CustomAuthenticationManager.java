@@ -20,7 +20,7 @@ public class CustomAuthenticationManager implements AuthenticationEntryPoint {
         Integer exception = (Integer) request.getAttribute("exception");
 
         if(exception == null) {
-            setResponse(response, CustomCode.UNKNOWN_ERROR);
+
         }
         else if(exception.equals(CustomCode.WRONG_TYPE_TOKEN.getCode())) {
             setResponse(response, CustomCode.WRONG_TYPE_TOKEN);

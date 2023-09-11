@@ -19,7 +19,6 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -81,8 +80,8 @@ public class StoreController {
 
         try {
             log.info("search my stores");
-            List<Store> stores = storeService.getMyStores(id, role);
-            res.put("data", stores);
+//            List<Store> stores = storeService.getMyStores(id, role);
+//            res.put("data", stores);
             return ResponseEntity.ok(res);
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
@@ -110,8 +109,6 @@ public class StoreController {
         try {
 
             Store newStore = storeService.createNewStore(storeForm);
-            AccountRole newAccountRole = storeService.
-                    createNewAccountRole(newStore, id, Role.MANAGER);
 
             response.put("status_code", 200);
             response.put("store_id", newStore.getId());
@@ -136,11 +133,8 @@ public class StoreController {
 
         try {
             Store store = storeService.findStoreById(storeId);
-            AccountRole newAccountRole = storeService.
-                    createNewAccountRole(store, id, Role.EMPLOYEE);
 
             response.put("store_id", store.getId());
-            response.put("account_role_id", newAccountRole.getId());
             response.put("status_code", 200);
             response.put("data", "성공했습니다");
 
@@ -164,7 +158,7 @@ public class StoreController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployee(store, roleId);
+            AccountRole accountRole = employeeService.getMyInfo(store, roleId);
 //            accountRole.isValidEmail(email);
             employeeService.deleteEmployee(store, roleId);
 

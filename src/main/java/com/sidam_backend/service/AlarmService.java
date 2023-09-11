@@ -23,7 +23,6 @@ public class AlarmService implements Validation {
     private final AccountRoleRepository accountRoleRepository;
     private final AlarmReceiverRepository receiverRepository;
     private final StoreRepository storeRepository;
-    private final AccountRepository accountRepository;
     private final ChangeRequestRepository requestRepository;
     private final DailyScheduleRepository scheduleRepository;
 
@@ -76,12 +75,6 @@ public class AlarmService implements Validation {
                 .orElseThrow(() -> new IllegalArgumentException(storeId + " store is not exist."));
     }
 
-    @Override
-    public Account validateAccount(Long accountId) {
-
-        return accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException(accountId + " account is not exist."));
-    }
 
     @Override
     public DailySchedule validateSchedule(Long scheduleId) {

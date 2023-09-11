@@ -36,10 +36,10 @@ public class CostPolicyController {
         log.info("allPolicy progress");
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-            if(!accountRole.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+//            if(!accountRole.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
             log.info("get all employee: Store" + storeId);
 
             List<CostPolicy> result = costPolicyService.getAllPolicy(store);
@@ -63,10 +63,10 @@ public class CostPolicyController {
         log.info("costpolicy post started" );
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-            if(!accountRole.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+//            if(!accountRole.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
             log.info("get all employee: Store" + storeId);
 
             CostPolicy newPolicy = costPolicyService.createNewPolicy(postPolicy, store);
@@ -89,10 +89,10 @@ public class CostPolicyController {
         Map<String, Object> res = new HashMap<>();
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-            if(!accountRole.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+//            if(!accountRole.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
             log.info("get all employee: Store" + storeId);
 
             costPolicyService.deletePolicy(policyId);
