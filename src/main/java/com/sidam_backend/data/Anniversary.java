@@ -2,9 +2,11 @@ package com.sidam_backend.data;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -13,15 +15,15 @@ public class Anniversary implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long anniversaryId;
+    private Long id;
 
     @NotBlank
     private String name;
 
-    @NotBlank
-    private String date;
-    // MM-dd ??
+    @NotNull
+    private LocalDateTime date;
 
     @ManyToOne
-    private UserRole userRoleId;
+    @JoinColumn(name="role_id")
+    private AccountRole accountRole;
 }

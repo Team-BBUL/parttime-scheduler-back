@@ -1,37 +1,79 @@
 package com.sidam_backend.data;
 
+import com.sidam_backend.resources.DTO.GetDaily;
+import com.sidam_backend.resources.DTO.Worker;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 @Data
 @Entity
-@Table(name="daily_schdule")
+@Table(name="daily_schedule")
 public class DailySchedule implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long dailyScheduleId;
+    private Long id;
 
-    @NotBlank
-    private String date;
-    // yyyy-MM-dd
+    @NotNull
+    private LocalDate date;
 
-    @NotBlank
-    private String startTime;
-    // hh:mm
-
-    @NotBlank
-    private String endTime;
-    // hh:mm
+    @ElementCollection
+    private List<Boolean> time;
 
     @OneToOne
-    private Store storeId;
+    private Store store;
 
-    // 관계형으로 할 때도 list를 썼는데 여기서도 그렇게 해도 되나...?
     @ManyToMany
-    private ArrayList<UserRole> userRoleId = new ArrayList<>();
+    @JoinTable(name="workers")
+    private List<AccountRole> users = new ArrayList<>();
+
+    @NotNull
+    private LocalDateTime version;
+
+    public GetDaily toDaily(AccountRole role) {
+
+        GetDaily daily = new GetDaily();
+
+        daily.setId(id);
+        daily.setDay(date);
+        daily.setTime(time);
+
+        List<Worker> workers = new ArrayList<>();
+        for(AccountRole accountRole : users) {
+            workers.add(accountRole.toWorker(role));
+        }
+        daily.setWorkers(workers);
+
+        return daily;
+    }
+
+    public String toFormatString() {
+
+        int i = 0, start = -1, end = 0;
+        for (boolean t : time) {
+            if (t && start == -1) {
+                start = i;
+            }
+
+            if (start != -1 && !t) {
+                end = i;
+                break;
+            }
+
+            i++;
+        }
+
+        return date.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN)
+                + "(" + date.getDayOfMonth() + "일) "
+                + (store.getOpen() + start) + ":00-" + (store.getOpen() + end) + ":00";
+    }
 }

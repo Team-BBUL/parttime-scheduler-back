@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -13,18 +13,20 @@ public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long messageId;
+    private Long id;
 
     @NotBlank
     private String content;
 
     @NotBlank
-    private Date date = new Date();
+    private LocalDateTime date = LocalDateTime.now();
     // MM-dd
 
     @ManyToOne
-    private ChattingRoom chattingRoomId;
+    @JoinColumn(name="room_id")
+    private ChattingRoom chattingRoom;
 
     @ManyToOne
-    private UserRole userRoleId;
+    @JoinColumn(name="role_id")
+    private AccountRole accountRole;
 }

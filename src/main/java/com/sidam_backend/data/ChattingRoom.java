@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -13,11 +14,12 @@ public class ChattingRoom implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long chattingId;
+    private Long id;
 
     @NotBlank
-    private String createDate;
+    private LocalDateTime createDate = LocalDateTime.now();
 
     @ManyToOne
-    private Store storeId;
+    @JoinColumn(name="store_id")
+    private Store store;
 }

@@ -12,11 +12,12 @@ public class UserChatting implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long userChattingId;
+    private Long id;
 
     @ManyToOne
-    private UserRole userRoleId;
+    private AccountRole accountRole;
 
     @ManyToOne
-    private ChattingRoom chattingId;
+    @JoinColumn(name="room_id")
+    private ChattingRoom chattingRoom;
 }
