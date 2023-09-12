@@ -4,6 +4,7 @@ import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.data.CostPolicy;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.resources.DTO.PostPolicy;
+import com.sidam_backend.security.AccountDetail;
 import com.sidam_backend.service.CostPolicyService;
 import com.sidam_backend.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
@@ -29,17 +30,17 @@ public class CostPolicyController {
 
     @GetMapping(value = "/stores/{storeId}/costpolicies", produces = "application/json; charset=UTF-8" )
     public ResponseEntity<Map<String,Object>> allPolicy(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId
     ){
         Map<String, Object> res = new HashMap<>();
         log.info("allPolicy progress");
         try {
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-//            if(!accountRole.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
             log.info("get all employee: Store" + storeId);
 
             List<CostPolicy> result = costPolicyService.getAllPolicy(store);
@@ -55,7 +56,7 @@ public class CostPolicyController {
 
     @PostMapping(value = "/stores/{storeId}/costpolicy" )
     public ResponseEntity<Map<String,Object>> postPolicy(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
             @RequestBody PostPolicy postPolicy
             ){
@@ -63,10 +64,10 @@ public class CostPolicyController {
         log.info("costpolicy post started" );
         try {
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-//            if(!accountRole.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
             log.info("get all employee: Store" + storeId);
 
             CostPolicy newPolicy = costPolicyService.createNewPolicy(postPolicy, store);
@@ -82,17 +83,17 @@ public class CostPolicyController {
 
     @DeleteMapping("stores/{storeId}/costpolicies/{policyId}")
     public ResponseEntity<Map<String, Object>> removePolicy(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
             @PathVariable Long policyId
     ){
         Map<String, Object> res = new HashMap<>();
         try {
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-//            if(!accountRole.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
             log.info("get all employee: Store" + storeId);
 
             costPolicyService.deletePolicy(policyId);

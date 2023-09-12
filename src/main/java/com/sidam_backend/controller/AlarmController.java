@@ -23,7 +23,7 @@ public class AlarmController {
 
     private final AlarmService alarmService;
 
-    /*
+/*
     // 근무 전 알림 조회
     @GetMapping("/work/{id}")
     public ResponseEntity<Map<String, Object>> getBeforeAlarm(
@@ -38,7 +38,7 @@ public class AlarmController {
         AccountRole role;
         try {
             role = alarmService.validateRoleId(roleId);
-            alarms = alarmService.getWorkAlarm(role);
+//            alarms = alarmService.getWorkAlarm(role);
         } catch (IllegalArgumentException ex) {
             response.put("status_code", 400);
             response.put("message", ex.getMessage());
@@ -74,7 +74,7 @@ public class AlarmController {
         response.put("status_code", 200);
         return ResponseEntity.ok(response);
     }
-    */
+*/
 
     // 알림 목록 조회
     @GetMapping("/list/{roleId}")

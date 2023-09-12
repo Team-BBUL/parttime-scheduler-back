@@ -34,6 +34,10 @@ public class AuthService implements UserDetailsService {
         AccountRole accountRole = new AccountRole();
         accountRole.setAccountId(signUpForm.getAccountId());
         accountRole.setPassword(passwordEncoder.encode(signUpForm.getPassword()));
+
+        accountRole.setOriginAccountId(signUpForm.getAccountId());
+        accountRole.setOriginPassword(passwordEncoder.encode(signUpForm.getPassword()));
+
         accountRole.setRole(signUpForm.getRole());
         return accountRoleRepository.save(accountRole);
     }

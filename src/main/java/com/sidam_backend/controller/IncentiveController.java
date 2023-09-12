@@ -5,6 +5,7 @@ import com.sidam_backend.data.Incentive;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.resources.DTO.GetIncentivesRoleInfo;
 import com.sidam_backend.resources.DTO.PostIncentive;
+import com.sidam_backend.security.AccountDetail;
 import com.sidam_backend.service.EmployeeService;
 import com.sidam_backend.service.IncentiveService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,8 @@ public class IncentiveController {
 
     @GetMapping(value = "/stores/{storeId}/incentives", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String,Object>> getAllEmployeeMonthIncentive(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @PathVariable Long storeId,
             @RequestParam String month
     ){
@@ -47,10 +49,10 @@ public class IncentiveController {
         LocalDate dateTime = LocalDate.from(yearMonth.atDay(1).atTime(0, 0));
         try{
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-//            if(!currentUser.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
 
             List<List<Incentive>> employeesIncentives = incentiveService.
                     getWithRoleByDate(store, dateTime);
@@ -71,7 +73,8 @@ public class IncentiveController {
 
     @GetMapping(value = "/stores/{storeId}/employees/{employeeId}/incentives", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String,Object>> getOnesMonthIncentive(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @PathVariable Long storeId,
             @PathVariable Long employeeId,
             @RequestParam String month
@@ -81,10 +84,10 @@ public class IncentiveController {
         log.info("get month incentive = {}",month);
         try{
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-//            if(!currentUser.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
 
             GetIncentivesRoleInfo data = incentiveService.getIncentivesByDate(employeeId, store.getPayday(), month);
 
@@ -102,7 +105,7 @@ public class IncentiveController {
 
     @GetMapping(value = "/stores/{storeId}/employees/{employeeId}/incentives/all", produces="application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getOnesAllIncentives(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
             @PathVariable Long employeeId
     ) {
@@ -110,12 +113,11 @@ public class IncentiveController {
         Map<String, Object> res = new HashMap<>();
 
         try {
-//            Store store = employeeService.validateStoreId(storeId);
-//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-//            if (!currentUser.isManager() && !currentUser.isSame(employeeId)) {
-//                log.info("AccessDeniedException= {}",currentUser);
-//                throw new AccessDeniedException("No Authority");
-//            }
+            Store store = employeeService.validateStoreId(storeId);
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
             log.info("get one's all incentive = {}",employeeId);
 
             List<Incentive> incentives = incentiveService.getIncentives(employeeId);
@@ -134,7 +136,7 @@ public class IncentiveController {
 
     @GetMapping(value = "/stores/{storeId}/employees/{employeeId}/incentives/{incentiveId}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getOneIncentive(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
             @PathVariable Long employeeId,
             @PathVariable Long incentiveId
@@ -144,11 +146,10 @@ public class IncentiveController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-//            if (!currentUser.isManager() && !currentUser.isSame(employeeId)) {
-//                log.info("AccessDeniedException= {}",currentUser);
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
 
             Incentive incentive = incentiveService.getIncentive(incentiveId);
 
@@ -166,7 +167,7 @@ public class IncentiveController {
 
     @PostMapping("/stores/{storeId}/employees/{employeeId}/incentive")
     public ResponseEntity<Map<String, Object>> postIncentive(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
             @PathVariable Long employeeId,
             @RequestBody PostIncentive postIncentive
@@ -176,10 +177,10 @@ public class IncentiveController {
 
         try{
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-//            if (!currentUser.isManager()) {
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
 
             Incentive newIncentive = incentiveService.createNewIncentive(postIncentive, employeeId);
 
@@ -196,7 +197,7 @@ public class IncentiveController {
 
     @PutMapping("/stores/{storeId}/employees/{employeeId}/incentives/{incentiveId}")
     public ResponseEntity<Map<String, Object>> putIncentive(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
             @PathVariable Long employeeId,
             @PathVariable Long incentiveId,
@@ -207,10 +208,10 @@ public class IncentiveController {
 
         try{
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-//            if (!currentUser.isManager()) {
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
 
             incentiveService.updateIncentive(postIncentive, incentiveId);
 
@@ -225,7 +226,7 @@ public class IncentiveController {
 
     @DeleteMapping("/stores/{storeId}/employees/{employeeId}/incentives/{incentiveId}")
     public ResponseEntity<Map<String, Object>> removeIncentive(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
             @PathVariable Long employeeId,
             @PathVariable Long incentiveId
@@ -236,10 +237,10 @@ public class IncentiveController {
         log.info("removeIncentiveController = {}", incentiveId);
         try {
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole currentUser = employeeService.getEmployeeByAccountId(store, id);
-//            if (!currentUser.isManager()) {
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
 
             incentiveService.deleteIncentive(incentiveId);
 

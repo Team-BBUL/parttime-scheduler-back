@@ -5,6 +5,7 @@ import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.enums.Role;
 import com.sidam_backend.resources.DTO.StoreForm;
+import com.sidam_backend.security.AccountDetail;
 import com.sidam_backend.service.EmployeeService;
 import com.sidam_backend.service.StoreService;
 import com.sidam_backend.validator.StoreValidator;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -73,7 +75,8 @@ public class StoreController {
 
     @GetMapping(value = "/my-list", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getMyStores(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @RequestParam Role role
     ) {
         Map<String, Object> res = new HashMap<>();
@@ -93,7 +96,8 @@ public class StoreController {
 
     @PostMapping(value = "/regist", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> register(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @RequestBody @Valid StoreForm storeForm,
             Errors errors
     ) {
@@ -126,7 +130,8 @@ public class StoreController {
 
     @GetMapping(value = "/add/{storeId}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> addStore(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @PathVariable Long storeId
     ) {
         Map<String, Object> response = new HashMap<>();
@@ -150,7 +155,8 @@ public class StoreController {
 
     @DeleteMapping("/withdraw/{storeId}")
     public ResponseEntity<Map<String, Object>> withdrawStore(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @PathVariable Long storeId,
             @RequestParam("id") Long roleId
     ) {
@@ -177,13 +183,18 @@ public class StoreController {
 
     @GetMapping(value = "/{storeId}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getStore(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @PathVariable Long storeId
     ) {
         Map<String, Object> response = new HashMap<>();
 
         try {
             Store store = employeeService.validateStoreId(storeId);
+            AccountRole owner = employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
             response.put("status_code", 200);
             response.put("data", store);
 
@@ -199,7 +210,7 @@ public class StoreController {
 
     @PutMapping(value = "/{storeId}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> modifyStore(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
             @RequestBody StoreForm storeForm
     ) {
@@ -208,6 +219,10 @@ public class StoreController {
         log.info("modifyStore = {}", storeId);
         try {
             Store store = employeeService.validateStoreId(storeId);
+            AccountRole owner = employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
             storeService.putStore(store, storeForm);
             response.put("status_code", 200);
             response.put("data", store);
