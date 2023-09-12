@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -148,10 +149,13 @@ public class NoticeService extends UsingAlarmService {
     // 공지사항 읽음 처리
     @Transactional
     public void readCheck(Notice notice, AccountRole role) {
-        NoticeReceive receive = noticeReceiveRepository.findByNoticeAndRole(notice, role)
-                .orElse(makeNoticeReceive(notice, role));
+        Optional<NoticeReceive> receive = noticeReceiveRepository.findByNoticeAndRole(notice, role);
 
-        receive.setCheck(true);
+        if (receive.isPresent()) {
+            receive.get().setCheck(true);
+        } else {
+            makeNoticeReceive(notice, role);
+        }
     }
 
     // 공지사항 삭제
