@@ -31,7 +31,7 @@ public class CostPolicyService {
         CostPolicy costPolicy = new CostPolicy();
         costPolicy.setDescription(postPolicy.getDescription());
         costPolicy.setMultiplyCost(postPolicy.getMultiplyCost());
-        costPolicy.setDate(postPolicy.getDate());
+        costPolicy.setDay(postPolicy.getDay());
         costPolicy.setStore(store);
         return costPolicyRepository.save(costPolicy);
     }

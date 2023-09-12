@@ -1,9 +1,7 @@
 package com.sidam_backend.security;
 
-import com.sidam_backend.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,18 +13,15 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 public class SecurityConfig {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
-
-    private final OAuthSuccessHandler oAuthSuccessHandler;
-
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private final CustomAuthenticationManager customAuthenticationManager;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, OAuthSuccessHandler oAuthSuccessHandler,
-                          JwtAuthenticationFilter jwtAuthenticationFilter, CustomAuthenticationManager customAuthenticationManager) {
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.oAuthSuccessHandler = oAuthSuccessHandler;
+    public SecurityConfig
+            (
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            CustomAuthenticationManager customAuthenticationManager
+    ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.customAuthenticationManager = customAuthenticationManager;
     }
@@ -46,20 +41,9 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/","/auth/** ","/auth2/**", "/oauth","/login","/sociallogin").permitAll()
-                .requestMatchers("/api").permitAll()
+                .requestMatchers("/","/api/auth/signup", "/api/auth/login").permitAll()
+                .requestMatchers("/api/*").permitAll()
                 .anyRequest().authenticated()
-                .and()
-                    .oauth2Login()
-                    .authorizationEndpoint()
-                    .baseUri("/auth/authorize")
-                .and()
-                    .redirectionEndpoint()
-                    .baseUri("/oauth/callback**")
-                    .and()
-                    .userInfoEndpoint().userService(customOAuth2UserService)
-                .and()
-                .successHandler(oAuthSuccessHandler)
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(customAuthenticationManager);

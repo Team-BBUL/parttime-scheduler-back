@@ -9,7 +9,6 @@ import com.sidam_backend.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,12 +38,12 @@ public class AnniversaryController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-            if(!accountRole.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+//            if(!accountRole.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
 
-            AccountRole employee = employeeService.getEmployee(store, employeeId);
+            AccountRole employee = employeeService.getMyInfo(store, employeeId);
             List<Anniversary> anniversaries = anniversaryService.getAnniversaries(employee);
             res.put("data", anniversaries);
             return ResponseEntity.ok(res);
@@ -68,10 +67,10 @@ public class AnniversaryController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-            if(!accountRole.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+//            if(!accountRole.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
 
             Anniversary anniversary = anniversaryService.getAnniversary(anniversaryId);
 
@@ -95,11 +94,11 @@ public class AnniversaryController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-            if(!accountRole.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
-            AccountRole employee = employeeService.getEmployee(store, employeeId);
+//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+//            if(!accountRole.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
+            AccountRole employee = employeeService.getMyInfo(store, employeeId);
             Anniversary newAnniversary = anniversaryService.createNewAnniversary(postAnniversary, employee);
 
             res.put("id", newAnniversary.getId());
@@ -124,10 +123,10 @@ public class AnniversaryController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-            if(!accountRole.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+//            if(!accountRole.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
             Anniversary anniversary = anniversaryService.updateAnniversary(postAnniversary, anniversaryId);
 
             res.put("data", anniversary);
@@ -151,10 +150,10 @@ public class AnniversaryController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-            if(!accountRole.isManager()){
-                throw new AccessDeniedException("No Authority");
-            }
+//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
+//            if(!accountRole.isManager()){
+//                throw new AccessDeniedException("No Authority");
+//            }
             anniversaryService.deleteAnniversary(anniversaryId);
 
             return ResponseEntity.ok().body(res);

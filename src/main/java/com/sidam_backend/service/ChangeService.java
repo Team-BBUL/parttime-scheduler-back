@@ -53,10 +53,6 @@ public class ChangeService extends UsingAlarmService implements Validation {
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
     }
 
-    @Override
-    public Account validateAccount(Long accountId) {
-        return null;
-    }
 
     public DailySchedule validateSchedule(Long scheduleId) {
 

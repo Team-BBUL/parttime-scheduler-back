@@ -1,6 +1,7 @@
 package com.sidam_backend.data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,6 +10,7 @@ import com.sidam_backend.resources.DTO.Worker;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Data
 @Entity
@@ -21,31 +23,39 @@ public class AccountRole implements Serializable {
     private Long id;
 
     @NotBlank
+    @Column(unique = true)
+    private String accountId;
+
+    @NotBlank
+    private String password;
+
+//    @NotBlank
     private String alias;
 
     @NotNull
-    private int level;
+    private int level = 0;
 
-    @Positive
+//    @Positive
     private int cost;
 
     @NotBlank
-    private String color;
+    private String color = "white";
 
     @NotNull
     private boolean isSalary = true;
 
     @NotNull
-    private boolean valid;
+    private boolean valid = false;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @ManyToOne
-    @JoinColumn(name = "kakao_id")
-    @JsonIgnore
-    private Account account;
+    private LocalDateTime joinedAt;
 
+    public void completeSignUp() {
+        this.valid = true;
+        this.joinedAt = LocalDateTime.now();
+    }
     @ManyToOne
     @JoinColumn(name = "store_id")
     @JsonIgnore
@@ -72,13 +82,9 @@ public class AccountRole implements Serializable {
 
         return worker;
     }
-
-    public void isValidEmail(String email){
-        if (!this.getAccount().getEmail().equals(email)) {
-            throw new IllegalArgumentException("본인이 아닙니다.");
-        }
+    public boolean isSamePassword(PasswordEncoder passwordEncoder, String password){
+        return this.password.equals(passwordEncoder.encode(password));
     }
-
     public boolean isManager(){
         return this.role == Role.MANAGER;
     }
