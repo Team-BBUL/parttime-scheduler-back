@@ -29,6 +29,12 @@ public class AccountRole implements Serializable {
     @NotBlank
     private String password;
 
+    @NotBlank
+    private String originAccountId;
+
+    @NotBlank
+    private String originPassword;
+
 //    @NotBlank
     private String alias;
 
@@ -82,9 +88,7 @@ public class AccountRole implements Serializable {
 
         return worker;
     }
-    public boolean isSamePassword(PasswordEncoder passwordEncoder, String password){
-        return this.password.equals(passwordEncoder.encode(password));
-    }
+
     public boolean isManager(){
         return this.role == Role.MANAGER;
     }

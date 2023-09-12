@@ -3,7 +3,11 @@ package com.sidam_backend.controller;
 
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.AccountRole;
+import com.sidam_backend.resources.DTO.LoginForm;
+import com.sidam_backend.resources.DTO.PostEmployee;
+import com.sidam_backend.resources.UpdateAuth;
 import com.sidam_backend.security.AccountDetail;
+import com.sidam_backend.service.AuthService;
 import com.sidam_backend.service.EmployeeService;
 import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
@@ -32,14 +36,83 @@ public class EmployeeController {
     ){
         Map<String, Object> res = new HashMap<>();
 
-        log.info("getMyInfo.AuthenticationPrincipal.accountId = {}", accountDetail.accountId);
+        log.info("getMyInfo.AuthenticationPrincipal.accountId = {}", accountDetail.getAccountId());
         try{
-//            AccountRole accountRole = employeeService.getMyInfo(id);
-//            res.put("data",accountRole);
-            return ResponseEntity.ok().build();
+            AccountRole accountRole = employeeService.getMyInfo(accountDetail.getAccountId());
+            res.put("data",accountRole);
+            return ResponseEntity.ok().body(res);
         }catch(IllegalArgumentException ex){
 
             return ResponseEntity.badRequest().build();
+        }
+    }
+    // 근무자 가입
+    @PostMapping("/store/{storeId}/register/employee")
+    public ResponseEntity<Map<String, Object>> registerEmployee(
+            @AuthenticationPrincipal AccountDetail accountDetail,
+            @PathVariable Long storeId,
+            @RequestBody PostEmployee postEmployee
+    ) {
+        AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+        if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+            throw new AccessDeniedException("No Authority");
+        }
+        Map<String, Object> res = new HashMap<>();
+        log.info("register a employee: Store " + storeId + "/ User " + accountDetail.getId());
+
+        try {
+//            Store store = employeeService.validateStoreId(storeId);
+            AccountRole newEmployee = employeeService.processNewEmployee(owner, postEmployee);
+//            AccountRole newUser = employeeService.postEmployee(store, userId);
+
+            // 알림 저장
+//            employeeService.managerAlarmMaker(store, newUser.getAlias().toString(),
+//                    Alarm.Category.JOIN, Alarm.State.NON, newUser.getId());
+            // 알림 서버에 전송?
+
+            res.put("status_code", 200);
+            res.put("message", "employee register successful");
+            return ResponseEntity.ok(res);
+
+        } catch (IllegalArgumentException ex) {
+
+            res.put("status_code", 400);
+            res.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(res);
+        }
+    }
+
+    @PutMapping("/account")
+    public ResponseEntity<Map<String, Object>> confirmEmployee(
+            @AuthenticationPrincipal AccountDetail accountDetail,
+            @RequestBody UpdateAuth updateAuth
+            ) {
+        Map<String, Object> res = new HashMap<>();
+
+        try {
+            AccountRole myInfo = employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!myInfo.isValid()){
+                throw new IllegalArgumentException("정보 변경은 한 번만 가능합니다.");
+            }
+            if(!updateAuth.getPassword().equals(updateAuth.getCheckPassword())){
+                throw new IllegalArgumentException("비밀번호가 다릅니다");
+            }
+            AccountRole updateEmployee = employeeService.updateAccount(updateAuth, myInfo);
+
+            // 알림 저장
+//            employeeService.managerAlarmMaker(store, newUser.getAlias().toString(),
+//                    Alarm.Category.JOIN, Alarm.State.NON, newUser.getId());
+            // 알림 서버에 전송?
+
+            res.put("status_code", 200);
+            res.put("message", "employee register successful");
+            return ResponseEntity.ok(res);
+
+        } catch (IllegalArgumentException ex) {
+
+            res.put("status_code", 400);
+            res.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(res);
         }
     }
 
@@ -92,36 +165,36 @@ public class EmployeeController {
     }
 
 
-    // 근무자 가입
-    @PostMapping("/employee/{storeId}")
-    public ResponseEntity<Map<String, Object>> registerEmployee(
-            @PathVariable Long storeId,
-            @RequestParam("kakaoId") String userId
-    ) {
-
-        Map<String, Object> res = new HashMap<>();
-        log.info("register a employee: Store " + storeId + "/ User " + userId);
-
-        try {
-            Store store = employeeService.validateStoreId(storeId);
-            AccountRole newUser = employeeService.postEmployee(store, userId);
-
-            // 알림 저장
-//            employeeService.managerAlarmMaker(store, newUser.getAlias().toString(),
-//                    Alarm.Category.JOIN, Alarm.State.NON, newUser.getId());
-            // 알림 서버에 전송?
-
-            res.put("status_code", 200);
-            res.put("message", "employee register successful");
-            return ResponseEntity.ok(res);
-
-        } catch (IllegalArgumentException ex) {
-
-            res.put("status_code", 400);
-            res.put("message", ex.getMessage());
-            return ResponseEntity.badRequest().body(res);
-        }
-    }
+//    // 근무자 가입
+//    @PostMapping("/employee/{storeId}")
+//    public ResponseEntity<Map<String, Object>> registerEmployee(
+//            @PathVariable Long storeId,
+//            @RequestParam("kakaoId") String userId
+//    ) {
+//
+//        Map<String, Object> res = new HashMap<>();
+//        log.info("register a employee: Store " + storeId + "/ User " + userId);
+//
+//        try {
+//            Store store = employeeService.validateStoreId(storeId);
+//            AccountRole newUser = employeeService.postEmployee(store, userId);
+//
+//            // 알림 저장
+////            employeeService.managerAlarmMaker(store, newUser.getAlias().toString(),
+////                    Alarm.Category.JOIN, Alarm.State.NON, newUser.getId());
+//            // 알림 서버에 전송?
+//
+//            res.put("status_code", 200);
+//            res.put("message", "employee register successful");
+//            return ResponseEntity.ok(res);
+//
+//        } catch (IllegalArgumentException ex) {
+//
+//            res.put("status_code", 400);
+//            res.put("message", ex.getMessage());
+//            return ResponseEntity.badRequest().body(res);
+//        }
+//    }
 
     // 직원 정보 변경
     @PutMapping("/employee/{storeId}")

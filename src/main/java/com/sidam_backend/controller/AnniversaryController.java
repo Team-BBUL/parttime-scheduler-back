@@ -4,11 +4,13 @@ import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.data.Anniversary;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.resources.DTO.PostAnniversary;
+import com.sidam_backend.security.AccountDetail;
 import com.sidam_backend.service.AnniversaryService;
 import com.sidam_backend.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +31,8 @@ public class AnniversaryController {
     @GetMapping(value = "/stores/{storeId}/employees/{employeeId}/anniversary",
             produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getAnniversaries(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @PathVariable Long storeId,
             @PathVariable Long employeeId
     ){
@@ -38,10 +41,10 @@ public class AnniversaryController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-//            if(!accountRole.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
 
             AccountRole employee = employeeService.getMyInfo(store, employeeId);
             List<Anniversary> anniversaries = anniversaryService.getAnniversaries(employee);
@@ -57,7 +60,8 @@ public class AnniversaryController {
     @GetMapping(value = "/stores/{storeId}/employees/{employeeId}/anniversary/{anniversaryId}",
             produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getAnniversaryInfo(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @PathVariable Long storeId,
             @PathVariable Long employeeId,
             @PathVariable Long anniversaryId
@@ -66,11 +70,10 @@ public class AnniversaryController {
         Map<String, Object> res = new HashMap<>();
 
         try {
-            Store store = employeeService.validateStoreId(storeId);
-//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-//            if(!accountRole.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
 
             Anniversary anniversary = anniversaryService.getAnniversary(anniversaryId);
 
@@ -85,7 +88,7 @@ public class AnniversaryController {
 
     @PostMapping("/stores/{storeId}/employees/{employeeId}/anniversary")
     public ResponseEntity<Map<String, Object>> postAnniversary(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
             @PathVariable Long employeeId,
             @RequestBody PostAnniversary postAnniversary
@@ -93,12 +96,11 @@ public class AnniversaryController {
         Map<String, Object> res = new HashMap<>();
 
         try {
-            Store store = employeeService.validateStoreId(storeId);
-//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-//            if(!accountRole.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
-            AccountRole employee = employeeService.getMyInfo(store, employeeId);
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
+            AccountRole employee = employeeService.getMyInfo(owner.getStore(), employeeId);
             Anniversary newAnniversary = anniversaryService.createNewAnniversary(postAnniversary, employee);
 
             res.put("id", newAnniversary.getId());
@@ -112,7 +114,8 @@ public class AnniversaryController {
 
     @PutMapping("/stores/{storeId}/employees/{employeeId}/anniversary/{anniversaryId}")
     public ResponseEntity<Map<String, Object>> putAnniversary(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @PathVariable Long storeId,
             @PathVariable Long employeeId,
             @PathVariable Long anniversaryId,
@@ -123,10 +126,10 @@ public class AnniversaryController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-//            if(!accountRole.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
             Anniversary anniversary = anniversaryService.updateAnniversary(postAnniversary, anniversaryId);
 
             res.put("data", anniversary);
@@ -140,7 +143,8 @@ public class AnniversaryController {
 
     @DeleteMapping("/stores/{storeId}/employees/{employeeId}/anniversary/{anniversaryId}")
     public ResponseEntity<Map<String, Object>> deleteAnniversary(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
+
             @PathVariable Long storeId,
             @PathVariable Long employeeId,
             @PathVariable Long anniversaryId
@@ -150,10 +154,10 @@ public class AnniversaryController {
 
         try {
             Store store = employeeService.validateStoreId(storeId);
-//            AccountRole accountRole = employeeService.getEmployeeByAccountId(store, id);
-//            if(!accountRole.isManager()){
-//                throw new AccessDeniedException("No Authority");
-//            }
+            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                throw new AccessDeniedException("No Authority");
+            }
             anniversaryService.deleteAnniversary(anniversaryId);
 
             return ResponseEntity.ok().body(res);

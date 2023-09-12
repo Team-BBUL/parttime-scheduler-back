@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 public class AccountDetail {
 
-    public Long id;
+    private Long id;
 
-    public String accountId;
+    private String accountId;
 
-    public Role role;
+    private Role role;
 }

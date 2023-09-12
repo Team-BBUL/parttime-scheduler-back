@@ -35,9 +35,9 @@ public class TokenProvider {
 
     private Map<String, Object> createClaims(AccountDetail accountDetail) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", accountDetail.id);
-        claims.put("accountId", accountDetail.accountId);
-        claims.put("role", accountDetail.role);
+        claims.put("id", accountDetail.getId());
+        claims.put("accountId", accountDetail.getAccountId());
+        claims.put("role", accountDetail.getRole());
         return claims;
     }
 
