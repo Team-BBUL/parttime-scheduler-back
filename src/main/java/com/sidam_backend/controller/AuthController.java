@@ -30,7 +30,7 @@ public class AuthController {
     private final AuthService authService;
     private final AccountValidator accountValidator;
 
-    @InitBinder("SignUpForm")
+    @InitBinder("signUpForm")
     public void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.setValidator(accountValidator);
     }
