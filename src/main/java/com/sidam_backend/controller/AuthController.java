@@ -5,6 +5,7 @@ import com.sidam_backend.repo.AccountRoleRepository;
 import com.sidam_backend.resources.DTO.LoginForm;
 import com.sidam_backend.resources.DTO.SignUpForm;
 import com.sidam_backend.resources.DTO.UpdateAccount;
+import com.sidam_backend.security.AccountDetail;
 import com.sidam_backend.service.AuthService;
 import com.sidam_backend.validator.AccountValidator;
 import jakarta.validation.Valid;
@@ -29,7 +30,7 @@ public class AuthController {
     private final AuthService authService;
     private final AccountValidator accountValidator;
 
-    @InitBinder
+    @InitBinder("SignUpForm")
     public void initBinder(WebDataBinder webDataBinder) {
         webDataBinder.setValidator(accountValidator);
     }
@@ -59,13 +60,13 @@ public class AuthController {
 
     @PutMapping(value = "/account/details")
     public ResponseEntity<Map<String, Object>> fillDetails(
-            @AuthenticationPrincipal Long id,
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @RequestBody UpdateAccount updateAccount
     ){
         Map<String, Object> res = new HashMap<>();
 
         try{
-            authService.completeSignup(updateAccount, id);
+            authService.completeSignup(updateAccount, accountDetail.getId());
             return ResponseEntity.ok().build();
         }catch (IllegalArgumentException ex){
             res.put("status_code", 400);

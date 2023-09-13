@@ -106,17 +106,17 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping(value = "/employees/{emplyeeId}/clear", produces = "application/json; charset=UTF-8")
+    @GetMapping(value = "/employees/{employeeId}/clear", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> clearEmployeeAuth(
             @AuthenticationPrincipal AccountDetail accountDetail,
-            @PathVariable Long emplyeeId
+            @PathVariable Long employeeId
     ) {
         Map<String, Object> res = new HashMap<>();
 
         try {
             AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
 
-            AccountRole employee = employeeService.validateRoleId(emplyeeId);
+            AccountRole employee = employeeService.validateRoleId(employeeId);
 
             if(!employee.getStore().getId().equals(owner.getStore().getId()) || !owner.isManager()){
                 throw new AccessDeniedException("No Authority");

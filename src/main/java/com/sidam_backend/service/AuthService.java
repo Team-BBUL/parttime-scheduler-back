@@ -8,6 +8,7 @@ import com.sidam_backend.resources.DTO.UpdateAccount;
 import com.sidam_backend.security.AccountDetail;
 import com.sidam_backend.security.TokenProvider;
 import com.sidam_backend.security.UserAccount;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,6 +43,7 @@ public class AuthService implements UserDetailsService {
         return accountRoleRepository.save(accountRole);
     }
 
+    @Transactional
     public void completeSignup(UpdateAccount updateAccount, Long id) {
         AccountRole accountRole = this.getAccount(id);
         accountRole.setAlias(updateAccount.getAlias());
