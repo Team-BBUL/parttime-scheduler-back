@@ -5,10 +5,8 @@ import com.sidam_backend.data.enums.Role;
 import com.sidam_backend.repo.*;
 
 import com.sidam_backend.resources.ColorSet;
-import com.sidam_backend.resources.DTO.LoginForm;
 import com.sidam_backend.resources.DTO.PostEmployee;
 import com.sidam_backend.resources.MinimumWages;
-//import com.sidam_backend.service.base.UsingAlarmService;
 import com.sidam_backend.resources.UpdateAuth;
 import com.sidam_backend.service.base.UsingAlarmService;
 import com.sidam_backend.service.base.Validation;
@@ -17,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +40,7 @@ public class EmployeeService extends UsingAlarmService implements Validation {
     private final PasswordEncoder passwordEncoder;
 
     private MinimumWages wages;
+    private ColorSet colorSet;
 
     public Store validateStoreId(Long storeId) {
         return storeRepository.findById(storeId)
@@ -144,9 +144,8 @@ public class EmployeeService extends UsingAlarmService implements Validation {
 
     public AccountRole getMyInfo(String accountId){
 
-        AccountRole accountRole = accountRoleRepository.findByAccountId(accountId)
+        return accountRoleRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 아이디가 없습니다."));
-        return accountRole;
     }
 
     public AccountRole getEmployeeByAccountId(Store store, String id) {
@@ -154,26 +153,32 @@ public class EmployeeService extends UsingAlarmService implements Validation {
                 .orElseThrow(() -> new IllegalArgumentException(" AccountRole is not exist."));
     }
 
-    public AccountRole processNewEmployee(AccountRole owner, PostEmployee postEmployee) {
+    public AccountRole processNewEmployee(AccountRole owner, PostEmployee postEmployee, Store store) {
+        colorSet = new ColorSet(store.getIdx());
+
         AccountRole employee  = new AccountRole();
+
         employee.setAccountId(postEmployee.getAccountId());
         employee.setPassword(passwordEncoder.encode(postEmployee.getPassword()));
         employee.setOriginAccountId(postEmployee.getAccountId());
         employee.setOriginPassword(postEmployee.getPassword());
+        employee.setAlias(postEmployee.getAlias());
         employee.setSalary(postEmployee.isSalary());
         employee.setLevel(postEmployee.getLevel());
         employee.setCost(postEmployee.getCost());
         employee.setStore(owner.getStore());
+        employee.setJoinedAt(LocalDateTime.now());
         employee.setRole(Role.EMPLOYEE);
         employee.setStore(owner.getStore());
+        employee.setColor(colorSet.getColor());
+        increaseIdx(store);
+
         return accountRoleRepository.save(employee);
     }
 
     @Transactional
     public AccountRole updateAccount(UpdateAuth updateAuth, AccountRole myInfo) {
-        if(!passwordEncoder.matches(myInfo.getPassword(), updateAuth.getPassword())){
-            throw new IllegalArgumentException("아이디와 비밀번호를 확인해주세요");
-        }
+
         myInfo.setAccountId(updateAuth.getAccountId());
         myInfo.setPassword(passwordEncoder.encode(updateAuth.getPassword()));
         myInfo.setValid(true);
@@ -191,4 +196,9 @@ public class EmployeeService extends UsingAlarmService implements Validation {
 //                orElseThrow(() -> new IllegalArgumentException(roleId + " AccountRole is not exist."));
 //        return accountId.equals(accountRole.getAccount().getId());
 //    }
+
+    @Transactional
+    private void increaseIdx(Store store) {
+        store.setIdx(store.getIdx() + 1);
+    }
 }

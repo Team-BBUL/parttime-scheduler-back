@@ -62,8 +62,8 @@ public class EmployeeController {
         log.info("register a employee: Store " + storeId + "/ User " + accountDetail.getId());
 
         try {
-//            Store store = employeeService.validateStoreId(storeId);
-            AccountRole newEmployee = employeeService.processNewEmployee(owner, postEmployee);
+            Store store = employeeService.validateStoreId(storeId);
+            AccountRole newEmployee = employeeService.processNewEmployee(owner, postEmployee, store);
 //            AccountRole newUser = employeeService.postEmployee(store, userId);
 
             res.put("status_code", 200);
@@ -86,8 +86,9 @@ public class EmployeeController {
         Map<String, Object> res = new HashMap<>();
 
         try {
+            log.info(updateAuth.toString());
             AccountRole myInfo = employeeService.getMyInfo(accountDetail.getAccountId());
-            if(!myInfo.isValid()){
+            if(myInfo.isValid()){
                 throw new IllegalArgumentException("정보 변경은 한 번만 가능합니다.");
             }
             if(!updateAuth.getPassword().equals(updateAuth.getCheckPassword())){

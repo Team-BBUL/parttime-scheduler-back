@@ -23,6 +23,7 @@ public class StoreService {
     public Store createNewStore(StoreForm storeForm) {
         Store store = new Store();
         store.setName(storeForm.getName());
+        store.setIdx(0);
         store.setLocation(storeForm.getLocation());
         store.setPhone(storeForm.getPhone());
         store.setOpen(storeForm.getOpen());

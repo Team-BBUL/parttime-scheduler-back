@@ -85,6 +85,8 @@ public class StoreController {
             log.info("search my stores");
 //            List<Store> stores = storeService.getMyStores(id, role);
 //            res.put("data", stores);
+            AccountRole accountRole = storeService.findById(accountDetail.getId());
+            res.put("data", accountRole.getStore());
             return ResponseEntity.ok(res);
         } catch (IllegalArgumentException ex) {
             res.put("message", ex.getMessage());
@@ -191,10 +193,12 @@ public class StoreController {
     ) {
         Map<String, Object> response = new HashMap<>();
 
+        log.info("매장 정보 조회 발생 " + storeId + "\n조회자 " + accountDetail.getAccountId());
+
         try {
             Store store = employeeService.validateStoreId(storeId);
             AccountRole owner = employeeService.getMyInfo(accountDetail.getAccountId());
-            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+            if(!storeId.equals(owner.getStore().getId())){
                 throw new AccessDeniedException("No Authority");
             }
             response.put("status_code", 200);

@@ -45,7 +45,7 @@ public class AccountRole implements Serializable {
     private int cost;
 
     @NotBlank
-    private String color = "white";
+    private String color = "0xFFFFFFFF";
 
     @NotNull
     private boolean isSalary = true;

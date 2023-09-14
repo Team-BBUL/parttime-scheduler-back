@@ -27,6 +27,16 @@ public class ColorSet {
         colors.add("0xFFFF0099");
         colors.add("0xFFEFAC00");
         colors.add("0xFFEB70FF");
+        colors.add("0xFF01A9DB");
+        colors.add("0xFFFACC2E");
+        colors.add("0xFF1C1C1C");
+        colors.add("0xFFB40404");
+        colors.add("0xFFD358F7");
+        colors.add("0xFF088A68");
+        colors.add("0xFF0404B4");
+        colors.add("0xFF3ADF00");
+        colors.add("0xFF3B0B2E");
+        colors.add("0xFFFFBF00");
     }
 
     private void increase() {
