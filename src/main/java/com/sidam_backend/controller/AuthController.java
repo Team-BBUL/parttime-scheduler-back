@@ -1,7 +1,6 @@
 package com.sidam_backend.controller;
 
 import com.sidam_backend.data.AccountRole;
-import com.sidam_backend.repo.AccountRoleRepository;
 import com.sidam_backend.resources.DTO.LoginForm;
 import com.sidam_backend.resources.DTO.SignUpForm;
 import com.sidam_backend.resources.DTO.UpdateAccount;
@@ -87,7 +86,10 @@ public class AuthController {
             String token = authService.doLogin(accountRole);
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.set("Authorization", "Bearer " + token);
-            return ResponseEntity.ok().headers(responseHeaders).build();
+            res.put("user", accountRole);
+            res.put("store", (accountRole.getStore() == null ? null : accountRole.getStore().getId()));
+            
+            return ResponseEntity.ok().headers(responseHeaders).body(res);
         }catch(IllegalArgumentException ex){
             res.put("status_code", 400);
             res.put("message", ex.getMessage());

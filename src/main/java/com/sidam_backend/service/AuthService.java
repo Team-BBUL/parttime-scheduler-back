@@ -51,6 +51,8 @@ public class AuthService implements UserDetailsService {
         accountRole.setSalary(updateAccount.isSalary());
         accountRole.setColor(updateAccount.getColor());
         accountRole.completeSignUp();
+        accountRole.setOriginAccountId(accountRole.getAccountId());
+        accountRole.setOriginPassword(accountRole.getPassword());
         doLogin(accountRole);
 //        return accountRoleRepository.save(accountRole);
     }

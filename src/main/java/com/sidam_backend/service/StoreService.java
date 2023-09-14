@@ -2,7 +2,6 @@ package com.sidam_backend.service;
 
 import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.data.Store;
-import com.sidam_backend.data.enums.Role;
 import com.sidam_backend.repo.AccountRoleRepository;
 import com.sidam_backend.repo.StoreRepository;
 import com.sidam_backend.resources.DTO.StoreForm;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -60,6 +58,11 @@ public class StoreService {
 //        return accountRole;
 //    }
 
+    public AccountRole findById(Long roleId) {
+        return accountRoleRepository.findById(roleId)
+                .orElseThrow(() -> new IllegalArgumentException(roleId + " is invalid."));
+    }
+
     public Store findStoreById(Long storeId) {
         return storeRepository.findById(storeId)
                 .orElseThrow(IllegalArgumentException::new);
@@ -105,5 +108,10 @@ public class StoreService {
         store.setPayday(storeForm.getPayday());
         store.setStartDayOfWeek(storeForm.getStartDayOfWeek());
         store.setDeadlineOfSubmit(storeForm.getDeadlineOfSubmit());
+    }
+
+    @Transactional
+    public void inStore(Store store, AccountRole role) {
+        role.setStore(store);
     }
 }

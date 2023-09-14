@@ -111,8 +111,10 @@ public class StoreController {
         }
 
         try {
-
+            AccountRole accountRole = storeService.findById(accountDetail.getId());
             Store newStore = storeService.createNewStore(storeForm);
+
+            storeService.inStore(newStore, accountRole);
 
             response.put("status_code", 200);
             response.put("store_id", newStore.getId());
