@@ -8,6 +8,7 @@ import com.sidam_backend.resources.DTO.PostNotice;
 
 import com.sidam_backend.resources.DTO.UpdateNotice;
 
+import com.sidam_backend.security.AccountDetail;
 import com.sidam_backend.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
@@ -78,7 +80,7 @@ public class NoticeController {
     }
 
     // 목록 조회
-    @GetMapping("/view/list")
+    @GetMapping(value = "/view/list", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getAllNotice(
             @PathVariable Long storeId,
             @RequestParam int last,
@@ -114,11 +116,11 @@ public class NoticeController {
     }
 
     // 상세 조회
-    @GetMapping("/view/detail")
+    @GetMapping(value = "/view/detail", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String, Object>> getDetail(
+            @AuthenticationPrincipal AccountDetail accountDetail,
             @PathVariable Long storeId,
-            @RequestParam("id") Long noticeId,
-            @RequestParam("role") Long roleId
+            @RequestParam("id") Long noticeId
     ) {
 
         Map<String, Object> res = new HashMap<>();
@@ -131,7 +133,7 @@ public class NoticeController {
 
         try {
             noticeService.validatedStoreId(storeId);
-            role = noticeService.validatedRoleId(roleId);
+            role = noticeService.validatedRoleId(accountDetail.getId());
             notice = noticeService.findId(noticeId);
 
             result = notice.toGetNotice("/api/notice/" + storeId + "/download/");
@@ -149,7 +151,7 @@ public class NoticeController {
     }
 
     // 공지사항 첨부파일 이미지 다운로드 url
-    @GetMapping("/download/{fileId}")
+    @GetMapping(value = "/download/{fileId}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Resource> downloadFile(
             @PathVariable Long fileId,
             @PathVariable Long storeId,
