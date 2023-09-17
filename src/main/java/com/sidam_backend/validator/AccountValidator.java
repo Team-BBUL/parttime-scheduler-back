@@ -23,7 +23,7 @@ public class AccountValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         SignUpForm signUpForm = (SignUpForm) target;
-        if(accountRoleRepository.existsAccountRolesByAccountId(signUpForm.getAccountId())){
+        if(accountRoleRepository.existsAccountRolesByAccountIdAndOriginAccountId(signUpForm.getAccountId())){
             errors.rejectValue("accountId", "account_id_duplicated", "아이디명이 중복되었습니다");
         }
     }

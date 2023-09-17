@@ -29,5 +29,5 @@ public interface AccountRoleRepository extends CrudRepository<AccountRole, Long>
 
     Optional<AccountRole> findByAccountId(String accountId);
 
-    boolean existsAccountRolesByAccountId(String accountId);
+    boolean existsAccountRolesByAccountIdAndOriginAccountId(String accountId);
 }
