@@ -209,10 +209,11 @@ public class ScheduleService extends UsingAlarmService {
 
     // 불가능 시간 업데이트 메소드
     @Transactional
-    public void updateAbleTime(PostImpossibleTime input) {
+    public void updateAbleTime(Store store, AccountRole role, PostImpossibleTime input) {
 
+        // 여기서 오류난다;
         for (ImpossibleTime time : input.getData()) {
-            AbleTime oldTime = ableTimeRepository.findById(time.getId())
+            AbleTime oldTime = ableTimeRepository.findByStoreAndAccountRoleAndDate(store, role, time.getDate())
                     .orElseThrow(() -> new IllegalArgumentException(
                             time.getId() + " able time is not exist"
                     ));
@@ -242,7 +243,8 @@ public class ScheduleService extends UsingAlarmService {
             }
 
             date = LocalDate.of(year, month, day + add++);
-            ableTimes[i] = ableTimeRepository.findByStoreAndAccountRoleAndDate(store, accountRole, date);
+            ableTimes[i] = ableTimeRepository.findByStoreAndAccountRoleAndDate(store, accountRole, date)
+                    .orElse(null);
 
             if (ableTimes[i] != null) {
                 impossibleTimes[i] = ableTimes[i].toImpossibleTime();
@@ -276,7 +278,8 @@ public class ScheduleService extends UsingAlarmService {
             }
 
             date = LocalDate.of(year, month, day + add++);
-            ableTimes.add(ableTimeRepository.findByStoreAndAccountRoleAndDate(store, role, date));
+            ableTimes.add(ableTimeRepository.findByStoreAndAccountRoleAndDate(store, role, date)
+                    .orElse(null));
         }
 
         ableTimeRepository.deleteAll(ableTimes);

@@ -85,7 +85,8 @@ public class AutoMaker {
     private boolean ableCheck (DailySchedule schedule, Store store, AccountRole worker){ // 불가능 시간과 schedule이 ruqclaus false, 안 겹치면 true
 
         AbleTime ableTime = ableTimeRepository.
-                findByStoreAndAccountRoleAndDate(store, worker, schedule.getDate());
+                findByStoreAndAccountRoleAndDate(store, worker, schedule.getDate())
+                .orElse(null);
 
         if (ableTime == null) {
             return true;

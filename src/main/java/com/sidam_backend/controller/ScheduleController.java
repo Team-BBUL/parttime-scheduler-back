@@ -337,9 +337,9 @@ public class ScheduleController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            scheduleService.validateStoreId(storeId);
-            scheduleService.validateRoleId(roleId);
-            scheduleService.updateAbleTime(input);
+            Store store = scheduleService.validateStoreId(storeId);
+            AccountRole role = scheduleService.validateRoleId(roleId);
+            scheduleService.updateAbleTime(store, role, input);
         } catch (IllegalArgumentException ex) {
             response.put("message", ex.getMessage());
             return ResponseEntity.badRequest().body(response);
