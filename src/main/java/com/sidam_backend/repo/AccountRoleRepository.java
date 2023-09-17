@@ -29,5 +29,7 @@ public interface AccountRoleRepository extends CrudRepository<AccountRole, Long>
 
     Optional<AccountRole> findByAccountId(String accountId);
 
-    boolean existsAccountRolesByAccountIdAndOriginAccountId(String accountId);
+    @Query(value = "SELECT * FROM account_role  WHERE account_id = :value " +
+            "OR origin_account_id = :value", nativeQuery = true)
+    Long existsAccountByAccountIdOrOriginAccountId(String value);
 }
