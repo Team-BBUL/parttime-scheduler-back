@@ -28,7 +28,6 @@ public class StoreService {
         store.setPhone(storeForm.getPhone());
         store.setOpen(storeForm.getOpen());
         store.setClosed(storeForm.getClosed());
-        store.setIdx(-1);
         store.setPayday(storeForm.getPayday());
         store.setStartDayOfWeek(storeForm.getStartDayOfWeek());
         store.setDeadlineOfSubmit(storeForm.getDeadlineOfSubmit());

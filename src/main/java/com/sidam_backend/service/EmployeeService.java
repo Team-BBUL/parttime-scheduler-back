@@ -154,6 +154,7 @@ public class EmployeeService extends UsingAlarmService implements Validation {
     }
 
     public AccountRole processNewEmployee(AccountRole owner, PostEmployee postEmployee, Store store) {
+        log.info("store idx = {}", store.getIdx());
         colorSet = new ColorSet(store.getIdx());
 
         AccountRole employee  = new AccountRole();

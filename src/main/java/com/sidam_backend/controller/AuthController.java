@@ -1,6 +1,7 @@
 package com.sidam_backend.controller;
 
 import com.sidam_backend.data.AccountRole;
+import com.sidam_backend.repo.AccountRoleRepository;
 import com.sidam_backend.resources.DTO.LoginForm;
 import com.sidam_backend.resources.DTO.SignUpForm;
 import com.sidam_backend.resources.DTO.UpdateAccount;
@@ -28,6 +29,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final AccountValidator accountValidator;
+    private final AccountRoleRepository accountRoleRepository;
 
     @InitBinder("signUpForm")
     public void initBinder(WebDataBinder webDataBinder) {
@@ -96,5 +98,29 @@ public class AuthController {
             return ResponseEntity.badRequest().body(res);
         }
     }
+
+    @GetMapping(value = "/check_duplication_id", produces = "application/json; charset=UTF-8")
+    public ResponseEntity<Map<String,Object>> checkId(
+            @RequestParam String accountId
+    ){
+        Map<String, Object> res = new HashMap<>();
+
+        try {
+            Long id = accountRoleRepository.existsAccountByAccountIdOrOriginAccountId(accountId);
+            if (id == null) {
+                res.put("status_code", "2001");
+                res.put("message", "사용 가능한 아이디입니다");
+            }else{
+                res.put("status_code", "2002");
+                res.put("message", "아이디가 중복되었습니다");
+            }
+            return ResponseEntity.ok(res);
+        }catch (IllegalArgumentException ex){
+            res.put("status_code", 400);
+            res.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(res);
+        }
+    }
+
 
 }
