@@ -37,7 +37,7 @@ import java.util.Map;
 public class NoticeController {
 
     private final NoticeService noticeService;
-    private final String uploadPath = "C:\\notice\\images\\";
+    private final String uploadPath = "/home/ubuntu/server/sidam/images";
 
 
     // 공지사항 작성

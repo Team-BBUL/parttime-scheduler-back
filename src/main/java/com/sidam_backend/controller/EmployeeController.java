@@ -3,20 +3,17 @@ package com.sidam_backend.controller;
 
 import com.sidam_backend.data.Store;
 import com.sidam_backend.data.AccountRole;
-import com.sidam_backend.resources.DTO.LoginForm;
 import com.sidam_backend.resources.DTO.PostEmployee;
+import com.sidam_backend.resources.DTO.UpdateAccount;
 import com.sidam_backend.resources.UpdateAuth;
 import com.sidam_backend.security.AccountDetail;
-import com.sidam_backend.service.AuthService;
 import com.sidam_backend.service.EmployeeService;
-import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -185,7 +182,7 @@ public class EmployeeController {
     public ResponseEntity<AccountRole> modifyEmployee(
             @PathVariable Long storeId,
             @RequestParam(value = "id") Long userId,
-            @Valid @RequestBody AccountRole editUser
+            @Valid @RequestBody UpdateAccount editUser
     ) {
 
         log.info("edit employee: Store " + storeId + "/ UserRole " + userId);
@@ -196,7 +193,7 @@ public class EmployeeController {
             return ResponseEntity.ok(edit);
         } catch (IllegalArgumentException ex) {
             log.warn(ex.getMessage());
-            return ResponseEntity.badRequest().body(editUser);
+            return ResponseEntity.badRequest().build();
         }
     }
 

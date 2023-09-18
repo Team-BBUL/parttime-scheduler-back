@@ -34,7 +34,6 @@ public class AccountRole implements Serializable {
     private String originAccountId;
 
     @NotBlank
-    @Column(unique = true)
     private String originPassword;
 
 //    @NotBlank

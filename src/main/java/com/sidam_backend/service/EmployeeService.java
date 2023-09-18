@@ -6,6 +6,7 @@ import com.sidam_backend.repo.*;
 
 import com.sidam_backend.resources.ColorSet;
 import com.sidam_backend.resources.DTO.PostEmployee;
+import com.sidam_backend.resources.DTO.UpdateAccount;
 import com.sidam_backend.resources.MinimumWages;
 import com.sidam_backend.resources.UpdateAuth;
 import com.sidam_backend.service.base.UsingAlarmService;
@@ -119,19 +120,18 @@ public class EmployeeService extends UsingAlarmService implements Validation {
                 .orElseThrow(() -> new IllegalArgumentException(roleId + " role is not exist."));
     }
 
-    public AccountRole putEmployee(Store store, Long roleId, AccountRole editRole) {
+    @Transactional
+    public AccountRole putEmployee(Store store, Long roleId, UpdateAccount editRole) {
 
         AccountRole oldRole = accountRoleRepository.findById(roleId)
                 .orElseThrow(()-> new IllegalArgumentException(roleId + " user is not exist."));
 
-//        editRole.setAccount(oldRole.getAccount());
-        editRole.setStore(oldRole.getStore());
-        editRole.setColor(oldRole.getColor());
-        editRole.setId(oldRole.getId());
+        oldRole.setAlias(editRole.getAlias());
+        oldRole.setColor(editRole.getColor());
+        oldRole.setCost(editRole.getCost());
+        oldRole.setLevel(editRole.getLevel());
 
-        accountRoleRepository.save(editRole);
-
-        return getMyInfo(store, editRole.getId());
+        return getMyInfo(store, oldRole.getId());
     }
 
     public void deleteEmployee(Store store, Long roleId) {
