@@ -23,7 +23,7 @@ public class TokenProvider {
 
         Date expiryDate = Date.from(
                 Instant.now()
-                        .plus(1, ChronoUnit.DAYS));
+                        .plus(20000, ChronoUnit.DAYS));
 
         return Jwts.builder()
                 .setClaims(createClaims(accountDetail))

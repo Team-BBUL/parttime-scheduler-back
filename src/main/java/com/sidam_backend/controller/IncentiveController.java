@@ -8,6 +8,7 @@ import com.sidam_backend.resources.DTO.PostIncentive;
 import com.sidam_backend.security.AccountDetail;
 import com.sidam_backend.service.EmployeeService;
 import com.sidam_backend.service.IncentiveService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,6 @@ public class IncentiveController {
     @GetMapping(value = "/stores/{storeId}/incentives", produces = "application/json; charset=UTF-8")
     public ResponseEntity<Map<String,Object>> getAllEmployeeMonthIncentive(
             @AuthenticationPrincipal AccountDetail accountDetail,
-
             @PathVariable Long storeId,
             @RequestParam String month
     ){
@@ -49,15 +49,13 @@ public class IncentiveController {
         LocalDate dateTime = LocalDate.from(yearMonth.atDay(1).atTime(0, 0));
         try{
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
+            AccountRole owner = employeeService.getMyInfo(accountDetail.getAccountId());
             if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
                 throw new AccessDeniedException("No Authority");
             }
 
-            List<List<Incentive>> employeesIncentives = incentiveService.
+            List<GetIncentivesRoleInfo> data = incentiveService.
                     getWithRoleByDate(store, dateTime);
-
-            List<GetIncentivesRoleInfo> data = postFormatting(employeesIncentives);
 
             res.put("data", data);
 
@@ -84,9 +82,11 @@ public class IncentiveController {
         log.info("get month incentive = {}",month);
         try{
             Store store = employeeService.validateStoreId(storeId);
-            AccountRole owner =employeeService.getMyInfo(accountDetail.getAccountId());
-            if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
-                throw new AccessDeniedException("No Authority");
+            AccountRole owner = employeeService.getMyInfo(accountDetail.getAccountId());
+            if(!employeeId.equals(accountDetail.getId())){
+                if(!storeId.equals(owner.getStore().getId()) || !owner.isManager()){
+                    throw new AccessDeniedException("No Authority");
+                }
             }
 
             GetIncentivesRoleInfo data = incentiveService.getIncentivesByDate(employeeId, store.getPayday(), month);
@@ -253,21 +253,4 @@ public class IncentiveController {
         }
     }
 
-    private List<GetIncentivesRoleInfo> postFormatting(List<List<Incentive>> employeesIncentives) {
-
-        List<GetIncentivesRoleInfo> getIncentivesRoleInfos = new ArrayList<>();
-        for (List<Incentive> employeesIncentive : employeesIncentives) {
-            if (!employeesIncentive.isEmpty()) {
-                GetIncentivesRoleInfo info = new GetIncentivesRoleInfo();
-
-                AccountRole accountRole = employeesIncentive.get(0).getAccountRole();
-                info.setRoleId(accountRole.getId());
-                info.setAlias(accountRole.getAlias());
-                info.setIncentives(employeesIncentive);
-
-                getIncentivesRoleInfos.add(info);
-            }
-        }
-        return getIncentivesRoleInfos;
-    }
 }

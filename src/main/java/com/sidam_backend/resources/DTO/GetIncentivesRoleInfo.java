@@ -11,5 +11,5 @@ public class GetIncentivesRoleInfo {
 
     private Long roleId;
     private String alias;
-    private List<Incentive> incentives = new ArrayList<>();
+    private List<GetIncentive> incentives = new ArrayList<>();
 }

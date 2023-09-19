@@ -4,8 +4,10 @@ import com.sidam_backend.data.AccountRole;
 import com.sidam_backend.data.Incentive;
 import com.sidam_backend.data.Store;
 import com.sidam_backend.repo.IncentiveRepository;
+import com.sidam_backend.resources.DTO.GetIncentive;
 import com.sidam_backend.resources.DTO.GetIncentivesRoleInfo;
 import com.sidam_backend.resources.DTO.PostIncentive;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,19 +37,21 @@ public class IncentiveService {
                 .orElseThrow(() -> new IllegalArgumentException(incentiveId + " incentive is not exist"));
     }
 
-    public List<List<Incentive>> getWithRoleByDate(Store store, LocalDate date){
+    @Transactional
+    public List<GetIncentivesRoleInfo> getWithRoleByDate(Store store, LocalDate date){
         List<AccountRole> accountRoles = employeeService.getAllEmployees(store);
 
         LocalDate previousDate = _getPreviousMonth(store.getPayday());
         List<List<Incentive>> employeesIncentive = new ArrayList<>();
         for (AccountRole accountRole : accountRoles) {
             if(!accountRole.isManager()){
+
                 employeesIncentive.add(incentiveRepository.
                         findByAccountRoleAndDateBetween(accountRole,previousDate,date)
                         .orElse(Collections.emptyList()));
             }
         }
-        return employeesIncentive;
+        return postFormatting(employeesIncentive);
     }
 
     private LocalDate _getPreviousMonth(int dayOfMonth) {
@@ -55,6 +59,32 @@ public class IncentiveService {
         return previousMonth.withDayOfMonth(dayOfMonth);
     }
 
+    @Transactional
+    private List<GetIncentivesRoleInfo> postFormatting(List<List<Incentive>> employeesIncentives) {
+
+        List<GetIncentivesRoleInfo> getIncentivesRoleInfos = new ArrayList<>();
+        for (List<Incentive> employeesIncentive : employeesIncentives) {
+            if (!employeesIncentive.isEmpty()) {
+                GetIncentivesRoleInfo info = new GetIncentivesRoleInfo();
+
+                AccountRole accountRole = employeesIncentive.get(0).getAccountRole();
+                info.setRoleId(accountRole.getId());
+                info.setAlias(accountRole.getAlias());
+                for (Incentive incentive : employeesIncentive) {
+                    GetIncentive incentiveForm = new GetIncentive();
+                    log.info("incentive id = {}",incentive.getId());
+                    incentiveForm.setId(incentive.getId());
+                    incentiveForm.setCost(incentive.getCost());
+                    incentiveForm.setDescription(incentive.getDescription());
+                    incentiveForm.setDate(incentive.getDate());
+                    info.getIncentives().add(incentiveForm);
+                }
+
+                getIncentivesRoleInfos.add(info);
+            }
+        }
+        return getIncentivesRoleInfos;
+    }
     public Incentive createNewIncentive(PostIncentive postIncentive, Long employeeId) {
         AccountRole employee = employeeService.validateRoleId(employeeId);
         Incentive incentive = new Incentive();
@@ -89,7 +119,14 @@ public class IncentiveService {
         }
         info.setRoleId(employeeId);
         info.setAlias(employee.getAlias());
-        info.setIncentives(incentiveList);
+        for (Incentive incentive : incentiveList) {
+            GetIncentive incentiveForm = new GetIncentive();
+            incentiveForm.setId(incentive.getId());
+            incentiveForm.setCost(incentive.getCost());
+            incentiveForm.setDescription(incentive.getDescription());
+            incentiveForm.setDate(incentive.getDate());
+            info.getIncentives().add(incentiveForm);
+        }
         return info;
     }
 
