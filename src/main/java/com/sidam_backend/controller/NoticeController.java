@@ -37,7 +37,8 @@ import java.util.Map;
 public class NoticeController {
 
     private final NoticeService noticeService;
-    private final String uploadPath = "/home/ubuntu/server/sidam/images";
+    private final String uploadPath = "/home/ubuntu/server/sidam/images/";
+    //private final String uploadPath = "C:\\notice\\images";
 
 
     // 공지사항 작성
@@ -169,7 +170,7 @@ public class NoticeController {
         try {
             noticeService.validatedStoreId(storeId);
             image = noticeService.findImageById(fileId);
-            resource = new UrlResource("file:" + image.getFilePath());
+            resource = new UrlResource("file:" + image.getFilePath() + image.getFileName());
 
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(defaultImage);

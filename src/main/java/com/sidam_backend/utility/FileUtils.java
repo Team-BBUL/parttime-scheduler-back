@@ -57,7 +57,8 @@ public class FileUtils {
 
     public static void deleteImage(String path, String name) {
 
-        File file = new File(path);
+        log.info("delete file, " + path + "/" + name);
+        File file = new File(path + "/" + name);
 
         log.debug("file path = " + path + " file name = " + name);
 

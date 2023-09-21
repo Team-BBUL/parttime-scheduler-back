@@ -38,8 +38,4 @@ public class ImageFile {
 
         return image;
     }
-
-    public String getFilePath() {
-        return filePath + fileName;
-    }
 }
