@@ -1,6 +1,7 @@
 package com.sidam_backend.repo;
 
 import com.sidam_backend.data.AccountRole;
+import com.sidam_backend.data.Alarm;
 import com.sidam_backend.data.AlarmReceiver;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,6 @@ public interface AlarmReceiverRepository extends JpaRepository<AlarmReceiver, Lo
 
     @Query(value="SELECT id FROM alarm_receiver WHERE role_id = :id ORDER BY id DESC LIMIT 1", nativeQuery = true)
     Optional<Long> selectLastId(Long id);
+
+    void deleteAllByAlarm(Alarm alarm);
 }

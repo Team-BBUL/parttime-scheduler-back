@@ -189,7 +189,7 @@ public class EmployeeService extends UsingAlarmService implements Validation {
     @Transactional
     public void clearAuth(AccountRole employee) {
         employee.setAccountId(employee.getOriginAccountId());
-        employee.setPassword(employee.getOriginPassword());
+        employee.setPassword(passwordEncoder.encode(employee.getOriginPassword()));
         employee.setValid(false);
     }
 //    public boolean checkIfUserHasRole(Long accountId, Long roleId){

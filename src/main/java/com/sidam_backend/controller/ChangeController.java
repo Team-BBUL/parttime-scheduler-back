@@ -87,8 +87,8 @@ public class ChangeController {
             old = changeService.validateSchedule(scheduleId);
             target = changeService.validateSchedule(objectiveId);
 
-            changeService.validateDate(old.getDate());
-            changeService.validateDate(target.getDate());
+            /*changeService.validateDate(old.getDate());
+            changeService.validateDate(target.getDate());*/
 
             changeService.validateWorker(old, reqer);
             changeService.validateWorker(target, recer);

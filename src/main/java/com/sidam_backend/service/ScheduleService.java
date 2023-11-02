@@ -25,19 +25,28 @@ public class ScheduleService extends UsingAlarmService {
             AccountRoleRepository accountRoleRepository,
             AbleTimeRepository ableTimeRepository,
             AlarmRepository alarmRepository,
-            AlarmReceiverRepository receiverRepository
+            AlarmReceiverRepository receiverRepository,
+            ChangeRequestRepository changeRequestRepository
     ) {
         super(alarmRepository, accountRoleRepository, receiverRepository);
         this.accountRoleRepository = accountRoleRepository;
         this.scheduleRepository = scheduleRepository;
         this.ableTimeRepository = ableTimeRepository;
         this.storeRepository = storeRepository;
+        this.alarmReceiverRepository = receiverRepository;
+        this.alarmRepository = alarmRepository;
+        this.changeRequestRepository = changeRequestRepository;
+
     }
 
     private final DailyScheduleRepository scheduleRepository;
     private final StoreRepository storeRepository;
     private final AccountRoleRepository accountRoleRepository;
     private final AbleTimeRepository ableTimeRepository;
+    private final ChangeRequestRepository changeRequestRepository;
+    private final AlarmReceiverRepository alarmReceiverRepository;
+    private final AlarmRepository alarmRepository;
+
     private LocalDate validateDate(int year, int month, int day) {
 
         LocalDate date = LocalDate.of(year, month, day);
@@ -116,6 +125,30 @@ public class ScheduleService extends UsingAlarmService {
 
     public void deleteWeeklySchedule(List<DailySchedule> schedules) {
 
+        // 변경 요청 가져오기
+        List<ChangeRequest> changeRequests = new ArrayList<>();
+        for (DailySchedule schedule : schedules) {
+            changeRequests.addAll(
+                    changeRequestRepository.findAllByOldScheduleOrTargetSchedule(schedule.getId(), schedule.getId())
+            );
+        }
+
+        // 알림 가져오기
+        List<Alarm> alarms = new ArrayList<>();
+        for (ChangeRequest changeRequest : changeRequests) {
+            alarms.addAll(
+                    alarmRepository.findAllByChangeRequest(changeRequest)
+            );
+        }
+
+        // 알림 receiver 지우기
+        for (Alarm alarm : alarms) {
+            alarmReceiverRepository.deleteAllByAlarm(alarm);
+        }
+
+        // 알림, 변경요청, 스케줄 순서대로 지우기
+        alarmRepository.deleteAll(alarms);
+        changeRequestRepository.deleteAll(changeRequests);
         scheduleRepository.deleteAll(schedules);
     }
 
@@ -332,7 +365,7 @@ public class ScheduleService extends UsingAlarmService {
             for (int i = workers.size() - 1; i >= 0; i--) {
 
                 // 삭제한 자리면 최적해 집어넣고 dummy 삭제
-                if (!workers.get(i).isValid()) {
+                if (workers.get(i).getAlias().equals("dummy")) {
 
                     AccountRole role = maker.fitting(newSchedule, schedule, store, workers.get(i).getLevel());
 

@@ -203,19 +203,20 @@ public class ScheduleController {
 
         LocalDateTime version = schedule.get(0).getVersion();
 
-        // 삭제 알림에 전달할 문구를 스케줄 시작일부터 종료일로 정하기 위해 정렬함
+        /*// 삭제 알림에 전달할 문구를 스케줄 시작일부터 종료일로 정하기 위해 정렬함
         schedule.sort(Comparator.comparing(DailySchedule::getDate));
+
         // 삭제 알림에 전달할 문구 "n월 m일 - n월 m일"
         String dateInfo = scheduleService.formattingDate(schedule.get(0).getDate().atStartOfDay(),
-                schedule.get(schedule.size() - 1).getDate().atStartOfDay());
+                schedule.get(schedule.size() - 1).getDate().atStartOfDay());*/
 
-        // 전달받은 버전 정보가 일치하지 않으면 삭제할 수 없게 처리
+        /*// 전달받은 버전 정보가 일치하지 않으면 삭제할 수 없게 처리
         if (!version.isEqual(ver)) {
             response.put("status_code", 400);
             response.put("message", ver + " is not the same.");
             response.put("time_stamp", version);
             return ResponseEntity.ok(response);
-        }
+        }*/
 
         try {
             scheduleService.deleteWeeklySchedule(schedule);
@@ -226,9 +227,9 @@ public class ScheduleController {
             return ResponseEntity.ok(response);
         }
 
-        // 삭제 알림 저장
+        /*// 삭제 알림 저장
         scheduleService.employeeAlarmMaker(store, dateInfo,
-                Alarm.Category.SCHEDULE, Alarm.State.DELETE, null);
+                Alarm.Category.SCHEDULE, Alarm.State.DELETE, null);*/
 
         response.put("status_code", 200);
         response.put("message", ver + " delete successful");

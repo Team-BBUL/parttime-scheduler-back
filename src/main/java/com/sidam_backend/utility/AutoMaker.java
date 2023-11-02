@@ -159,6 +159,7 @@ public class AutoMaker {
                 if (!ableCheck(schedule, store, workers.get(i))) {
                     AccountRole dummy = new AccountRole();
                     dummy.setValid(false);
+                    dummy.setAlias("dummy");
                     dummy.setLevel(workers.get(i).getLevel());
 
                     schedule.getUsers().remove(workers.get(i));
