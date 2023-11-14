@@ -278,7 +278,7 @@ public class ScheduleController {
         try {
             store = scheduleService.validateStoreId(storeId);
             accountRole = scheduleService.validateRoleId(roleId);
-            scheduleService.saveAbleTime(scheduleService.toAbleTime(store, accountRole, data));
+            scheduleService.saveAbleTime(store, accountRole, scheduleService.toAbleTime(store, accountRole, data));
 
         } catch (IllegalArgumentException ex) {
             response.put("message", ex.getMessage());
@@ -404,8 +404,8 @@ public class ScheduleController {
 
         } catch (IllegalArgumentException ex) {
 
-            res.put("message", ex.getMessage());
             res.put("status_code", 400);
+            res.put("message", ex.getMessage());
 
             return ResponseEntity.badRequest().body(res);
         }

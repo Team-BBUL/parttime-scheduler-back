@@ -234,10 +234,20 @@ public class ScheduleService extends UsingAlarmService {
     }
 
     // DB에 불가능 시간 일괄 저장
-    public void saveAbleTime(AbleTime[] ableTime) {
+    public void saveAbleTime(Store store, AccountRole role, AbleTime[] ableTime) {
 
         log.info("impossible time save " + ableTime[0].getDate());
-        ableTimeRepository.saveAll(Arrays.asList(ableTime));
+        // 불러오기 후 저장
+        for (AbleTime able : ableTime){
+            AbleTime old = ableTimeRepository.findByStoreAndAccountRoleAndDate(store, role, able.getDate())
+                    .orElse(null);
+
+            if (old != null) {
+                ableTimeRepository.delete(old);
+            }
+            ableTimeRepository.save(able);
+        }
+        //ableTimeRepository.saveAll(Arrays.asList(ableTime));
     }
 
     // 불가능 시간 업데이트 메소드
