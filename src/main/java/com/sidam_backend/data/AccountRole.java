@@ -48,7 +48,7 @@ public class AccountRole implements Serializable {
     @NotBlank
     private String color = "0xFFFFFFFF";
 
-    @NotNull
+    @NotNull // 퇴사자 확인 비트
     private boolean isSalary = true;
 
     @NotNull
@@ -58,6 +58,8 @@ public class AccountRole implements Serializable {
     private Role role;
 
     private LocalDateTime joinedAt;
+
+    //private boolean leave = false;
 
     public void completeSignUp() {
         this.valid = true;
@@ -81,7 +83,7 @@ public class AccountRole implements Serializable {
         worker.setAlias(alias);
         worker.setColor(color);
 
-        if (!role.isSalary || Objects.equals(role.id, id)) {
+        if (role.getRole() == Role.MANAGER || Objects.equals(role.id, id)) {
             worker.setCost(cost);
         } else {
             worker.setCost(0);

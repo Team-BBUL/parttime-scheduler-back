@@ -52,9 +52,14 @@ public class AutoMaker {
     }
 
     // 각 근무자의 주간 근무 시간을 가져옴
-    private Map<AccountRole, Integer> sumTotalTime(List<DailySchedule> weekly) {
+    private Map<AccountRole, Integer> sumTotalTime(List<DailySchedule> weekly, Store store) {
 
         Map<AccountRole, Integer> workTime = new HashMap<>();
+        List<AccountRole> employee = accountRoleRepository.findEmployees(store.getId());
+
+        for (AccountRole em : employee) {
+            workTime.put(em, 0);
+        }
 
         for (DailySchedule schedule : weekly) {
 
@@ -67,7 +72,7 @@ public class AutoMaker {
             // 주간 근무 시간을 구하기 위해 각 근무자의 근무 시간을 더함
             for (AccountRole role : schedule.getUsers()) {
 
-                if (!role.isValid() || role.getId() == null) { continue; }
+                if (role.getSalary() || role.getId() == null) { continue; }
 
                 int base = workTime.getOrDefault(role, 0);
                 workTime.put(role, base + time);
@@ -179,13 +184,14 @@ public class AutoMaker {
 
         int workTime = getWorkTime(schedule); // 바꿔야할 근무의 근무 시간 계산
         boolean second = false, alternative = false; // 등급 조건
-        Map<AccountRole, Integer> totalTime = sumTotalTime(weekly); // 각 근무자의 주간 근로 시간 계산
+        Map<AccountRole, Integer> totalTime = sumTotalTime(weekly, store); // 각 근무자의 주간 근로 시간 계산
 
         List<AccountRole> subWorkers;
         subWorkers = substitute(weekly, schedule, level, store); // 대체 가능한 근무자 List 찾아오기
 
         // 대체 근무자 리스트(subWorkers)를 확인해서 찾음
         for (AccountRole sub : subWorkers) {
+            log.info(sub.getAlias());
 
             // first = 주 15시간 미만, 레벨 일치 근무자 = 최적해
             if (totalTime.get(sub) < (14 - workTime) && sub.getLevel() == level) {
